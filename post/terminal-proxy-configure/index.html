@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>终端设置代理 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601126024088" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="大多数非浏览器应用不会主动走代理，本文讲解如何配置终端代理，让git，brew等工具使用更方便。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+配置了 V2ray 或者 Shadowsocks 以后，一般来说，只有浏览器（包括内..." />
+    <meta name="keywords" content="Assorted" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601126024088" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">终端设置代理</h2>
+            <div class="post-date">2020-09-15</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/terminal-proxy-configure.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>大多数非浏览器应用不会主动走代理，本文讲解如何配置终端代理，让git，brew等工具使用更方便。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>配置了 <code>V2ray</code> 或者 <code>Shadowsocks</code> 以后，一般来说，只有浏览器（包括内嵌在各种软件中的浏览器，比如 <code>WeGame</code>、优酷、迅雷等软件中的内嵌浏览器）会走代理，其他的应用默认是不走代理的，需要我们手动配置。当需要在终端中使用 <code>brew</code>，<code>git</code> 或者 <code>npm</code> 等安装 <code>package</code> 或应用的时候，如果连接比较吃力的时候启动代理是一个解决方案。本文介绍以下如何在终端中配置代理。</p>
+<h3 id="全局代理模式">全局代理模式</h3>
+<p>我们使用 <code>V2ray</code> 或者 <code>Shadowsocks</code> 会进行全局代理模式的选择，一般来说有三种 <code>PAC</code>，<code>Global</code> 和 <code>Manual</code>。</p>
+<ul>
+<li><code>PAC</code>：<code>Proxy auto-config</code>，根据配置文件来确定当前的连接是否需要代理，一般来说这个配置文件是 <code>GFW List</code> 加上我们自己配置的 <code>user rules</code>。关于 <code>user rules</code> 如何配置可以参考我的另一片文章：<a href="https://www.clloz.com/programming/assorted/2019/11/24/v2ray-install-configuration/#user-rules" title="V2ray安装配置教程">V2ray安装配置教程</a></li>
+<li><code>Global</code>: 全局模式，所有连接都走代理。</li>
+<li><code>Manual</code>：手动模式，不会设置系统级代理，需要使用代理的应用（比如浏览器）都需要手动配置代理。</li>
+</ul>
+<p>一般来说我们使用前两个模式比较多，大多数情况下 <code>PAC</code> 模式都足够了，如果发现某个我们经常访问的网站不在 <code>PAC</code> 的规则之中，则手动添加到 <code>user rules</code> 里面即可。</p>
+<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/proxy-rules.png" alt="proxy-rules" title="proxy-rules" loading="lazy"></figure>
+<p>虽然 <code>PAC</code> 和 <code>Global</code> 都设置了系统级代理，但是一般只有浏览器（包括内嵌在各种软件中的浏览器，比如 <code>WeGame</code>、优酷、迅雷等软件中的内嵌浏览器）才会使用这个系统级代理，其他应用一般还是需要手动配置。大部分应用不太需要使用这个需求，但是对于经常使用的终端配置一下代理能让我们使用 <code>homebrew</code>，<code>git</code> 和 <code>npm</code> 下载的时候效率高很多。</p>
+<h3 id="终端配置">终端配置</h3>
+<p>终端中使用有两种方式，一种是临时配置，重启终端后就失效了；另一种是写入到配置文件中去，每次启动终端都可以使用。我们还需要知道 <code>V2ray</code> 和 <code>Shadowsocks</code> 的客户端给我们提供了三种代理配置类型，<code>HTTP</code>，<code>socks5</code> 和 <code>PAC</code>，对应的端口都不同。</p>
+<h4 id="临时配置">临时配置</h4>
+<pre><code class="language-bash"># 默认一般address是127.0.0.1，http默认port是1087，socks5默认port是1086，PAC默认port是1089
+export http_proxy=http://proxyAddress:port
+export https_proxy=&quot;http://localhost:port&quot;
+export all_proxy=socks5://127.0.0.1:1086
+</code></pre>
+<h4 id="写入配置文件">写入配置文件</h4>
+<p>在终端配置文件中（<code>.zshrc</code> 或者 <code>.bash_profile</code>）将配置写入。</p>
+<pre><code class="language-bash">alias proxy='export all_proxy=socks5://127.0.0.1:1086'
+alias unproxy='unset all_proxy'
+</code></pre>
+<p>使用 <code>proxy</code> 命令开启代理，使用 <code>unproxy</code> 关闭代理。如何检测我们的代理是否开启了，可以使用命令 <code>curl cip.cc</code>，你可以看到你当前的 <code>IP</code>，位置和运营商。如果代理成功开启，那么你可以看到你的 <code>IP</code> 位置等信息都编程了你的代理服务器。</p>
+<p>最后还需要注意的一点是，如果你设置了 <code>brew</code> 或者 <code>npm</code> 的国内镜像，那么开启了代理以后，这些镜像的访问也会走代理，可能影响访问速度。</p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://vimcaw.github.io/blog/2018/03/12/Shadowsocks(R)%E8%AE%BE%E7%BD%AE%EF%BC%9A%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F%E3%80%81PAC%E3%80%81%E4%BB%A3%E7%90%86%E8%A7%84%E5%88%99/" title="Shadowsocks(R)设置：系统代理模式、PAC、代理规则">Shadowsocks(R)设置：系统代理模式、PAC、代理规则</a></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/assorted/" class="tag">
+                    Assorted
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/vscode-snippet/">
+                  <h3 class="post-title">
+                    VS Code 的 Snippet 使用教程
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

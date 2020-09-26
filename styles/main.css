@@ -765,6 +765,31 @@ a {
     top: -300px;
     left: 0;
     text-align: center;}
+#my-logo {
+    text-align: center;
+    margin: 20px 0 0;
+}
+#my-logo a {
+    font-family: sailregular;
+    font-size: 80px;
+    text-decoration: none;
+    background: linear-gradient(0.25turn, #c21500, #fb6333, #ffc500);
+    -webkit-background-clip: text;
+    color: transparent;
+    border: none;
+}
+@font-face {
+    font-family: 'sailregular';
+    src: url('https://img.clloz.com/blog/sailregular/sail-regular-webfont.woff2') format('woff2'),
+         url('https://img.clloz.com/blog/sailregular/sail-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+body {
+    font-family: -apple-system, BlinkMacSystemFont, Hiragino Sans GB, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans CJK SC", "WenQuanYi Micro Hei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
 
 .sidebar .bottom-container .site-description a {color: #c77ff3}
 

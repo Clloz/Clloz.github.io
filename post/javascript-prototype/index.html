@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>JavaScript 原型机制 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601126024088" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文用比较简单的语言和图标描述 JavaScript 的原型机制，包括自定义对象之间的原型继承关系以及内置对象的原型继承关系。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+原型链的概念相信大家都知道，ES6 出来以后可能关注度..." />
+    <meta name="keywords" content="JavaScript" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601126024088" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">JavaScript 原型机制</h2>
+            <div class="post-date">2020-09-11</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/javascript-prototype.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文用比较简单的语言和图标描述 JavaScript 的原型机制，包括自定义对象之间的原型继承关系以及内置对象的原型继承关系。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>原型链的概念相信大家都知道，<code>ES6</code> 出来以后可能关注度没有以前那么高的。虽然在 <code>ES2015/ES6</code> 中引入了 <code>class</code> 关键字，但那只是语法糖，<code>JavaScript</code> 仍然是基于原型的，作为 <code>JavaScript</code> 中的主要继承方式，我们有必要深入理解它。理解了原型之后，你对对象的理解也会更深入。</p>
+<h3 id="原型机制">原型机制</h3>
+<p>原型机制说起来很简单，就是一个对象可以访问它原型对象上的属性和方法，从而实现属性和方法的复用。而原型对象又有自己的原型对象，这样原型就构成了一个链式结构，也就是我们说的原型链。一个对象可以访问自己原型链上的所有方法和属性。</p>
+<p><code>JavaScript</code> 中的继承只有一种结构：对象。每个实例对象（ <code>object</code> ）都有一个私有属性（称之为 <code>__proto__</code>，引擎内部是 <code>[[prototype]]</code> ）指向它的构造函数的原型对象（<code>prototype</code> ）。该原型对象也有一个自己的原型对象( <code>__proto__</code> ) ，层层向上直到一个对象的原型对象为 <code>null</code>。根据定义，<code>null</code> 没有原型，并作为这个原型链中的最后一个环节。</p>
+<p>在 <code>JavaScript</code> 中，我们知道的数据类型有 <code>Number, String, Undefined, Null, Boolean, BigInt, Symbol</code> 七个基础类型，还有就是一个引用类型 <code>Object</code>。在内置对象比如 <code>Function, Array, Date, RegExp</code> 等中，<code>Function</code> 是一个特殊的内置对象。</p>
+<p>我们将 <code>JavaScript</code> 中的对象分成两大类，一类是 <code>Object</code> ，一类就是 <code>Function</code>。我们来说一下他们之间的关系。</p>
+<hr>
+<p>我们创建对象有很多种方法，<code>Object.create()</code>，<code>new Object()</code>，<code>new function()</code>，和对象字面量等。但其实他们的本质都是 <code>new Object()</code> （关于 <code>new</code> 和对象创建的内容参考另外两篇文章：<a href="https://www.clloz.com/programming/front-end/js/2020/09/09/javascript-object-prop-assign/" title="JavaScript对象属性类型和赋值细节">JavaScript对象属性类型和赋值细节</a> 和 <a href="https://www.clloz.com/programming/front-end/js/2020/06/29/new-operator/" title="JavaScript中new操作符的解析和实现">JavaScript中new操作符的解析和实现</a>）。</p>
+<h4 id="objectprototypeproto">Object.prototype.<strong><strong>proto</strong></strong></h4>
+<p>我们用 <code>new Object()</code> 创建一个空对象，它在 <code>Chrome</code> 中打印出的结果如下。</p>
+<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/proto1.png" alt="proto3" title="proto1" loading="lazy"></figure>
+<p>我们可以看到所谓的 <strong>空对象</strong>，并不是完全空的，它内部有一个 <code>__proto__</code> 属性。但其实这个属性并不是它自身的，这个属性是 <code>Object.prototype.__proto__</code>，一个访问器属性（一个 <code>getter</code> 函数和一个 <code>setter</code> 函数）, 暴露了通过它访问的对象的内部 <code>[[Prototype]]</code> (一个对象或 <code>null</code>)。</p>
+<blockquote>
+<p>这里要注意，<code>Object.prototype.__proto__</code> 和内部的 <code>[[prototype]]</code> 并不是同一个东西。我们的原型是靠内部的 <code>[[prototype]]</code> 链接的，<code>Object.prototype.__proto__</code> 只是浏览器提供的一个访问器属性向我们暴露 <code>[[prototype]]</code>。</p>
+</blockquote>
+<p>这个属性是由浏览器厂商提供的，并且目前绝大多数的浏览器都支持这个属性，所以 <code>ECMAScript 2015</code> 中也将其写入标准附录中，保持浏览器的兼容性。但是直接修改对象的 <code>[[prototype]]</code> 在任何引擎和浏览器中都是非常慢并且影响性能的操作，使用这种方式来改变和继承属性是对性能影响非常严重的，并且性能消耗的时间也不是简单的花费在 <code>obj.__proto__ = ...</code> 语句上, 它还会影响到所有继承来自该 <code>[[Prototype]]</code> 的对象。标准中还提供了两组关于读写原型对象的方法 <code>Object.getPrototypeOf/Reflect.getPrototypeOf</code> 和 <code>Object.setPrototypeOf/Reflect.setPrototypeOf</code>。不过写对象和上面说的一样，依然是一个影响性能的操作，如果你关心性能，不应该用这些方法。比较好的实践是用 <code>Object.create()</code> 来设置原型，用 <code>Object.getPrototypeOf()</code> 来读取原型对象。</p>
+<blockquote>
+<p>我们同样可以用对象字面量来设置 <code>__proto__</code>，也可以自定义 <code>__proto__</code> 来覆盖 <code>Object.prototype.__proto__</code>。参考文章：<a href="https://www.clloz.com/programming/front-end/js/2020/09/09/javascript-object-prop-assign/" title="JavaScript对象属性类型和赋值细节">JavaScript对象属性类型和赋值细节</a>。</p>
+</blockquote>
+<p>不同类型的对象其 <code>[[prototype]]</code> 是不同的，对于使用数组字面量创建的对象，这个值是 <code>Array.prototype</code>。对于 <code>functions</code>，这个值是 <code>Function.prototype</code>。对于使用 <code>new fun</code> 创建的对象，其中 <code>fun</code> 是由 <code>js</code> 提供的内建构造器函数之一(<code>Array, Boolean, Date, Number, Object, String</code> 等等），这个值总是 <code>fun.prototype</code>。对于用 <code>js</code> 定义的其他 <code>js</code> 构造器函数创建的对象，这个值就是该构造器函数的 <code>prototype</code> 属性。关于内置对象之间的关系，我们后面会详细讨论。</p>
+<h4 id="object-和-function">Object 和 Function</h4>
+<p><code>Object</code> 和 <code>Function</code> 是 <code>JavaScript</code> 中最重要的两个对象，他们同时也是构造函数 <code>function Object(), function Function()</code>。几乎所有对象都是 <code>function Object()</code> 的实例，而所有函数都是 <code>function Function()</code> 的实例，包括 <code>Object</code> 也是由 <code>Function</code> 构造的。</p>
+<p>我们上面说过对象内部有一个 <code>[[prototype]]</code> 属性指向它的源性对象；而每一个函数都有一个 <code>prototype</code> 属性，指向由这个函数构造出的对象的 <code>[[prototype]]</code>。更准确的说，在函数被创建的时候，就有一个 <code>prototype</code> 属性指向一个对象，这个对象本身只有一个 <code>constructor</code> 属性指向这个函数。当用 <code>new func()</code> 创建对象的时候，新对象的 <code>[[prototype]]</code> 就指向构造函数的 <code>prototype</code> 对应的对象。不过需要注意的是 <code>prototype</code> 和 <code>constructor</code> 都是可以 <strong>重写</strong> 的。</p>
+<figure data-type="image" tabindex="2"><img src="https://img.clloz.com/blog/writing/proto2.png" alt="proto3" title="proto2" loading="lazy"></figure>
+<p>对于我们的自定义对象，这是很好理解的。那么内置对象之间的关系，特别是 <code>Object</code> 和 <code>Function</code> 之间的关系是怎么样的呢。先明确两点：</p>
+<ol>
+<li>一切函数都是由 <code>function Function()</code> 构造的，所以函数的 <code>[[prototype]]</code> 指向 <code>Function.prototype</code>。</li>
+<li>所有由 <code>function Object()</code> 构造的非函数对象的 <code>[[prototype]]</code> 指向 <code>Object.prototype</code>。</li>
+<li>函数的创建的同时，会创建一个 <code>function.prototype</code> 对象，该对象是一个由 <code>function Object()</code> 构造的对象。<code>prototype</code> 属性可以任意指定，指定的对象内可能没有 <code>constructor</code> 属性或者是错误的 <code>constructor</code>。</li>
+<li>所有非函数对象都是由构造函数通过 <code>new</code> 运算符创建的（本质都是 <code>new Object()</code>，很多内置对象可以省略 <code>new</code>，比如 <code>Function</code>， <code>Object</code>，<code>Array</code>，省略和不省略效果是一样的)。这个构造函数要么是自定义的（由 <code>function Function()</code> 构造），要么是 <code>function Object()</code>。</li>
+<li>自定义函数手动指定 <code>prototype</code> 为其它自定函数的实例， 可以让我们实现链式继承，这条链最终有一个节点会是有 <code>function Object()</code> 构造的对象，它的 <code>[[protottype]]</code> 指向 <code>Object.prototype</code>。所以我们可以说，所有的非函数对象都是 <code>function Object()</code> 的实例。</li>
+</ol>
+<p>其实记住这几点就可以应对绝大部分问题，如果你还对内置对象的关系有兴趣，可以继续往下看。</p>
+<hr>
+<p>根据我们上面的两条规律我们可以知道 <code>Object</code> 的 <code>[[prototype]]</code> 指向 <code>Function.prototype</code>，那么 <code>function Function()</code> ，<code>Function.prototype</code> 和 <code>Object.prototype</code> 的 <code>[[prototype]]</code> 都分别是什么呢？</p>
+<p>先说 <code>Object.prototype</code>，它是所有非函数对象的 <code>[[prototype]]</code> 指向，而它自己的 <code>[[prototype]]</code> 指向的就是 <code>null</code>，也就是一切对象的原型链的终点。它的 <code>constructor</code> 属性指向 <code>function Object()</code></p>
+<p>而 <code>function Function()</code> 的 <code>[[prototype]]</code> 和其它的函数一样，指向 <code>Function.prototype</code>，也就是说 <code>function Function()</code> 的 <code>prototype</code> 和 <code>[[prototype]]</code>指向的是同一个对象 <code>Function.prototype</code>。</p>
+<p><code>Function.prototype</code> 的 <code>[[prototype]]</code> 指向的是 <code>Object.prototype</code>。<code>consctructor</code> 指向的是 <code>function Function()</code>。其实 <code>Function.prototype</code> 本身就是函数，可以直接调用，接受任何参数并返回 <code>undefined</code>。</p>
+<p>为什么要这样呢？我认为是确保每一个函数对象，非函数对象，他们的原型链上都有 <code>Object.prototype</code>，都能够访问 <code>Object.prototype</code> 上定义的一些公有方法。</p>
+<pre><code class="language-javascript">constructor: ƒ Object()
+hasOwnProperty: ƒ hasOwnProperty()
+isPrototypeOf: ƒ isPrototypeOf()
+propertyIsEnumerable: ƒ propertyIsEnumerable()
+toLocaleString: ƒ toLocaleString()
+toString: ƒ toString()
+valueOf: ƒ valueOf()
+__defineGetter__: ƒ __defineGetter__()
+__defineSetter__: ƒ __defineSetter__()
+__lookupGetter__: ƒ __lookupGetter__()
+__lookupSetter__: ƒ __lookupSetter__()
+get __proto__: ƒ __proto__()
+set __proto__: ƒ __proto__()
+</code></pre>
+<p>想要更清晰的看清楚我上面说的关系，可以借助于这张来自网上的图，画的非常好。</p>
+<figure data-type="image" tabindex="3"><img src="https://img.clloz.com/blog/writing/proto3.jpg" alt="proto3" title="proto3" loading="lazy"></figure>
+<h4 id="其他内置对象">其他内置对象</h4>
+<p>最后在说一说其他的内置对象，绝大多数内置对象都是函数对象（<code>BigInt</code>，<code>Math</code>，<code>JSON</code> 和 <code>Reflect</code> 不是函数对象），虽然有些不能用 <code>new</code> 操作符（比如 <code>Symbol</code>，有些对象用不用 <code>new</code> 表现一样，比如 <code>Object</code>， <code>Function</code>，<code>Array</code> 等）。所以内置对象的 <code>[[prototype]]</code> 指向 <code>function.prototype</code>。内置对象的 <code>prototype</code> 一般来说就是一个普通的对象（用 <code>function Object()</code> 构造的）。这个对象上挂载了很多该类型可以使用的方法，比如 <code>Array.prototype</code> 有如下属性：</p>
+<pre><code class="language-javascript">concat: ƒ concat()
+constructor: ƒ Array()
+copyWithin: ƒ copyWithin()
+entries: ƒ entries()
+every: ƒ every()
+fill: ƒ fill()
+filter: ƒ filter()
+find: ƒ find()
+findIndex: ƒ findIndex()
+flat: ƒ flat()
+flatMap: ƒ flatMap()
+forEach: ƒ forEach()
+includes: ƒ includes()
+indexOf: ƒ indexOf()
+join: ƒ join()
+keys: ƒ keys()
+lastIndexOf: ƒ lastIndexOf()
+length: 0
+map: ƒ map()
+pop: ƒ pop()
+push: ƒ push()
+reduce: ƒ reduce()
+reduceRight: ƒ reduceRight()
+reverse: ƒ reverse()
+shift: ƒ shift()
+slice: ƒ slice()
+some: ƒ some()
+sort: ƒ sort()
+splice: ƒ splice()
+toLocaleString: ƒ toLocaleString()
+toString: ƒ toString()
+unshift: ƒ unshift()
+values: ƒ values()
+Symbol(Symbol.iterator): ƒ values()
+Symbol(Symbol.unscopables): {copyWithin: true, entries: true, fill: true, find: true, findIndex: true, …}
+__proto__: Object
+</code></pre>
+<p>需要注意的一点是，几乎所有内置对象的属性都是不可枚举的，所以无论是 <code>for ... in</code> 还是 <code>Object.keys()</code> 都是无法枚举这些属性的。我们自己也可以在内置对象的 <code>prototype</code> 上添加属性或者方法，让所有该类型的对象都能使用。</p>
+<p>基本包装类型 <code>String</code>，<code>Number</code> 和 <code>Boolean</code> 在一般情况下不要使用创建对象的方式来初始化对应的类型。使用这种方式创建的值都是对象（使用 <code>typeof</code> 返回 <code>object</code>），而且所有基本包装类型的对象都会被转换为布尔值 <code>true</code>。看下面的代码。</p>
+<pre><code class="language-javascript">console.log(typeof String('')) //string
+console.log(typeof new String('')) //object
+console.log(!!'') //false
+console.log(!!String('')) //false
+console.log(!!new String('')) //true
+
+console.log(typeof Number(0)) //number
+console.log(typeof new Number(0)) //object
+console.log(!!0) //false
+console.log(!!Number(0)) //false
+console.log(!!new Number(0)) //true
+
+console.log(typeof Boolean('')) //string
+console.log(typeof new Boolean('')) //object
+console.log(!!Boolean('')) //false
+console.log(!!new Boolean('')) //true
+</code></pre>
+<p>关于 <code>constructor</code> 和 <code>prototype</code> 有一个有趣的小题目，可以看一看：<a href="https://www.clloz.com/programming/front-end/js/2019/05/31/prototype-constructor/" title="关于constructor和prototype的思考">关于constructor和prototype的思考</a></p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain" title="继承与原型链">继承与原型链 - MDN</a></li>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/proto" title="Object.prototype.__proto__ - MDN">Object.prototype.<strong>proto</strong> - MDN</a></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/javascript/" class="tag">
+                    JavaScript
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/neko/">
+                  <h3 class="post-title">
+                    活了一百万次的猫
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

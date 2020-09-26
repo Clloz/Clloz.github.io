@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>VS Code 的 Snippet 使用教程 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601126024088" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文讲解如何使用 VS code 的 snippet 功能，为常用开发语言以及配置文件编写自己常用的代码片段，实现简单方便的复用。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+在新建项目的时候，一些配置文件需要重写或者复制都很..." />
+    <meta name="keywords" content="Assorted" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601126024088" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">VS Code 的 Snippet 使用教程</h2>
+            <div class="post-date">2020-09-14</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/vscode-snippet.png')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文讲解如何使用 VS code 的 snippet 功能，为常用开发语言以及配置文件编写自己常用的代码片段，实现简单方便的复用。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>在新建项目的时候，一些配置文件需要重写或者复制都很麻烦。大部分编辑器都提供了 <code>snippet</code> 代码片段功能，<code>VS Code</code> 也提供了很好用的 <code>Snippet</code> 功能，我们不仅可以自定义一些固定的配置，也可以为特定的语言添加我们经常要使用的代码片段。本文讲一下具体如何使用这个功能。</p>
+<h3 id="基本结构">基本结构</h3>
+<p>其实我们使用的很多插件以及 <code>VS Code</code> 本身就给我们提供了一些 <code>snippet</code>，比如在 <code>HTML</code> 文件中输入 <code>!</code> 然后 <code>tab</code> 就能出现一个基础的 <code>HTML</code> 文档结构。你可以到 <code>VS Code</code> 的 <a href="https://marketplace.visualstudio.com/search?target=vscode&amp;category=Snippets&amp;sortBy=Installs" title="Marketplace">Marketplace</a> 中去找一些别人写好的 <code>snippet</code> 拿来使用。</p>
+<p>不过每个人的编码习惯不同，我们会希望根据自己的需求自定义 <code>snippet</code> 来使用，<code>VS Code</code> 也提供了支持。在 <code>Code -&gt; Preferences -&gt; User Snippets</code> 中或者用 ⇧ + ⌘ + P 打开 <code>Command Palette</code> 找到 <code>Preferences: Configure User Snippets</code> 命令即可进行配置。</p>
+<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/snippet.png" alt="snippet" title="snippet" loading="lazy"></figure>
+<p>从图中可以看到最上面是我们已经定义的 <code>snippet</code>，我们可以选择它们进行修改。后面的选项我们可以选择对应的语言来编写 <code>snippet</code>，这样 <code>snippet</code> 只会在对应的文件格式中生效。我下面主要将自定义的全局 <code>snippet</code> 如何配置，对应语言的 <code>snippet</code> 也是一样的。</p>
+<p>我们选择图中的 <code>New Global Snippet File</code> 来定义新的 <code>snippet</code>。每个 <code>snippet</code> 的配置都是使用 <code>json</code> 格式。基本的结构如下：</p>
+<pre><code class="language-json">    &quot;snippet name&quot;: {
+		&quot;scope&quot;: &quot;language&quot;,
+        &quot;prefix&quot;: &quot;shortcut&quot;,
+        &quot;body&quot;: [],
+        &quot;description&quot;: &quot;output on console&quot;
+    },
+</code></pre>
+<p>各个字段的意义如下：</p>
+<ul>
+<li><code>scope</code>：在哪些语言中生效，如果没有设置或者值为空则会在所有语言中生效。</li>
+<li><code>prefix</code>：前缀，输入前缀即可触发 <code>snippet</code>。我们可以在代码补全的提示框中看到我们设置的 <code>snippet</code>，回车或者 <code>tab</code> 即可输入到文件中。</li>
+<li><code>body</code>：代码片段放到这个字段中。注意因为是 <code>json</code>，所以每一行都要用双引号包裹，并且要有逗号。</li>
+<li><code>description</code>：<code>snippet</code> 的描述，会在我们输入 <code>prefix</code> 的时候出现在提示框中。</li>
+</ul>
+<h3 id="参数">参数</h3>
+<p>在 <code>snippet</code> 中还支持一些变量和参数。</p>
+<ul>
+<li><code>TabStops</code> ：<code>$1,$2,$3 ... $0</code>指定代码模块生成后，编辑光标出现位置; 使用 <code>Tab</code> 键进行切换(编辑光标按 <code>$1,$2,$3...$0</code> 的顺序跳转)，<code>$0</code> 是光标最后可切换位置。</li>
+<li><code>默认值</code>：可以为光标出现位置添加默认值，<code>${1: placeholder}</code>；也可以有多个默认值 <code>${1|placeholder, placeholder2|}</code>。</li>
+<li>变量
+<ul>
+<li><code>TM_SELECTED_TEXT</code>: 当前选中内容或空字符串</li>
+<li><code>TM_CURRENT_LINE</code>: 当前行内容</li>
+<li><code>TM_CURRENT_WORD</code>: 光标处字符或空字符串</li>
+<li><code>TM_LINE_INDEX</code>: 从0开始的行号</li>
+<li><code>TM_LINE_NUMBER</code>: 从1开始的行号</li>
+<li><code>TM_FILENAME</code>: 当前被编辑文档名</li>
+<li><code>TM_FILENAME_BASE</code>: 当前被编辑文档名，没有后缀</li>
+<li><code>TM_DIRECTORY</code>: 当前被编辑文档目录</li>
+<li><code>TM_FILEPATH</code>: 当前被编辑文档全路径</li>
+<li><code>CLIPBOARD</code>: 当前剪切板内容</li>
+<li><code>CURRENT_YEAR</code>: 当前年</li>
+<li><code>CURRENT_YEAR_SHORT</code>: 当前年后两位</li>
+<li><code>CURRENT_MONTH</code>: 月份，两位数字表示，例如02</li>
+<li><code>CURRENT_MONTH_NAME</code>: 月份全称，例如 'July'</li>
+<li><code>CURRENT_MONTH_NAME_SHORT</code>: 月份简写 ，例如'Jul</li>
+<li><code>CURRENT_DATE</code>: 某天</li>
+<li><code>CURRENT_DAY_NAME</code>: 星期几， 例如'Monday'</li>
+<li><code>CURRENT_DAY_NAME_SHORT</code>: 星期几的简写， 'Mon'</li>
+<li><code>CURRENT_HOUR</code>: 小时，24小时制</li>
+<li><code>CURRENT_MINUTE</code>: 分钟</li>
+<li><code>CURRENT_SECOND</code>: 秒数</li>
+</ul>
+</li>
+</ul>
+<p>我们可以根据自己的需要来选择使用。</p>
+<h3 id="删除">删除</h3>
+<p><code>VS Code</code> 没有提供快捷删除的方式，我们只能到文件夹中删除。比较好的操作方式是在 <code>VS Code</code> 内置的 <code>teminal</code> 中打开配置文件所在路径进行删除。打开路径的方法可以在 <code>snippet</code> 文件中右键点击 <code>Open in Intergrated Terminal</code> 或者在 <code>Command Palette</code> 中输入指令 <code>File: Copy Path of Active File</code>，然后到命令行中操作。你也可以在左侧的 <code>explorer</code> 中右键文件点击 <code>Reveal in Finder</code> 然后手动删除。</p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://juejin.im/post/6844903912068104199" title="Visual Studio Code (VS Code)自定义代码模板">Visual Studio Code (VS Code)自定义代码模板</a></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/assorted/" class="tag">
+                    Assorted
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/javascript-prototype/">
+                  <h3 class="post-title">
+                    JavaScript 原型机制
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

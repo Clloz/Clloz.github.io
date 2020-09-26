@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://clloz.github.io/</id>
     <title>Clloz - 素直になれない</title>
-    <updated>2020-09-26T12:24:16.295Z</updated>
+    <updated>2020-09-26T13:15:33.380Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://clloz.github.io/"/>
     <link rel="self" href="https://clloz.github.io/atom.xml"/>
@@ -12,15 +12,350 @@
     <icon>https://clloz.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, Clloz - 素直になれない</rights>
     <entry>
-        <title type="html"><![CDATA[拖动旋转的 3D 骰子效果]]></title>
-        <id>https://clloz.github.io/post/tuo-dong-xuan-zhuan-de-3d-tou-zi-xiao-guo/</id>
-        <link href="https://clloz.github.io/post/tuo-dong-xuan-zhuan-de-3d-tou-zi-xiao-guo/">
+        <title type="html"><![CDATA[一台设备添加多个 Github 账号]]></title>
+        <id>https://clloz.github.io/post/ssh-multiple-github-account/</id>
+        <link href="https://clloz.github.io/post/ssh-multiple-github-account/">
         </link>
-        <updated>2020-09-26T12:09:53.000Z</updated>
+        <updated>2020-09-26T10:49:46.000Z</updated>
+        <summary type="html"><![CDATA[<p>如何在同一台机器上添加多个 Github 的 ssh 公私钥，来完成不同的仓库的工作。本文分享配置过程和使用教程。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>如何在同一台机器上添加多个 Github 的 ssh 公私钥，来完成不同的仓库的工作。本文分享配置过程和使用教程。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>想要深入学习 <code>Git</code> 肯定要模拟多人操作同一个仓库，最好的方法就是自己创建两个账号进行模拟。<code>Github</code> 的账号注册很简单，但是一般我们在一台设备上只配置一个 <code>ssh</code> 公私钥，多个账号的 <code>ssh</code> 该如何配置呢。在谷歌上找的文章没有一个讲的特别清楚的，不过经过我的尝试，已经把配置和使用过程搞清楚了，本文和大家分享一下。</p>
+<h3 id="准备">准备</h3>
+<p>准备工作就是两个 <code>Github</code> 账号和两对 <code>ssh</code> 公私钥。<code>Github</code> 的账号注册就不说了，<code>ssh</code> 的公私钥的创建可以参考<a href="https://www.clloz.com/programming/assorted/2019/10/02/ssh-rsa/" title="ssh的简介和使用">ssh的简介和使用</a>。这里特别提一下，<code>ssh</code> 默认创建的公私钥文件名分别是 <code>id_rsa</code> 和 <code>id_rsa.pub</code>，为了清楚的区分我们是为 <code>Github</code> 创建的公私钥我们可以加上 <code>-f location</code> 参数来指定生成的文件的路径和名字，比如 <code>-f ~/.ssh/github1</code> 就会生成 <code>github1</code> 和 <code>github1.pub</code> 这一对公私钥。</p>
+<p>然后将两个公钥分别放到自己注册的两个 <code>Gihub</code> 账号的 <code>Settings -&gt; SSH and GPG keys</code> 中。</p>
+<blockquote>
+<p>注册账号的时候如果 <code>verify</code> 页面报错 <code>Unable to verify your captcha response</code>，很可能是连不上 <code>https://octocaptcha.com/</code>，需要代理。</p>
+</blockquote>
+<h3 id="设置过程">设置过程</h3>
+<p>现在我们已经生成两对公私钥，并且公钥也配置到对应的账户中去了，下面就是对机器的配置。</p>
+<p>我们通过 <code>ssh</code> 访问 <code>Github</code> 的项目。比如 <code>git clone</code>，<code>Github</code> 会给我们一个项目链接形如 <code>git@github.com:username/repository_name.git</code>，这个 <code>git@github.com</code> 就是我们连接 <code>Github</code> 的关键。当我们的设备中只有一对默认公私钥 <code>id_rsa</code> 的时候，<code>ssh</code> 请求默认就会认为私钥是 <code>id_rsa</code>，从而进行匹配。</p>
+<p>但是当我们的 <code>.ssh</code> 文件夹中有两对甚至更多的公私钥的时候，并且我们进行了自定义的命名，此时我们就要对公私钥进行配置，告诉 <code>ssh</code> 如何寻找对应的私钥。</p>
+<p>配置文件位于 <code>~/.ssh/config</code>，如何配置看下面的例子。更多 <code>ssh config</code> 的配置字段参考 <a href="https://deepzz.com/post/how-to-setup-ssh-config.html" title="SSH Config 那些你所知道和不知道的事">SSH Config 那些你所知道和不知道的事</a></p>
+<pre><code class="language-bash">#Github clloz@outlook.com
+host github.com
+    hostname github.com
+    User Clloz
+    IdentityFile /Users/clloz/.ssh/Clloz_Github
+
+#Github clloz1992@gmail.com
+host clloz1992
+    hostname github.com
+    User Clloz1992
+    IdentityFile /Users/clloz/.ssh/Clloz1992_Github
+</code></pre>
+<p>这几个字段意思如下:</p>
+<ul>
+<li><code>Host</code>: 我们上面说过 <code>Github</code> 的链接是 <code>git@github.com</code>，这个 <code>host</code> 就是我们自定义的，下面的 <code>hostname</code> 别名。</li>
+<li><code>hostname</code>：<code>Github</code> 域名，其实 <code>IP</code> 也可以，我们和 <code>git</code> 进行 <code>ssh</code> 通信的时候，请求从这个地址来。</li>
+<li><code>user</code>：我们在 <code>Github</code> 上注册的用户名（好像邮箱也可以）。</li>
+<li><code>IdentityFile</code>：对应的<strong>私钥</strong>的路径。</li>
+</ul>
+<p>这里特别提一下 <code>Host</code> 这个字段，理论上这个字段可以自定义，但是我建议你常用的那个 <code>GIthub</code> 账号这个字段就使用 <code>github.com</code>。首先我们说一下配置生效的原理，所有的 <code>Github</code> 的仓库的地址默认都是 <code>git@github.com</code> 开头，无论是来自哪个用户，也就是说 <code>hostname</code> 都是 <code>github.com</code>。现在我们在 <code>config</code> 文件中，为 <code>github.com</code> 指定了两个别名 <code>allias1</code> 和 <code>alias2</code>，现在我们设置 <code>remote</code> 或者 <code>git clone</code> 的时候不再是使用 <code>git@github.com</code>，而是换成 <code>git@alias1</code> 和 <code>git@alias2</code>。这样配置以后，每次用 <code>ssh</code> 通信的时候我们用别名做 <code>host</code>，而每个别名对应的私钥都在 <code>identityfile</code> 字段中配置了，自然能够成功的按账号进行区分。简单的说，<strong>就是原本我们的公私钥是按照 <code>hostname</code> 来匹配的，但是由于 <code>github</code> 的所有仓库 <code>hostname</code> 都一样，无法对用户进行区分，我们就用别名来设置 <code>host</code> 进行区分，别名的作用就类似于用户名</strong>，</p>
+<p>而由于 <code>Github</code> 上复制地址的时候默认就是 <code>git@github.com</code>，如果你将 <code>host</code> 自定义成其他的，每次 <code>git clone</code> 都要手动改一下 <code>host</code>，非常麻烦。如果不改的话将无法对仓库进行任何操作，因为此时 <code>github.com</code> 这个 <code>host</code> 在我们本地的 <code>ssh</code> 中是找不到对应的私钥的。而且如果你的本地本来就有很多原来 <code>clone</code> 的项目，他们的 <code>host</code> 都是 <code>github.com</code>，此时你也不能对他们进行任何操作，<code>git pull</code> 都不可以，你必须将 <code>remote</code> 修改为你配置后的 <code>host</code> 才能正常操作，如果本地仓库非常多的话，这将非常麻烦。关于报错可以参考下面的我将 <code>host</code> 改为一个自定义的值之后，对原来的 <code>github.com</code> 的仓库进行 <code>git pull</code> 报错如下：</p>
+<pre><code class="language-bash">git@github.com: Permission denied (publickey).
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+</code></pre>
+<p>都设置完成后我们可以用 <code>ssh -T host_alias</code> 来进行测试，如果 <code>host</code> 和返回的用户名匹配成功则说明我们的设置生效了。</p>
+<pre><code class="language-bash">ssh -T git@clloz1992
+#Hi Clloz1992! You've successfully authenticated, but GitHub does not provide shell access.
+
+ssh -T git@github.com
+#Hi Clloz! You've successfully authenticated, but GitHub does not provide shell access.
+</code></pre>
+<hr>
+<p>经过上面的配置以后，我们已经能够正常的进行两个 <code>github</code> 账号的仓库管理了。需要注意的是分清楚当前仓库是属于哪个用户的。比如 <code>account1</code> 对应的 <code>host</code> 是 <code>allias1</code>，<code>accout2</code> 对应的 <code>host</code> 是 <code>alias2</code>，那么你 <code>clone</code> 或者设置 <code>remote</code> 的时候地址就要将 <code>github.com</code> 改为对应的 <code>alias</code>。如果你在 <code>accout2</code> 下面创建了一个仓库，然后 <code>clone</code> 的时候用的是 <code>git clone git@alias1:username/repository_name.git</code>。那么你会发现，当你进行 <code>push</code> 的时候会报如下的错误：</p>
+<pre><code class="language-bash">ERROR: Permission to Clloz/git_learning.git denied to Clloz1992.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+</code></pre>
+<p>因为这是 <code>alias1</code> 的仓库，我们自然没有权限对其进行操作。不过我们可以登录 <code>alias1</code> 的 <code>Github</code> 账户，在对应的 <code>repository</code> 的 <code>Settings -&gt; Manage Access</code> 中将 <code>allias2</code> 对应的用户添加到 <code>Collaborator</code> 中，我们就能对这个仓库进行操作了。</p>
+<hr>
+<p>还有一点需要注意的，在 <code>git config --global</code> 中的 <code>user.name</code> 和 <code>user.email</code> 我们可以设置为常用账户的，在 <code>alias2</code> 的本地仓库中我们可以用 <code>git config --local</code> 进行单独的设置。我们在 <code>Github</code> 中看到的 <code>commit</code> 就是根据 <code>config</code> 来确定是哪个 <code>github</code> 用户提交的。比如我在 <code>alias2</code> 的仓库中设置 <code>config</code> 的 <code>user.name</code> 和 <code>user.email</code> 为 <code>alias1</code> 对应的用户信息然后进行 <code>commit push</code>，那么在 <code>github</code> 上看到的提交就是由 <code>alias1</code> 对用的用户完成的，<code>contributor</code> 中也多了 <code>alias1</code> 对应的用户，虽然我们并没有把他加入到 <code>Collaborator</code> 中。</p>
+<p>所以如果我们只是要模拟多人提交，我们也不必在本地配置两个 <code>github</code> 账户的 <code>ssh</code>，我们可以用同一个账号 <code>clone</code> 将 <code>repository</code> 克隆到两个不同的文件夹，然后两个文件夹的 <code>.git/config</code> 中的 <code>user.name</code> 和 <code>user.email</code> 配置成我们对应的 <code>github</code> 账号的就可以。因为 <code>github</code> 分辨 <code>commit</code> 的来源是根据 <code>config</code> 中的 <code>user</code> 信息的。</p>
+<p>所以我们总结一下：<code>ssh</code> 的公私钥只是根据 <code>host</code> 确定了当前的设备是否有权限访问某个 <code>Github</code> 下的仓库；而 <code>config</code> 中的 <code>user</code> 信息确定了当前在操作仓库的是谁。</p>
+<h3 id="ssh-agent">ssh-agent</h3>
+<p>最后再说一下 <code>ssh-agent</code>。关于 <code>ssh-agent</code> 的详细内容还是看<a href="https://www.clloz.com/programming/assorted/2019/10/02/ssh-rsa/" title="ssh的简介和使用">ssh的简介和使用</a>，我这里主要要说的是，如果你为私钥设置了 <code>passphrase</code>，想要使用 <code>ssh-agent</code>，那么你<strong>必须把两个账号的私钥都交给 <code>ssh-agent</code> 来代理</strong>，否则会出错。</p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://github.com/jawil/notes/issues/2" title="同一台电脑配置多个git账号">同一台电脑配置多个git账号</a></li>
+<li><a href="https://www.cnblogs.com/fanbi/p/7825746.html" title="一台电脑，两个及多个git账号配置">一台电脑，两个及多个git账号配置</a></li>
+<li><a href="https://me.chjiyun.com/2017/08/28/%E5%A4%9A%E4%B8%AA%E5%AF%86%E9%92%A5ssh-key%E7%9A%84%E7%94%9F%E6%88%90%E4%B8%8E%E7%AE%A1%E7%90%86/" title="多个密钥ssh-key的生成与管理">多个密钥ssh-key的生成与管理</a></li>
+</ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[CSS实现视差滚动 Parallax Scrolling]]></title>
+        <id>https://clloz.github.io/post/parallax-scrolling/</id>
+        <link href="https://clloz.github.io/post/parallax-scrolling/">
+        </link>
+        <updated>2020-09-24T11:54:10.000Z</updated>
+        <summary type="html"><![CDATA[<p>使用纯 CSS 的方式实现视差滚动效果，主要是利用透视的原理让元素的滚动产生差异，从而达到视觉效果。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>使用纯 CSS 的方式实现视差滚动效果，主要是利用透视的原理让元素的滚动产生差异，从而达到视觉效果。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>在博客首页的头部背景图本来是用 <code>JavaScript</code> 实现的视差滚动，但是觉得性能不是很好。于是尝试用 <code>CSS</code> 来实现视差滚动的效果。</p>
+<h3 id="原理">原理</h3>
+<p>用 <code>CSS</code> 实现视差滚动的原理就是利用 <code>3d</code> 空间的 <code>z</code> 轴距离产生的近大远小，让元素之间的滚动距离产生差距。<code>perspective</code> 的属性值确定观察的 <code>z</code> 轴坐标，比如我们设 <code>perspective: 1px</code>，最后所有的透视效果都是以和 <code>z = 1px</code> 的位置观察的效果是相同的。<code>z</code> 轴的原点就是我们的屏幕，所有的最后显示效果，都是投影在屏幕上的效果。如果以人眼作为比喻的话，<code>perspective</code> 就是我们的眼睛位置，而屏幕就是视网膜的位置。</p>
+<p>如果我们以 <code>z = -1px</code> 为观察点，在z <code>z = 0</code> 和 <code>z= -1px</code> 的位置放两个相同长度的元素，那么实际的成像效果就后面的元素只有前面的元素的长度的一半。如果我们想要让位于 <code>z = -1px</code> 位置的元素看上去和 <code>z = 0</code> 的元素一样大，那么我们就需要将它的边长放大到两倍，可以用 <code>scale(2)</code> 实现。放大后，从我们的 <code>perspective</code> 位置看上去就和 <code>z = 0</code> 的元素是一样的，但是如果我们对屏幕进行滚动，可以理解为我们将我们的观察点沿着 <code>y</code> 轴上下移动，这个位移对于 <code>z = 0</code> 和 <code>z = -1px</code> 的元素是相同的，但是由于 <code>z = -1px</code> 的元素的边长是 <code>z = 0</code> 位置元素的两倍，所以视觉上，我们觉得 <code>z = -1px</code> 的元素的位移好像更短，这就是视差效果。</p>
+<p>详细的研究和推理过程可以参考 <a href="https://css-tricks.com/tour-performant-responsive-css-site/" title="Tour of a Performant and Responsive CSS Only Site">Tour of a Performant and Responsive CSS Only Site</a></p>
+<h3 id="实现">实现</h3>
+<p>有了原理之后，实现就简单了。我们将要进行视差移动的元素放到 <code>-1px</code> 的位置，同时放大两倍，将 <code>perspective</code> 设置到 <code>1px</code> 即可。</p>
+<pre><code class="language-html">
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+    &lt;head&gt;
+        &lt;meta charset=&quot;UTF-8&quot; /&gt;
+        &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+        &lt;title&gt;parallax&lt;/title&gt;
+        &lt;style&gt;
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+            }
+            .container {
+                position: relative;
+                height: 100%;
+                overflow: auto;
+                perspective: 1px;
+                perspective-origin: 0 0;
+            }
+            .bg {
+                /* position: absolute; */
+                width: 100%;
+                height: 600px;
+                background-image: url('bg.jpg');
+                background-size: cover;
+                transform-origin: 0 0;
+                transform: translateZ(-1px) scale(2);
+            }
+            .content {
+                height: 3000px;
+                background: pink;
+                margin: -60px 15px 0;
+                position: relative;
+            }
+        &lt;/style&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;div class=&quot;container&quot;&gt;
+            &lt;div class=&quot;bg&quot;&gt;&lt;/div&gt;
+            &lt;div class=&quot;content&quot;&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><code>Demo</code> 效果可以查看：<a href="https://cdn.clloz.com/study/parallax_scroll.html" title="视差滚动效果demo">视差滚动效果demo</a></p>
+<h3 id="总结">总结</h3>
+<p>这种 <code>CSS</code> 实现的视差滚动效果在手机上没法达到效果，手机上可以实现透视的效果，但是滚动的效果出不来。最终我也没有应用到博客上。几种视差滚动的实现方式，包括 <code>js</code>，<code>background-attachment</code> 和 透视，都没有一个十分满意的方法，因为性能都不是非常好，而且改动也非常多，最后我干脆就把把这个效果拿掉了，</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[图片轮播]]></title>
+        <id>https://clloz.github.io/post/carousel/</id>
+        <link href="https://clloz.github.io/post/carousel/">
+        </link>
+        <updated>2020-09-22T11:59:17.000Z</updated>
+        <summary type="html"><![CDATA[<p>本文用两种方式实现图片轮播的效果，包括自动轮播和拖动轮播。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>本文用两种方式实现图片轮播的效果，包括自动轮播和拖动轮播。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>用两种方式实现图片轮播，自动轮播和拖动轮播。</p>
+<h3 id="代码结构">代码结构</h3>
+<p>由于 <code>img</code> 是一个可选标签，可以被拖动，我们这里选择用 <code>background-image</code> 来实现。基本的 <code>DOM</code> 结构和 <code>CSS</code> 如下：</p>
+<pre><code class="language-html">&lt;style&gt;
+	.carousel {
+		width: 500px;
+		height: 280px;
+		margin: 30px auto;
+		font-size: 0;
+		white-space: nowrap;
+		overflow: hidden;
+	}
+	.carousel &gt; div {
+		display: inline-block;
+		width: 500px;
+		height: 280px;
+		background-size: contain;
+		transition: ease 0.5s;
+	}
+	.carousel &gt; div:nth-child(1) {
+		background-image: url('https://img.clloz.com/blog/writing/cat1.jpg');
+	}
+	.carousel &gt; div:nth-child(2) {
+		background-image: url('https://img.clloz.com/blog/writing/cat2.jpg');
+	}
+	.carousel &gt; div:nth-child(3) {
+		background-image: url('https://img.clloz.com/blog/writing/cat3.jpg');
+	}
+	.carousel &gt; div:nth-child(4) {
+		background-image: url('https://img.clloz.com/blog/writing/cat4.jpg');
+	}
+&lt;/style&gt;
+
+&lt;div class=&quot;carousel cp1&quot;&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;carousel cp2&quot;&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<p>我们用 <code>display: inline-block</code> 和 <code>overflow: hidden</code> 让图片横向排列并且一次只显示一张。这里需要注意 <code>inline-block</code> 空格导致的间隙问题，我直接用 <code>font-size: 0</code> 来解决。</p>
+<h3 id="自动轮播">自动轮播</h3>
+<p>自动轮播的逻辑是比较简单的，我们其实只要关注两张图片，即当前图片和下一张图片。设每一张图片的编号为 <code>index</code> （从 <code>0</code> 开始），每一张图片要显示所对应的 <code>translateX</code> 的值就是 <code>-(index * 100)%</code>。所以我们只需要每次移动时将当前图片和下一章图片左移一个单位（即一张图片的宽度），同时将下一次要显示的图片放到当前图片的右边一个单位。如下图：</p>
+<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/carousel.png" alt="carousel" title="carousel" loading="lazy"></figure>
+<p>关键逻辑就是将下次要显示的图片移动到预备位置，并且这个过程要关掉动画效果。最后的代码如下：</p>
+<pre><code class="language-javascript">// transform loop settimeout
+let el2 = document.querySelector('.carousel.cp2');
+let currentIndex = 0;
+setInterval(() =&gt; {
+	let children = el2.children;
+	let nextIndex = (currentIndex + 1) % children.length;
+	let current = children[currentIndex];
+	let next = children[nextIndex];
+
+	next.style.transition = 'none';
+	next.style.transform = `translateX(${100 - nextIndex * 100}%)`;
+
+	setTimeout(() =&gt; {
+		next.style.transition = '';
+		current.style.transform = `translateX(${-100 - currentIndex * 100}%)`;
+		next.style.transform = `translateX(${-nextIndex * 100}%)`;
+		currentIndex = nextIndex;
+	}, 16);
+}, 3000);
+</code></pre>
+<p>动画效果的开关我们可以用 <code>element.style.transition</code> 来控制行内样式的值来达到效果。因为行内样式的优先级最高，当我们设置其值为 <code>none</code> 会覆盖 <code>style</code> 标签中的样式。当我们将 <code>element.style.transition</code> 的值设为 <code>''</code>，<code>style</code> 标签中的对应样式又生效了</p>
+<p>代码中间使用了一个小技巧。就是如果连续对同一个元素进行操作，浏览器会忽略前一个操作，这里我们用一个 <code>setTimeout</code> 避免浏览器的这种行为，<code>16ms</code> 为浏览器一帧的时间。</p>
+<p>还有一点就是最后一张图片的下一张应该是第一张，这里我们可以使用简单的模运算来达到效果，模就是元素的个数。</p>
+<h3 id="拖动轮播">拖动轮播</h3>
+<p>拖动轮播的逻辑要比自动复杂一些，因为拖动的情况下我们既可以向左又可以向右进行拖动。并且当拖动结束的时候，显示窗口中会有两张图片，我们要根据面积来判断哪张图片显示，并且要把另一张图片也移动到窗口外。</p>
+<p>首先我们要处理拖动事件，这个逻辑和我在<a href="https://www.clloz.com/programming/front-end/css/2020/09/18/spin-dice/" title="拖动旋转 3D 的骰子效果">拖动旋转 3D 的骰子效果</a>一文中的逻辑是相同，我们对包含元素，也就是代码中的 <code>.carousel</code> 绑定一个 <code>mousedown</code> 事件，在其回调函数中绑定 <code>mousemove</code> 和 <code>mouseup</code> 事件。注意后两个事件要绑定到 <code>document</code> 上，因为我们即使拖动到元素外也是一个完整的 <code>mousemove</code> 行为，并且绑定到 <code>document</code> 上即使我们拖出浏览器外也依然能保持触发 <code>mousemove</code> 事件。</p>
+<p><code>mousedown</code> 事件我们只要做一件事就是记录用户点击的初始位置坐标，用 <code>clientX</code>（因为轮播是横向的，我们只需要判断 <code>x</code> 方向的移动距离）</p>
+<p><code>mousemove</code> 我们要处理图片的移动，这里我们需要将动画效果关闭。以一张图片的的宽度为一个单位，我们只需要知道一共滚过了几个单位，就知道当前显示图片的 <code>index</code>，然后在计算当前 <code>index</code> 的前一张和后一张就能够得到连续的效果。<code>mousemove</code> 回调函数如下：</p>
+<pre><code class="language-javascript">let move = e =&gt; {
+	let x = e.clientX - startX;
+
+	//拖动的整数屏
+	let current = index - (x - (x % 500)) / 500;
+
+	for (let offset of [-1, 0, 1]) {
+		//计算可能出现的图片下标
+		let pos = current + offset;
+		pos = (pos + children.length) % children.length; //要处理大屏幕拖动小于 -children.length 的情况
+
+		children[pos].style.transition = 'none';
+		children[pos].style.transform = `translateX(${-pos * 500 + offset * 500 + (x % 500)}px)`; //当前，前一个，后一个图片当前位置
+	}
+};
+</code></pre>
+<hr>
+<p><code>mouseup</code> 是这里面逻辑稍微复杂的一个，当我们拖动停止的时候，视口里面会有两张图片（一般情况下）（<code>x</code> 为 <code>e.clientX - startX</code>，即从触发 <code>mousedown</code> 到 <code>mouseup</code> 水平方向一共移动了多少像素），我们要判断哪张图片所占面积比较大，让这张图片用动画移动到整个视口，而另一张图片用动画移出视口。这里我讲两种实现方式。</p>
+<p>第一种是比较好理解，但是代码量比较大。我们可以用 <code>(x - (x % 500)) / 500</code> 得出一共滚动了多少个单位，<code>index - (x - (x % 500)) / 500</code> 这张图片在触发 <code>mouseup</code> 时必然在视口内，只是我们不确定它是要移出的还是要显示的，我们只需要分情况，用 <code>if</code> 判断一下 <code>x % 500</code> 的各种情况。</p>
+<p><code>x % 500</code> 的值就是页面滚动完整数个单位后多的部分，这部分如果超过一半的图片宽度，当前图片就要从视口移出；如果小于一半的图片宽度，当前图片就显示到视口中。同时我们还要判断视口中的另一张图片的移动方向，这里就不仅需要判断面积，同时需要判断是向左拖动还是向右拖动的。所以最后我们要 <code>2 x 2</code> 共四种情况。代码如下：</p>
+<pre><code class="language-javascript">let up = e =&gt; {
+	let x = e.clientX - startX;
+
+	//index不变，向下取整，需要分情况，可读性好
+	index = (index - (x - (x % 500)) / 500) % children.length;
+	index = (index + children.length) % children.length;
+	let base = x % 500;
+
+	if (base &gt; 0) {
+		if (base &gt; 250) {
+			children[index].style.transition = '';
+			children[index].style.transform = `translateX(${(-index + 1) * 500}px)`;
+			let pre = index === 0 ? children.length - 1 : index - 1;
+			children[pre].style.transition = '';
+			children[pre].style.transform = `translateX(${-pre * 500}px)`;
+			index = pre;
+		} else {
+			children[index].style.transition = '';
+			children[index].style.transform = `translateX(${-index * 500}px)`;
+			let pre = index === 0 ? children.length - 1 : index - 1;
+			children[pre].style.transition = '';
+			children[pre].style.transform = `translateX(${(-pre - 1) * 500}px)`;
+		}
+	}
+	if (base &lt; 0) {
+		if (base &lt; -250) {
+			children[index].style.transition = '';
+			children[index].style.transform = `translateX(${(-index - 1) * 500}px)`;
+			let pre = index === 3 ? 0 : index + 1;
+			children[pre].style.transition = '';
+			children[pre].style.transform = `translateX(${-pre * 500}px)`;
+			index = pre;
+		} else {
+			children[index].style.transition = '';
+			children[index].style.transform = `translateX(${-index * 500}px)`;
+			let pre = index === 3 ? 0 : index + 1;
+			children[pre].style.transition = '';
+			children[pre].style.transform = `translateX(${(-pre + 1) * 500}px)`;
+		}
+	}
+
+	document.removeEventListener('mousemove', move);
+	document.removeEventListener('mouseup', up);
+};
+</code></pre>
+<hr>
+<p>上面的代码比较繁琐，其实我们可以将情况简化，我们可以利用 <code>Math.round()</code> 四舍五入求出 <code>mouseup</code> 触发以后要显示的图片（四舍五入后就不需要在特别判断哪个占的面积大了），现在我们要判断的就是另一张图片是前一张还是后一张即可。这个判断也是有规律的，我们利用 <code>Math.abs()</code> 和 <code>Math.sign()</code> 可以得出其值，<code>Math.sign(base)</code> 判断是向左还是向右拖动，<code>Math.abs(base)</code> 判断 <code>base</code> 是否超过一半，结合两者我们就能判断出是上一张还是下一张。代码如下：</p>
+<pre><code class="language-javascript">let up = e =&gt; {
+	let x = e.clientX - startX;
+	
+	//index 四舍五入，代码简洁，不易理解，主要是利用四舍五入，统一了要从可视范围移出的元素的下标
+	index = (index - Math.round(x / 500)) % children.length;
+	index = (index + children.length) % children.length; //四舍五入，得到的就是mouseup触发后应该显示的图片下标
+	let base = x % 500;
+	for (let offset of [0, (Math.abs(base) &gt; 250 ? 1 : -1) * Math.sign(base)]) {
+		let pos = (index + offset + children.length) % children.length; //获得另一个要移动的图片的下标（要移除可视范围的图片）
+		children[pos].style.transition = '';
+		children[pos].style.transform = `translateX(${(offset - pos) * 500}px)`; //一个下标为index图片要显示它的偏移量是 -index, 偏移量 -1 表示再向左移动一个图片单位，偏移量 1 表示向右移动一个图片单位，最后的总偏移量为 -index + offset
+	}
+
+	document.removeEventListener('mousemove', move);
+	document.removeEventListener('mouseup', up);
+};
+</code></pre>
+<p>这样代码也简单多了，不过要比上面那个难理解一点。理解的关键就是，同一个方向的移动，<code>base</code> 是否超过一半其 <code>index</code> 是不同的。</p>
+<p>完整的代码查看：<a href="https://cdn.clloz.com/study/carousel.html" title="图片轮播效果">图片轮播效果</a></p>
+<h3 id="总结">总结</h3>
+<p>轮播问题的主要逻辑就是我们不需要关注所有图片，不需要每次移动都要保持视口外的图片都在**“正确”**的位置，我们只需要关注几张与当前显示相关的图片即可。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[拖动旋转的 3D 骰子效果]]></title>
+        <id>https://clloz.github.io/post/spin-dice1/</id>
+        <link href="https://clloz.github.io/post/spin-dice1/">
+        </link>
+        <updated>2020-09-18T12:09:53.000Z</updated>
         <summary type="html"><![CDATA[<p>本文主要讲解如何用 CSS 实现一个 3D 骰子，以及如何使用 transform 将骰子按自己的需求转动。最后实现用 javascript 实现拖动骰子进行转动的功能。</p>
 ]]></summary>
         <content type="html"><![CDATA[<p>本文主要讲解如何用 CSS 实现一个 3D 骰子，以及如何使用 transform 将骰子按自己的需求转动。最后实现用 javascript 实现拖动骰子进行转动的功能。</p>
 <!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
 <p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
 <h3 id="前言">前言</h3>
 <p>用 <code>CSS</code> 实现一个 <code>3d</code> 的骰子，然后实现用鼠标拖动旋转的效果。实现的效果如下，可以拖动这个骰子进行旋转。</p>
@@ -210,533 +545,256 @@
 ]]></content>
     </entry>
     <entry>
-        <title type="html"><![CDATA[一台设备添加多个 Github 账号]]></title>
-        <id>https://clloz.github.io/post/ssh-multiple-github-account/</id>
-        <link href="https://clloz.github.io/post/ssh-multiple-github-account/">
+        <title type="html"><![CDATA[终端设置代理]]></title>
+        <id>https://clloz.github.io/post/terminal-proxy-configure/</id>
+        <link href="https://clloz.github.io/post/terminal-proxy-configure/">
         </link>
-        <updated>2020-09-26T10:49:46.000Z</updated>
-        <summary type="html"><![CDATA[<p>如何在同一台机器上添加多个 Github 的 ssh 公私钥，来完成不同的仓库的工作。本文分享配置过程和使用教程。</p>
+        <updated>2020-09-15T12:27:14.000Z</updated>
+        <summary type="html"><![CDATA[<p>大多数非浏览器应用不会主动走代理，本文讲解如何配置终端代理，让git，brew等工具使用更方便。</p>
 ]]></summary>
-        <content type="html"><![CDATA[<p>如何在同一台机器上添加多个 Github 的 ssh 公私钥，来完成不同的仓库的工作。本文分享配置过程和使用教程。</p>
+        <content type="html"><![CDATA[<p>大多数非浏览器应用不会主动走代理，本文讲解如何配置终端代理，让git，brew等工具使用更方便。</p>
 <!-- more -->
-<blockquote>
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
 <p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
-</blockquote>
 <h3 id="前言">前言</h3>
-<p>想要深入学习 <code>Git</code> 肯定要模拟多人操作同一个仓库，最好的方法就是自己创建两个账号进行模拟。<code>Github</code> 的账号注册很简单，但是一般我们在一台设备上只配置一个 <code>ssh</code> 公私钥，多个账号的 <code>ssh</code> 该如何配置呢。在谷歌上找的文章没有一个讲的特别清楚的，不过经过我的尝试，已经把配置和使用过程搞清楚了，本文和大家分享一下。</p>
-<h3 id="准备">准备</h3>
-<p>准备工作就是两个 <code>Github</code> 账号和两对 <code>ssh</code> 公私钥。<code>Github</code> 的账号注册就不说了，<code>ssh</code> 的公私钥的创建可以参考<a href="https://www.clloz.com/programming/assorted/2019/10/02/ssh-rsa/" title="ssh的简介和使用">ssh的简介和使用</a>。这里特别提一下，<code>ssh</code> 默认创建的公私钥文件名分别是 <code>id_rsa</code> 和 <code>id_rsa.pub</code>，为了清楚的区分我们是为 <code>Github</code> 创建的公私钥我们可以加上 <code>-f location</code> 参数来指定生成的文件的路径和名字，比如 <code>-f ~/.ssh/github1</code> 就会生成 <code>github1</code> 和 <code>github1.pub</code> 这一对公私钥。</p>
-<p>然后将两个公钥分别放到自己注册的两个 <code>Gihub</code> 账号的 <code>Settings -&gt; SSH and GPG keys</code> 中。</p>
-<blockquote>
-<p>注册账号的时候如果 <code>verify</code> 页面报错 <code>Unable to verify your captcha response</code>，很可能是连不上 <code>https://octocaptcha.com/</code>，需要代理。</p>
-</blockquote>
-<h3 id="设置过程">设置过程</h3>
-<p>现在我们已经生成两对公私钥，并且公钥也配置到对应的账户中去了，下面就是对机器的配置。</p>
-<p>我们通过 <code>ssh</code> 访问 <code>Github</code> 的项目。比如 <code>git clone</code>，<code>Github</code> 会给我们一个项目链接形如 <code>git@github.com:username/repository_name.git</code>，这个 <code>git@github.com</code> 就是我们连接 <code>Github</code> 的关键。当我们的设备中只有一对默认公私钥 <code>id_rsa</code> 的时候，<code>ssh</code> 请求默认就会认为私钥是 <code>id_rsa</code>，从而进行匹配。</p>
-<p>但是当我们的 <code>.ssh</code> 文件夹中有两对甚至更多的公私钥的时候，并且我们进行了自定义的命名，此时我们就要对公私钥进行配置，告诉 <code>ssh</code> 如何寻找对应的私钥。</p>
-<p>配置文件位于 <code>~/.ssh/config</code>，如何配置看下面的例子。更多 <code>ssh config</code> 的配置字段参考 <a href="https://deepzz.com/post/how-to-setup-ssh-config.html" title="SSH Config 那些你所知道和不知道的事">SSH Config 那些你所知道和不知道的事</a></p>
-<pre><code class="language-bash">#Github clloz@outlook.com
-host github.com
-    hostname github.com
-    User Clloz
-    IdentityFile /Users/clloz/.ssh/Clloz_Github
-
-#Github clloz1992@gmail.com
-host clloz1992
-    hostname github.com
-    User Clloz1992
-    IdentityFile /Users/clloz/.ssh/Clloz1992_Github
-</code></pre>
-<p>这几个字段意思如下:</p>
+<p>配置了 <code>V2ray</code> 或者 <code>Shadowsocks</code> 以后，一般来说，只有浏览器（包括内嵌在各种软件中的浏览器，比如 <code>WeGame</code>、优酷、迅雷等软件中的内嵌浏览器）会走代理，其他的应用默认是不走代理的，需要我们手动配置。当需要在终端中使用 <code>brew</code>，<code>git</code> 或者 <code>npm</code> 等安装 <code>package</code> 或应用的时候，如果连接比较吃力的时候启动代理是一个解决方案。本文介绍以下如何在终端中配置代理。</p>
+<h3 id="全局代理模式">全局代理模式</h3>
+<p>我们使用 <code>V2ray</code> 或者 <code>Shadowsocks</code> 会进行全局代理模式的选择，一般来说有三种 <code>PAC</code>，<code>Global</code> 和 <code>Manual</code>。</p>
 <ul>
-<li><code>Host</code>: 我们上面说过 <code>Github</code> 的链接是 <code>git@github.com</code>，这个 <code>host</code> 就是我们自定义的，下面的 <code>hostname</code> 别名。</li>
-<li><code>hostname</code>：<code>Github</code> 域名，其实 <code>IP</code> 也可以，我们和 <code>git</code> 进行 <code>ssh</code> 通信的时候，请求从这个地址来。</li>
-<li><code>user</code>：我们在 <code>Github</code> 上注册的用户名（好像邮箱也可以）。</li>
-<li><code>IdentityFile</code>：对应的<strong>私钥</strong>的路径。</li>
+<li><code>PAC</code>：<code>Proxy auto-config</code>，根据配置文件来确定当前的连接是否需要代理，一般来说这个配置文件是 <code>GFW List</code> 加上我们自己配置的 <code>user rules</code>。关于 <code>user rules</code> 如何配置可以参考我的另一片文章：<a href="https://www.clloz.com/programming/assorted/2019/11/24/v2ray-install-configuration/#user-rules" title="V2ray安装配置教程">V2ray安装配置教程</a></li>
+<li><code>Global</code>: 全局模式，所有连接都走代理。</li>
+<li><code>Manual</code>：手动模式，不会设置系统级代理，需要使用代理的应用（比如浏览器）都需要手动配置代理。</li>
 </ul>
-<p>这里特别提一下 <code>Host</code> 这个字段，理论上这个字段可以自定义，但是我建议你常用的那个 <code>GIthub</code> 账号这个字段就使用 <code>github.com</code>。首先我们说一下配置生效的原理，所有的 <code>Github</code> 的仓库的地址默认都是 <code>git@github.com</code> 开头，无论是来自哪个用户，也就是说 <code>hostname</code> 都是 <code>github.com</code>。现在我们在 <code>config</code> 文件中，为 <code>github.com</code> 指定了两个别名 <code>allias1</code> 和 <code>alias2</code>，现在我们设置 <code>remote</code> 或者 <code>git clone</code> 的时候不再是使用 <code>git@github.com</code>，而是换成 <code>git@alias1</code> 和 <code>git@alias2</code>。这样配置以后，每次用 <code>ssh</code> 通信的时候我们用别名做 <code>host</code>，而每个别名对应的私钥都在 <code>identityfile</code> 字段中配置了，自然能够成功的按账号进行区分。简单的说，<strong>就是原本我们的公私钥是按照 <code>hostname</code> 来匹配的，但是由于 <code>github</code> 的所有仓库 <code>hostname</code> 都一样，无法对用户进行区分，我们就用别名来设置 <code>host</code> 进行区分，别名的作用就类似于用户名</strong>，</p>
-<p>而由于 <code>Github</code> 上复制地址的时候默认就是 <code>git@github.com</code>，如果你将 <code>host</code> 自定义成其他的，每次 <code>git clone</code> 都要手动改一下 <code>host</code>，非常麻烦。如果不改的话将无法对仓库进行任何操作，因为此时 <code>github.com</code> 这个 <code>host</code> 在我们本地的 <code>ssh</code> 中是找不到对应的私钥的。而且如果你的本地本来就有很多原来 <code>clone</code> 的项目，他们的 <code>host</code> 都是 <code>github.com</code>，此时你也不能对他们进行任何操作，<code>git pull</code> 都不可以，你必须将 <code>remote</code> 修改为你配置后的 <code>host</code> 才能正常操作，如果本地仓库非常多的话，这将非常麻烦。关于报错可以参考下面的我将 <code>host</code> 改为一个自定义的值之后，对原来的 <code>github.com</code> 的仓库进行 <code>git pull</code> 报错如下：</p>
-<pre><code class="language-bash">git@github.com: Permission denied (publickey).
-fatal: Could not read from remote repository.
-
-Please make sure you have the correct access rights
-and the repository exists.
+<p>一般来说我们使用前两个模式比较多，大多数情况下 <code>PAC</code> 模式都足够了，如果发现某个我们经常访问的网站不在 <code>PAC</code> 的规则之中，则手动添加到 <code>user rules</code> 里面即可。</p>
+<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/proxy-rules.png" alt="proxy-rules" title="proxy-rules" loading="lazy"></figure>
+<p>虽然 <code>PAC</code> 和 <code>Global</code> 都设置了系统级代理，但是一般只有浏览器（包括内嵌在各种软件中的浏览器，比如 <code>WeGame</code>、优酷、迅雷等软件中的内嵌浏览器）才会使用这个系统级代理，其他应用一般还是需要手动配置。大部分应用不太需要使用这个需求，但是对于经常使用的终端配置一下代理能让我们使用 <code>homebrew</code>，<code>git</code> 和 <code>npm</code> 下载的时候效率高很多。</p>
+<h3 id="终端配置">终端配置</h3>
+<p>终端中使用有两种方式，一种是临时配置，重启终端后就失效了；另一种是写入到配置文件中去，每次启动终端都可以使用。我们还需要知道 <code>V2ray</code> 和 <code>Shadowsocks</code> 的客户端给我们提供了三种代理配置类型，<code>HTTP</code>，<code>socks5</code> 和 <code>PAC</code>，对应的端口都不同。</p>
+<h4 id="临时配置">临时配置</h4>
+<pre><code class="language-bash"># 默认一般address是127.0.0.1，http默认port是1087，socks5默认port是1086，PAC默认port是1089
+export http_proxy=http://proxyAddress:port
+export https_proxy=&quot;http://localhost:port&quot;
+export all_proxy=socks5://127.0.0.1:1086
 </code></pre>
-<p>都设置完成后我们可以用 <code>ssh -T host_alias</code> 来进行测试，如果 <code>host</code> 和返回的用户名匹配成功则说明我们的设置生效了。</p>
-<pre><code class="language-bash">ssh -T git@clloz1992
-#Hi Clloz1992! You've successfully authenticated, but GitHub does not provide shell access.
-
-ssh -T git@github.com
-#Hi Clloz! You've successfully authenticated, but GitHub does not provide shell access.
+<h4 id="写入配置文件">写入配置文件</h4>
+<p>在终端配置文件中（<code>.zshrc</code> 或者 <code>.bash_profile</code>）将配置写入。</p>
+<pre><code class="language-bash">alias proxy='export all_proxy=socks5://127.0.0.1:1086'
+alias unproxy='unset all_proxy'
 </code></pre>
-<hr>
-<p>经过上面的配置以后，我们已经能够正常的进行两个 <code>github</code> 账号的仓库管理了。需要注意的是分清楚当前仓库是属于哪个用户的。比如 <code>account1</code> 对应的 <code>host</code> 是 <code>allias1</code>，<code>accout2</code> 对应的 <code>host</code> 是 <code>alias2</code>，那么你 <code>clone</code> 或者设置 <code>remote</code> 的时候地址就要将 <code>github.com</code> 改为对应的 <code>alias</code>。如果你在 <code>accout2</code> 下面创建了一个仓库，然后 <code>clone</code> 的时候用的是 <code>git clone git@alias1:username/repository_name.git</code>。那么你会发现，当你进行 <code>push</code> 的时候会报如下的错误：</p>
-<pre><code class="language-bash">ERROR: Permission to Clloz/git_learning.git denied to Clloz1992.
-fatal: Could not read from remote repository.
-
-Please make sure you have the correct access rights
-and the repository exists.
-</code></pre>
-<p>因为这是 <code>alias1</code> 的仓库，我们自然没有权限对其进行操作。不过我们可以登录 <code>alias1</code> 的 <code>Github</code> 账户，在对应的 <code>repository</code> 的 <code>Settings -&gt; Manage Access</code> 中将 <code>allias2</code> 对应的用户添加到 <code>Collaborator</code> 中，我们就能对这个仓库进行操作了。</p>
-<hr>
-<p>还有一点需要注意的，在 <code>git config --global</code> 中的 <code>user.name</code> 和 <code>user.email</code> 我们可以设置为常用账户的，在 <code>alias2</code> 的本地仓库中我们可以用 <code>git config --local</code> 进行单独的设置。我们在 <code>Github</code> 中看到的 <code>commit</code> 就是根据 <code>config</code> 来确定是哪个 <code>github</code> 用户提交的。比如我在 <code>alias2</code> 的仓库中设置 <code>config</code> 的 <code>user.name</code> 和 <code>user.email</code> 为 <code>alias1</code> 对应的用户信息然后进行 <code>commit push</code>，那么在 <code>github</code> 上看到的提交就是由 <code>alias1</code> 对用的用户完成的，<code>contributor</code> 中也多了 <code>alias1</code> 对应的用户，虽然我们并没有把他加入到 <code>Collaborator</code> 中。</p>
-<p>所以如果我们只是要模拟多人提交，我们也不必在本地配置两个 <code>github</code> 账户的 <code>ssh</code>，我们可以用同一个账号 <code>clone</code> 将 <code>repository</code> 克隆到两个不同的文件夹，然后两个文件夹的 <code>.git/config</code> 中的 <code>user.name</code> 和 <code>user.email</code> 配置成我们对应的 <code>github</code> 账号的就可以。因为 <code>github</code> 分辨 <code>commit</code> 的来源是根据 <code>config</code> 中的 <code>user</code> 信息的。</p>
-<p>所以我们总结一下：<code>ssh</code> 的公私钥只是根据 <code>host</code> 确定了当前的设备是否有权限访问某个 <code>Github</code> 下的仓库；而 <code>config</code> 中的 <code>user</code> 信息确定了当前在操作仓库的是谁。</p>
-<h3 id="ssh-agent">ssh-agent</h3>
-<p>最后再说一下 <code>ssh-agent</code>。关于 <code>ssh-agent</code> 的详细内容还是看<a href="https://www.clloz.com/programming/assorted/2019/10/02/ssh-rsa/" title="ssh的简介和使用">ssh的简介和使用</a>，我这里主要要说的是，如果你为私钥设置了 <code>passphrase</code>，想要使用 <code>ssh-agent</code>，那么你<strong>必须把两个账号的私钥都交给 <code>ssh-agent</code> 来代理</strong>，否则会出错。</p>
+<p>使用 <code>proxy</code> 命令开启代理，使用 <code>unproxy</code> 关闭代理。如何检测我们的代理是否开启了，可以使用命令 <code>curl cip.cc</code>，你可以看到你当前的 <code>IP</code>，位置和运营商。如果代理成功开启，那么你可以看到你的 <code>IP</code> 位置等信息都编程了你的代理服务器。</p>
+<p>最后还需要注意的一点是，如果你设置了 <code>brew</code> 或者 <code>npm</code> 的国内镜像，那么开启了代理以后，这些镜像的访问也会走代理，可能影响访问速度。</p>
 <h3 id="参考文章">参考文章</h3>
 <ol>
-<li><a href="https://github.com/jawil/notes/issues/2" title="同一台电脑配置多个git账号">同一台电脑配置多个git账号</a></li>
-<li><a href="https://www.cnblogs.com/fanbi/p/7825746.html" title="一台电脑，两个及多个git账号配置">一台电脑，两个及多个git账号配置</a></li>
-<li><a href="https://me.chjiyun.com/2017/08/28/%E5%A4%9A%E4%B8%AA%E5%AF%86%E9%92%A5ssh-key%E7%9A%84%E7%94%9F%E6%88%90%E4%B8%8E%E7%AE%A1%E7%90%86/" title="多个密钥ssh-key的生成与管理">多个密钥ssh-key的生成与管理</a></li>
+<li><a href="https://vimcaw.github.io/blog/2018/03/12/Shadowsocks(R)%E8%AE%BE%E7%BD%AE%EF%BC%9A%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F%E3%80%81PAC%E3%80%81%E4%BB%A3%E7%90%86%E8%A7%84%E5%88%99/" title="Shadowsocks(R)设置：系统代理模式、PAC、代理规则">Shadowsocks(R)设置：系统代理模式、PAC、代理规则</a></li>
 </ol>
 ]]></content>
     </entry>
     <entry>
-        <title type="html"><![CDATA[CSS实现视差滚动 Parallax Scrolling]]></title>
-        <id>https://clloz.github.io/post/parallax-scrolling/</id>
-        <link href="https://clloz.github.io/post/parallax-scrolling/">
+        <title type="html"><![CDATA[VS Code 的 Snippet 使用教程]]></title>
+        <id>https://clloz.github.io/post/vscode-snippet/</id>
+        <link href="https://clloz.github.io/post/vscode-snippet/">
         </link>
-        <updated>2020-09-24T11:54:10.000Z</updated>
-        <summary type="html"><![CDATA[<p>使用纯 CSS 的方式实现视差滚动效果，主要是利用透视的原理让元素的滚动产生差异，从而达到视觉效果。</p>
+        <updated>2020-09-14T12:57:39.000Z</updated>
+        <summary type="html"><![CDATA[<p>本文讲解如何使用 VS code 的 snippet 功能，为常用开发语言以及配置文件编写自己常用的代码片段，实现简单方便的复用。</p>
 ]]></summary>
-        <content type="html"><![CDATA[<p>使用纯 CSS 的方式实现视差滚动效果，主要是利用透视的原理让元素的滚动产生差异，从而达到视觉效果。</p>
+        <content type="html"><![CDATA[<p>本文讲解如何使用 VS code 的 snippet 功能，为常用开发语言以及配置文件编写自己常用的代码片段，实现简单方便的复用。</p>
 <!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
 <p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
 <h3 id="前言">前言</h3>
-<p>在博客首页的头部背景图本来是用 <code>JavaScript</code> 实现的视差滚动，但是觉得性能不是很好。于是尝试用 <code>CSS</code> 来实现视差滚动的效果。</p>
-<h3 id="原理">原理</h3>
-<p>用 <code>CSS</code> 实现视差滚动的原理就是利用 <code>3d</code> 空间的 <code>z</code> 轴距离产生的近大远小，让元素之间的滚动距离产生差距。<code>perspective</code> 的属性值确定观察的 <code>z</code> 轴坐标，比如我们设 <code>perspective: 1px</code>，最后所有的透视效果都是以和 <code>z = 1px</code> 的位置观察的效果是相同的。<code>z</code> 轴的原点就是我们的屏幕，所有的最后显示效果，都是投影在屏幕上的效果。如果以人眼作为比喻的话，<code>perspective</code> 就是我们的眼睛位置，而屏幕就是视网膜的位置。</p>
-<p>如果我们以 <code>z = -1px</code> 为观察点，在z <code>z = 0</code> 和 <code>z= -1px</code> 的位置放两个相同长度的元素，那么实际的成像效果就后面的元素只有前面的元素的长度的一半。如果我们想要让位于 <code>z = -1px</code> 位置的元素看上去和 <code>z = 0</code> 的元素一样大，那么我们就需要将它的边长放大到两倍，可以用 <code>scale(2)</code> 实现。放大后，从我们的 <code>perspective</code> 位置看上去就和 <code>z = 0</code> 的元素是一样的，但是如果我们对屏幕进行滚动，可以理解为我们将我们的观察点沿着 <code>y</code> 轴上下移动，这个位移对于 <code>z = 0</code> 和 <code>z = -1px</code> 的元素是相同的，但是由于 <code>z = -1px</code> 的元素的边长是 <code>z = 0</code> 位置元素的两倍，所以视觉上，我们觉得 <code>z = -1px</code> 的元素的位移好像更短，这就是视差效果。</p>
-<p>详细的研究和推理过程可以参考 <a href="https://css-tricks.com/tour-performant-responsive-css-site/" title="Tour of a Performant and Responsive CSS Only Site">Tour of a Performant and Responsive CSS Only Site</a></p>
-<h3 id="实现">实现</h3>
-<p>有了原理之后，实现就简单了。我们将要进行视差移动的元素放到 <code>-1px</code> 的位置，同时放大两倍，将 <code>perspective</code> 设置到 <code>1px</code> 即可。</p>
-<pre><code class="language-html">
-&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;en&quot;&gt;
-    &lt;head&gt;
-        &lt;meta charset=&quot;UTF-8&quot; /&gt;
-        &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
-        &lt;title&gt;parallax&lt;/title&gt;
-        &lt;style&gt;
-            html,
-            body {
-                height: 100%;
-                margin: 0;
-            }
-            .container {
-                position: relative;
-                height: 100%;
-                overflow: auto;
-                perspective: 1px;
-                perspective-origin: 0 0;
-            }
-            .bg {
-                /* position: absolute; */
-                width: 100%;
-                height: 600px;
-                background-image: url('bg.jpg');
-                background-size: cover;
-                transform-origin: 0 0;
-                transform: translateZ(-1px) scale(2);
-            }
-            .content {
-                height: 3000px;
-                background: pink;
-                margin: -60px 15px 0;
-                position: relative;
-            }
-        &lt;/style&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
-        &lt;div class=&quot;container&quot;&gt;
-            &lt;div class=&quot;bg&quot;&gt;&lt;/div&gt;
-            &lt;div class=&quot;content&quot;&gt;&lt;/div&gt;
-        &lt;/div&gt;
-    &lt;/body&gt;
-&lt;/html&gt;
+<p>在新建项目的时候，一些配置文件需要重写或者复制都很麻烦。大部分编辑器都提供了 <code>snippet</code> 代码片段功能，<code>VS Code</code> 也提供了很好用的 <code>Snippet</code> 功能，我们不仅可以自定义一些固定的配置，也可以为特定的语言添加我们经常要使用的代码片段。本文讲一下具体如何使用这个功能。</p>
+<h3 id="基本结构">基本结构</h3>
+<p>其实我们使用的很多插件以及 <code>VS Code</code> 本身就给我们提供了一些 <code>snippet</code>，比如在 <code>HTML</code> 文件中输入 <code>!</code> 然后 <code>tab</code> 就能出现一个基础的 <code>HTML</code> 文档结构。你可以到 <code>VS Code</code> 的 <a href="https://marketplace.visualstudio.com/search?target=vscode&amp;category=Snippets&amp;sortBy=Installs" title="Marketplace">Marketplace</a> 中去找一些别人写好的 <code>snippet</code> 拿来使用。</p>
+<p>不过每个人的编码习惯不同，我们会希望根据自己的需求自定义 <code>snippet</code> 来使用，<code>VS Code</code> 也提供了支持。在 <code>Code -&gt; Preferences -&gt; User Snippets</code> 中或者用 ⇧ + ⌘ + P 打开 <code>Command Palette</code> 找到 <code>Preferences: Configure User Snippets</code> 命令即可进行配置。</p>
+<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/snippet.png" alt="snippet" title="snippet" loading="lazy"></figure>
+<p>从图中可以看到最上面是我们已经定义的 <code>snippet</code>，我们可以选择它们进行修改。后面的选项我们可以选择对应的语言来编写 <code>snippet</code>，这样 <code>snippet</code> 只会在对应的文件格式中生效。我下面主要将自定义的全局 <code>snippet</code> 如何配置，对应语言的 <code>snippet</code> 也是一样的。</p>
+<p>我们选择图中的 <code>New Global Snippet File</code> 来定义新的 <code>snippet</code>。每个 <code>snippet</code> 的配置都是使用 <code>json</code> 格式。基本的结构如下：</p>
+<pre><code class="language-json">    &quot;snippet name&quot;: {
+		&quot;scope&quot;: &quot;language&quot;,
+        &quot;prefix&quot;: &quot;shortcut&quot;,
+        &quot;body&quot;: [],
+        &quot;description&quot;: &quot;output on console&quot;
+    },
 </code></pre>
-<p><code>Demo</code> 效果可以查看：<a href="https://cdn.clloz.com/study/parallax_scroll.html" title="视差滚动效果demo">视差滚动效果demo</a></p>
-<h3 id="总结">总结</h3>
-<p>这种 <code>CSS</code> 实现的视差滚动效果在手机上没法达到效果，手机上可以实现透视的效果，但是滚动的效果出不来。最终我也没有应用到博客上。几种视差滚动的实现方式，包括 <code>js</code>，<code>background-attachment</code> 和 透视，都没有一个十分满意的方法，因为性能都不是非常好，而且改动也非常多，最后我干脆就把把这个效果拿掉了，</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[图片轮播]]></title>
-        <id>https://clloz.github.io/post/carousel/</id>
-        <link href="https://clloz.github.io/post/carousel/">
-        </link>
-        <updated>2020-09-22T11:59:17.000Z</updated>
-        <summary type="html"><![CDATA[<p>本文用两种方式实现图片轮播的效果，包括自动轮播和拖动轮播。</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>本文用两种方式实现图片轮播的效果，包括自动轮播和拖动轮播。</p>
-<!-- more -->
-<h3 id="前言">前言</h3>
-<p>用两种方式实现图片轮播，自动轮播和拖动轮播。</p>
-<h3 id="代码结构">代码结构</h3>
-<p>由于 <code>img</code> 是一个可选标签，可以被拖动，我们这里选择用 <code>background-image</code> 来实现。基本的 <code>DOM</code> 结构和 <code>CSS</code> 如下：</p>
-<pre><code class="language-html">&lt;style&gt;
-	.carousel {
-		width: 500px;
-		height: 280px;
-		margin: 30px auto;
-		font-size: 0;
-		white-space: nowrap;
-		overflow: hidden;
-	}
-	.carousel &gt; div {
-		display: inline-block;
-		width: 500px;
-		height: 280px;
-		background-size: contain;
-		transition: ease 0.5s;
-	}
-	.carousel &gt; div:nth-child(1) {
-		background-image: url('https://img.clloz.com/blog/writing/cat1.jpg');
-	}
-	.carousel &gt; div:nth-child(2) {
-		background-image: url('https://img.clloz.com/blog/writing/cat2.jpg');
-	}
-	.carousel &gt; div:nth-child(3) {
-		background-image: url('https://img.clloz.com/blog/writing/cat3.jpg');
-	}
-	.carousel &gt; div:nth-child(4) {
-		background-image: url('https://img.clloz.com/blog/writing/cat4.jpg');
-	}
-&lt;/style&gt;
-
-&lt;div class=&quot;carousel cp1&quot;&gt;
-	&lt;div&gt;&lt;/div&gt;
-	&lt;div&gt;&lt;/div&gt;
-	&lt;div&gt;&lt;/div&gt;
-	&lt;div&gt;&lt;/div&gt;
-&lt;/div&gt;
-&lt;div class=&quot;carousel cp2&quot;&gt;
-	&lt;div&gt;&lt;/div&gt;
-	&lt;div&gt;&lt;/div&gt;
-	&lt;div&gt;&lt;/div&gt;
-	&lt;div&gt;&lt;/div&gt;
-&lt;/div&gt;
-</code></pre>
-<p>我们用 <code>display: inline-block</code> 和 <code>overflow: hidden</code> 让图片横向排列并且一次只显示一张。这里需要注意 <code>inline-block</code> 空格导致的间隙问题，我直接用 <code>font-size: 0</code> 来解决。</p>
-<h3 id="自动轮播">自动轮播</h3>
-<p>自动轮播的逻辑是比较简单的，我们其实只要关注两张图片，即当前图片和下一张图片。设每一张图片的编号为 <code>index</code> （从 <code>0</code> 开始），每一张图片要显示所对应的 <code>translateX</code> 的值就是 <code>-(index * 100)%</code>。所以我们只需要每次移动时将当前图片和下一章图片左移一个单位（即一张图片的宽度），同时将下一次要显示的图片放到当前图片的右边一个单位。如下图：</p>
-<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/carousel.png" alt="carousel" title="carousel" loading="lazy"></figure>
-<p>关键逻辑就是将下次要显示的图片移动到预备位置，并且这个过程要关掉动画效果。最后的代码如下：</p>
-<pre><code class="language-javascript">// transform loop settimeout
-let el2 = document.querySelector('.carousel.cp2');
-let currentIndex = 0;
-setInterval(() =&gt; {
-	let children = el2.children;
-	let nextIndex = (currentIndex + 1) % children.length;
-	let current = children[currentIndex];
-	let next = children[nextIndex];
-
-	next.style.transition = 'none';
-	next.style.transform = `translateX(${100 - nextIndex * 100}%)`;
-
-	setTimeout(() =&gt; {
-		next.style.transition = '';
-		current.style.transform = `translateX(${-100 - currentIndex * 100}%)`;
-		next.style.transform = `translateX(${-nextIndex * 100}%)`;
-		currentIndex = nextIndex;
-	}, 16);
-}, 3000);
-</code></pre>
-<p>动画效果的开关我们可以用 <code>element.style.transition</code> 来控制行内样式的值来达到效果。因为行内样式的优先级最高，当我们设置其值为 <code>none</code> 会覆盖 <code>style</code> 标签中的样式。当我们将 <code>element.style.transition</code> 的值设为 <code>''</code>，<code>style</code> 标签中的对应样式又生效了</p>
-<p>代码中间使用了一个小技巧。就是如果连续对同一个元素进行操作，浏览器会忽略前一个操作，这里我们用一个 <code>setTimeout</code> 避免浏览器的这种行为，<code>16ms</code> 为浏览器一帧的时间。</p>
-<p>还有一点就是最后一张图片的下一张应该是第一张，这里我们可以使用简单的模运算来达到效果，模就是元素的个数。</p>
-<h3 id="拖动轮播">拖动轮播</h3>
-<p>拖动轮播的逻辑要比自动复杂一些，因为拖动的情况下我们既可以向左又可以向右进行拖动。并且当拖动结束的时候，显示窗口中会有两张图片，我们要根据面积来判断哪张图片显示，并且要把另一张图片也移动到窗口外。</p>
-<p>首先我们要处理拖动事件，这个逻辑和我在<a href="https://www.clloz.com/programming/front-end/css/2020/09/18/spin-dice/" title="拖动旋转 3D 的骰子效果">拖动旋转 3D 的骰子效果</a>一文中的逻辑是相同，我们对包含元素，也就是代码中的 <code>.carousel</code> 绑定一个 <code>mousedown</code> 事件，在其回调函数中绑定 <code>mousemove</code> 和 <code>mouseup</code> 事件。注意后两个事件要绑定到 <code>document</code> 上，因为我们即使拖动到元素外也是一个完整的 <code>mousemove</code> 行为，并且绑定到 <code>document</code> 上即使我们拖出浏览器外也依然能保持触发 <code>mousemove</code> 事件。</p>
-<p><code>mousedown</code> 事件我们只要做一件事就是记录用户点击的初始位置坐标，用 <code>clientX</code>（因为轮播是横向的，我们只需要判断 <code>x</code> 方向的移动距离）</p>
-<p><code>mousemove</code> 我们要处理图片的移动，这里我们需要将动画效果关闭。以一张图片的的宽度为一个单位，我们只需要知道一共滚过了几个单位，就知道当前显示图片的 <code>index</code>，然后在计算当前 <code>index</code> 的前一张和后一张就能够得到连续的效果。<code>mousemove</code> 回调函数如下：</p>
-<pre><code class="language-javascript">let move = e =&gt; {
-	let x = e.clientX - startX;
-
-	//拖动的整数屏
-	let current = index - (x - (x % 500)) / 500;
-
-	for (let offset of [-1, 0, 1]) {
-		//计算可能出现的图片下标
-		let pos = current + offset;
-		pos = (pos + children.length) % children.length; //要处理大屏幕拖动小于 -children.length 的情况
-
-		children[pos].style.transition = 'none';
-		children[pos].style.transform = `translateX(${-pos * 500 + offset * 500 + (x % 500)}px)`; //当前，前一个，后一个图片当前位置
-	}
-};
-</code></pre>
-<hr>
-<p><code>mouseup</code> 是这里面逻辑稍微复杂的一个，当我们拖动停止的时候，视口里面会有两张图片（一般情况下）（<code>x</code> 为 <code>e.clientX - startX</code>，即从触发 <code>mousedown</code> 到 <code>mouseup</code> 水平方向一共移动了多少像素），我们要判断哪张图片所占面积比较大，让这张图片用动画移动到整个视口，而另一张图片用动画移出视口。这里我讲两种实现方式。</p>
-<p>第一种是比较好理解，但是代码量比较大。我们可以用 <code>(x - (x % 500)) / 500</code> 得出一共滚动了多少个单位，<code>index - (x - (x % 500)) / 500</code> 这张图片在触发 <code>mouseup</code> 时必然在视口内，只是我们不确定它是要移出的还是要显示的，我们只需要分情况，用 <code>if</code> 判断一下 <code>x % 500</code> 的各种情况。</p>
-<p><code>x % 500</code> 的值就是页面滚动完整数个单位后多的部分，这部分如果超过一半的图片宽度，当前图片就要从视口移出；如果小于一半的图片宽度，当前图片就显示到视口中。同时我们还要判断视口中的另一张图片的移动方向，这里就不仅需要判断面积，同时需要判断是向左拖动还是向右拖动的。所以最后我们要 <code>2 x 2</code> 共四种情况。代码如下：</p>
-<pre><code class="language-javascript">let up = e =&gt; {
-	let x = e.clientX - startX;
-
-	//index不变，向下取整，需要分情况，可读性好
-	index = (index - (x - (x % 500)) / 500) % children.length;
-	index = (index + children.length) % children.length;
-	let base = x % 500;
-
-	if (base &gt; 0) {
-		if (base &gt; 250) {
-			children[index].style.transition = '';
-			children[index].style.transform = `translateX(${(-index + 1) * 500}px)`;
-			let pre = index === 0 ? children.length - 1 : index - 1;
-			children[pre].style.transition = '';
-			children[pre].style.transform = `translateX(${-pre * 500}px)`;
-			index = pre;
-		} else {
-			children[index].style.transition = '';
-			children[index].style.transform = `translateX(${-index * 500}px)`;
-			let pre = index === 0 ? children.length - 1 : index - 1;
-			children[pre].style.transition = '';
-			children[pre].style.transform = `translateX(${(-pre - 1) * 500}px)`;
-		}
-	}
-	if (base &lt; 0) {
-		if (base &lt; -250) {
-			children[index].style.transition = '';
-			children[index].style.transform = `translateX(${(-index - 1) * 500}px)`;
-			let pre = index === 3 ? 0 : index + 1;
-			children[pre].style.transition = '';
-			children[pre].style.transform = `translateX(${-pre * 500}px)`;
-			index = pre;
-		} else {
-			children[index].style.transition = '';
-			children[index].style.transform = `translateX(${-index * 500}px)`;
-			let pre = index === 3 ? 0 : index + 1;
-			children[pre].style.transition = '';
-			children[pre].style.transform = `translateX(${(-pre + 1) * 500}px)`;
-		}
-	}
-
-	document.removeEventListener('mousemove', move);
-	document.removeEventListener('mouseup', up);
-};
-</code></pre>
-<hr>
-<p>上面的代码比较繁琐，其实我们可以将情况简化，我们可以利用 <code>Math.round()</code> 四舍五入求出 <code>mouseup</code> 触发以后要显示的图片（四舍五入后就不需要在特别判断哪个占的面积大了），现在我们要判断的就是另一张图片是前一张还是后一张即可。这个判断也是有规律的，我们利用 <code>Math.abs()</code> 和 <code>Math.sign()</code> 可以得出其值，<code>Math.sign(base)</code> 判断是向左还是向右拖动，<code>Math.abs(base)</code> 判断 <code>base</code> 是否超过一半，结合两者我们就能判断出是上一张还是下一张。代码如下：</p>
-<pre><code class="language-javascript">let up = e =&gt; {
-	let x = e.clientX - startX;
-	
-	//index 四舍五入，代码简洁，不易理解，主要是利用四舍五入，统一了要从可视范围移出的元素的下标
-	index = (index - Math.round(x / 500)) % children.length;
-	index = (index + children.length) % children.length; //四舍五入，得到的就是mouseup触发后应该显示的图片下标
-	let base = x % 500;
-	for (let offset of [0, (Math.abs(base) &gt; 250 ? 1 : -1) * Math.sign(base)]) {
-		let pos = (index + offset + children.length) % children.length; //获得另一个要移动的图片的下标（要移除可视范围的图片）
-		children[pos].style.transition = '';
-		children[pos].style.transform = `translateX(${(offset - pos) * 500}px)`; //一个下标为index图片要显示它的偏移量是 -index, 偏移量 -1 表示再向左移动一个图片单位，偏移量 1 表示向右移动一个图片单位，最后的总偏移量为 -index + offset
-	}
-
-	document.removeEventListener('mousemove', move);
-	document.removeEventListener('mouseup', up);
-};
-</code></pre>
-<p>这样代码也简单多了，不过要比上面那个难理解一点。理解的关键就是，同一个方向的移动，<code>base</code> 是否超过一半其 <code>index</code> 是不同的。</p>
-<p>完整的代码查看：<a href="https://cdn.clloz.com/study/carousel.html" title="图片轮播效果">图片轮播效果</a></p>
-<h3 id="总结">总结</h3>
-<p>轮播问题的主要逻辑就是我们不需要关注所有图片，不需要每次移动都要保持视口外的图片都在**“正确”**的位置，我们只需要关注几张与当前显示相关的图片即可。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[拖动旋转的 3D 骰子效果]]></title>
-        <id>https://clloz.github.io/post/spin-dice/</id>
-        <link href="https://clloz.github.io/post/spin-dice/">
-        </link>
-        <updated>2020-09-18T12:09:53.000Z</updated>
-        <summary type="html"><![CDATA[<p>本文主要讲解如何用 CSS 实现一个 3D 骰子，以及如何使用 transform 将骰子按自己的需求转动。最后实现用 javascript 实现拖动骰子进行转动的功能。</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>本文主要讲解如何用 CSS 实现一个 3D 骰子，以及如何使用 transform 将骰子按自己的需求转动。最后实现用 javascript 实现拖动骰子进行转动的功能。</p>
-<!-- more -->
-<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
-<h3 id="前言">前言</h3>
-<p>用 <code>CSS</code> 实现一个 <code>3d</code> 的骰子，然后实现用鼠标拖动旋转的效果。实现的效果如下，可以拖动这个骰子进行旋转。</p>
-<iframe width="100%" height="300px" style="border: none" src="https://cdn.clloz.com/study/spin-dice/spin-dice.html"></iframe>
-<h3 id="css-实现-3d-骰子">CSS 实现 3D 骰子</h3>
-<p>想要实现一个 <code>3d</code> 的骰子，肯定是要使用 <code>transform</code>。关于 <code>transform</code> 的细节本文就不多讲了，可以参考 <code>MDN</code> 和 <a href="https://www.cnblogs.com/xiaohuochai/p/5351477.html" title="深入理解CSS变形transform(3d)">深入理解CSS变形transform(3d)</a>。我们主要讲讲如何实现效果。</p>
-<p><code>HTML</code> 的结构很简单，我们需要一个包含块（最后我们旋转的就是这个包含块），和 <code>6</code> 个子元素作为骰子的六个面。</p>
-<pre><code class="language-html">&lt;ul id=&quot;dice&quot;&gt;
-	&lt;li class=&quot;front&quot;&gt;1&lt;/li&gt;
-	&lt;li class=&quot;back&quot;&gt;2&lt;/li&gt;
-	&lt;li class=&quot;right&quot;&gt;3&lt;/li&gt;
-	&lt;li class=&quot;left&quot;&gt;4&lt;/li&gt;
-	&lt;li class=&quot;top&quot;&gt;5&lt;/li&gt;
-	&lt;li class=&quot;bottom&quot;&gt;6&lt;/li&gt;
-&lt;/ul&gt;
-</code></pre>
-<p>父元素的处理非常简单，主要的属性就是 <code>transform-style: preserve-3d</code>，因为我们的子元素是在 <code>3d</code> 空间中的。</p>
-<pre><code class="language-css">ul {
-	display: block;
-	width: 100px;
-	height: 100px;
-	margin: 100px auto;
-	padding: 0;
-	list-style: none;
-	transform-style: preserve-3d;
-}
-</code></pre>
-<h4 id="六个面的-transform">六个面的 transform</h4>
-<p>在处理 <code>transform</code> 之前我们用绝对定位把六个面的元素都固定到父元素的 <code>top left</code> 位置，这样六个面的 <code>transform</code> 的坐标就都相同了。每个面的 <code>transform</code> 都不相同，我们需要在脑海中模拟一下从当前位置到目标位置的移动过程。这里需要注意两点，第一点是坐标轴的方向，<code>z</code> 轴是垂直屏幕向外的的，也就是向外移动是正，向内移动是负，同理 <code>x</code> 轴是左为正，<code>y</code> 轴是下为正；第二点就是元素拥有独立的坐标系，而不是共用同一个坐标自，当一个元素发生了旋转，他的坐标系也在旋转。比如我将一个元素以 <code>x</code> 轴为旋转轴旋转了 <code>180deg</code>，那么此时他的 <code>z</code> 轴就不在是<strong>垂直屏幕向外</strong>，而是<strong>垂直屏幕向内</strong>的，这一点要注意一下。根据这些规则我们来总结一下各个面需要如何移动，我们以骰子的边长为 <code>100px</code> 为例。</p>
+<p>各个字段的意义如下：</p>
 <ul>
-<li><code>front</code>：沿着 <code>z</code> 轴向外移动 <code>50px</code>。</li>
-<li><code>back</code>：沿着 <code>z</code> 轴向内移动 <code>50px</code>。</li>
-<li><code>right</code>：以 <code>y</code> 轴为旋转轴顺时针旋转 <code>90deg</code>，然后向右移动 <code>50px</code>。</li>
-<li><code>left</code>：以 <code>y</code> 轴为旋转轴逆时针旋转 <code>90deg</code>，然后向左移动 <code>50px</code>。</li>
-<li><code>top</code>：以 <code>x</code> 轴为旋转轴顺时针旋转 <code>90deg</code>，然后向上移动 <code>50px</code>。</li>
-<li><code>bottom</code>： 以 <code>x</code> 轴为旋转轴逆时针旋转 <code>90deg</code>，然后向下移动 <code>50px</code>。</li>
+<li><code>scope</code>：在哪些语言中生效，如果没有设置或者值为空则会在所有语言中生效。</li>
+<li><code>prefix</code>：前缀，输入前缀即可触发 <code>snippet</code>。我们可以在代码补全的提示框中看到我们设置的 <code>snippet</code>，回车或者 <code>tab</code> 即可输入到文件中。</li>
+<li><code>body</code>：代码片段放到这个字段中。注意因为是 <code>json</code>，所以每一行都要用双引号包裹，并且要有逗号。</li>
+<li><code>description</code>：<code>snippet</code> 的描述，会在我们输入 <code>prefix</code> 的时候出现在提示框中。</li>
 </ul>
-<p>这里的顺时针逆时针我个人总结就是从旋转轴的正方向向负方向看，比如 <code>x</code> 轴是从右往左看，<code>y</code> 轴是从下网上看，如果方向看反的话，顺时针逆时针也会搞反。这里的旋转需要一点空间想象力，特别是刚刚接触 <code>3d</code> 的 <code>transform</code>。</p>
-<p>根据上面总结的各个面的移动方式，我们就可以写出我们的代码了。</p>
-<pre><code class="language-css">ul li {
-	position: absolute;
-	display: block;
-	width: 100%;
-	height: 100%;
-	font-size: 30px;
-	color: white;
-	line-height: 100px;
-	text-align: center;
-	backface-visibility: visible;
-}
-.front {
-	background-color: rgba(90, 90, 90, 0.7);
-	transform: translateZ(50px);
-}
-.back {
-	background-color: rgba(0, 210, 0, 0.7);
-	transform: rotateY(180deg) translateZ(50px);
-}
-.right {
-	background-color: rgba(210, 0, 0, 0.7);
-	transform: rotateY(90deg) translateZ(50px);
-}
-.left {
-	background-color: rgba(0, 0, 210, 0.7);
-	transform: rotateY(-90deg) translateZ(50px);
-}
-.top {
-	background-color: rgba(210, 210, 0, 0.7);
-	transform: rotateX(90deg) translateZ(50px);
-}
-.bottom {
-	background-color: rgba(210, 0, 210, 0.7);
-	transform: rotateX(-90deg) translateZ(50px);
-}
-</code></pre>
-<p>此时我们就已经得到一个 <code>3d</code> 的骰子了。我们可以给它一个初始的角度或者加上透视，就能够看到 <code>3d</code> 的效果。</p>
-<iframe width="100%" height="350px" style="border: none" src="https://cdn.clloz.com/study/spin-dice/static-spin-dice.html"></iframe>
-<h4 id="旋转动画">旋转动画</h4>
-<p>在实现拖动旋转之前，我们先做一个旋转动画来了解 <code>3d</code> 旋转。我们实现将这个骰子立起来，然后进行旋转，效果如下。</p>
-<iframe width="100%" height="350px" style="border: none" src="https://cdn.clloz.com/study/spin-dice/vertical-spin-dice.html"></iframe>
-<p>如何实现这样的效果呢，我们要做的就是先将筛子立起来。其实就是以 <code>z</code> 轴顺时针旋转 <code>45deg</code>，然后以 <code>x</code> 轴逆时针旋转 <code>45deg</code>。最后的旋转方向我们使用 <code>rotate3d(1, 1, 1, ndeg)</code> 来实现，这里的三个 <code>1</code> 可以理解成向量，我们的旋转轴就是原点到这个向量的连线，原点默认在中心，而 <code>1，1，1</code> 的位置就相当于在 <code>xyz</code> 的坐标系中取点 <code>(1, 1, 1)</code>（这里注意坐标轴的方向和我们平时数学题中的方向不同），他们的连线就是一个垂直穿过的对角的轴。最后的效果就是一个立起来的骰子沿着垂直方向旋转。</p>
+<h3 id="参数">参数</h3>
+<p>在 <code>snippet</code> 中还支持一些变量和参数。</p>
+<ul>
+<li><code>TabStops</code> ：<code>$1,$2,$3 ... $0</code>指定代码模块生成后，编辑光标出现位置; 使用 <code>Tab</code> 键进行切换(编辑光标按 <code>$1,$2,$3...$0</code> 的顺序跳转)，<code>$0</code> 是光标最后可切换位置。</li>
+<li><code>默认值</code>：可以为光标出现位置添加默认值，<code>${1: placeholder}</code>；也可以有多个默认值 <code>${1|placeholder, placeholder2|}</code>。</li>
+<li>变量
+<ul>
+<li><code>TM_SELECTED_TEXT</code>: 当前选中内容或空字符串</li>
+<li><code>TM_CURRENT_LINE</code>: 当前行内容</li>
+<li><code>TM_CURRENT_WORD</code>: 光标处字符或空字符串</li>
+<li><code>TM_LINE_INDEX</code>: 从0开始的行号</li>
+<li><code>TM_LINE_NUMBER</code>: 从1开始的行号</li>
+<li><code>TM_FILENAME</code>: 当前被编辑文档名</li>
+<li><code>TM_FILENAME_BASE</code>: 当前被编辑文档名，没有后缀</li>
+<li><code>TM_DIRECTORY</code>: 当前被编辑文档目录</li>
+<li><code>TM_FILEPATH</code>: 当前被编辑文档全路径</li>
+<li><code>CLIPBOARD</code>: 当前剪切板内容</li>
+<li><code>CURRENT_YEAR</code>: 当前年</li>
+<li><code>CURRENT_YEAR_SHORT</code>: 当前年后两位</li>
+<li><code>CURRENT_MONTH</code>: 月份，两位数字表示，例如02</li>
+<li><code>CURRENT_MONTH_NAME</code>: 月份全称，例如 'July'</li>
+<li><code>CURRENT_MONTH_NAME_SHORT</code>: 月份简写 ，例如'Jul</li>
+<li><code>CURRENT_DATE</code>: 某天</li>
+<li><code>CURRENT_DAY_NAME</code>: 星期几， 例如'Monday'</li>
+<li><code>CURRENT_DAY_NAME_SHORT</code>: 星期几的简写， 'Mon'</li>
+<li><code>CURRENT_HOUR</code>: 小时，24小时制</li>
+<li><code>CURRENT_MINUTE</code>: 分钟</li>
+<li><code>CURRENT_SECOND</code>: 秒数</li>
+</ul>
+</li>
+</ul>
+<p>我们可以根据自己的需要来选择使用。</p>
+<h3 id="删除">删除</h3>
+<p><code>VS Code</code> 没有提供快捷删除的方式，我们只能到文件夹中删除。比较好的操作方式是在 <code>VS Code</code> 内置的 <code>teminal</code> 中打开配置文件所在路径进行删除。打开路径的方法可以在 <code>snippet</code> 文件中右键点击 <code>Open in Intergrated Terminal</code> 或者在 <code>Command Palette</code> 中输入指令 <code>File: Copy Path of Active File</code>，然后到命令行中操作。你也可以在左侧的 <code>explorer</code> 中右键文件点击 <code>Reveal in Finder</code> 然后手动删除。</p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://juejin.im/post/6844903912068104199" title="Visual Studio Code (VS Code)自定义代码模板">Visual Studio Code (VS Code)自定义代码模板</a></li>
+</ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[JavaScript 原型机制]]></title>
+        <id>https://clloz.github.io/post/javascript-prototype/</id>
+        <link href="https://clloz.github.io/post/javascript-prototype/">
+        </link>
+        <updated>2020-09-11T13:11:59.000Z</updated>
+        <summary type="html"><![CDATA[<p>本文用比较简单的语言和图标描述 JavaScript 的原型机制，包括自定义对象之间的原型继承关系以及内置对象的原型继承关系。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>本文用比较简单的语言和图标描述 JavaScript 的原型机制，包括自定义对象之间的原型继承关系以及内置对象的原型继承关系。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>原型链的概念相信大家都知道，<code>ES6</code> 出来以后可能关注度没有以前那么高的。虽然在 <code>ES2015/ES6</code> 中引入了 <code>class</code> 关键字，但那只是语法糖，<code>JavaScript</code> 仍然是基于原型的，作为 <code>JavaScript</code> 中的主要继承方式，我们有必要深入理解它。理解了原型之后，你对对象的理解也会更深入。</p>
+<h3 id="原型机制">原型机制</h3>
+<p>原型机制说起来很简单，就是一个对象可以访问它原型对象上的属性和方法，从而实现属性和方法的复用。而原型对象又有自己的原型对象，这样原型就构成了一个链式结构，也就是我们说的原型链。一个对象可以访问自己原型链上的所有方法和属性。</p>
+<p><code>JavaScript</code> 中的继承只有一种结构：对象。每个实例对象（ <code>object</code> ）都有一个私有属性（称之为 <code>__proto__</code>，引擎内部是 <code>[[prototype]]</code> ）指向它的构造函数的原型对象（<code>prototype</code> ）。该原型对象也有一个自己的原型对象( <code>__proto__</code> ) ，层层向上直到一个对象的原型对象为 <code>null</code>。根据定义，<code>null</code> 没有原型，并作为这个原型链中的最后一个环节。</p>
+<p>在 <code>JavaScript</code> 中，我们知道的数据类型有 <code>Number, String, Undefined, Null, Boolean, BigInt, Symbol</code> 七个基础类型，还有就是一个引用类型 <code>Object</code>。在内置对象比如 <code>Function, Array, Date, RegExp</code> 等中，<code>Function</code> 是一个特殊的内置对象。</p>
+<p>我们将 <code>JavaScript</code> 中的对象分成两大类，一类是 <code>Object</code> ，一类就是 <code>Function</code>。我们来说一下他们之间的关系。</p>
+<hr>
+<p>我们创建对象有很多种方法，<code>Object.create()</code>，<code>new Object()</code>，<code>new function()</code>，和对象字面量等。但其实他们的本质都是 <code>new Object()</code> （关于 <code>new</code> 和对象创建的内容参考另外两篇文章：<a href="https://www.clloz.com/programming/front-end/js/2020/09/09/javascript-object-prop-assign/" title="JavaScript对象属性类型和赋值细节">JavaScript对象属性类型和赋值细节</a> 和 <a href="https://www.clloz.com/programming/front-end/js/2020/06/29/new-operator/" title="JavaScript中new操作符的解析和实现">JavaScript中new操作符的解析和实现</a>）。</p>
+<h4 id="objectprototypeproto">Object.prototype.<strong><strong>proto</strong></strong></h4>
+<p>我们用 <code>new Object()</code> 创建一个空对象，它在 <code>Chrome</code> 中打印出的结果如下。</p>
+<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/proto1.png" alt="proto3" title="proto1" loading="lazy"></figure>
+<p>我们可以看到所谓的 <strong>空对象</strong>，并不是完全空的，它内部有一个 <code>__proto__</code> 属性。但其实这个属性并不是它自身的，这个属性是 <code>Object.prototype.__proto__</code>，一个访问器属性（一个 <code>getter</code> 函数和一个 <code>setter</code> 函数）, 暴露了通过它访问的对象的内部 <code>[[Prototype]]</code> (一个对象或 <code>null</code>)。</p>
 <blockquote>
-<p><code>safari</code>，<code>firefox</code> 以及 <code>iOS</code> 上的 <code>chrome</code> 都不支持 <code>keyframe</code> 只写两帧（也就是 <code>from - to</code> 和 <code>0% - 100%</code> 的形式）我最终尝试只有 <code>0% 25% 50% 75% 100%</code> 这种形式能正常工作。</p>
+<p>这里要注意，<code>Object.prototype.__proto__</code> 和内部的 <code>[[prototype]]</code> 并不是同一个东西。我们的原型是靠内部的 <code>[[prototype]]</code> 链接的，<code>Object.prototype.__proto__</code> 只是浏览器提供的一个访问器属性向我们暴露 <code>[[prototype]]</code>。</p>
 </blockquote>
-<h3 id="拖动旋转">拖动旋转</h3>
-<p>把旋转的原理搞清楚了，实现拖动旋转就非常简单了。我们要做的就是触发 <code>mousemove</code> 的时候就重新计算我们的 <code>transform</code> 的值，这个值的计算就根据 <code>mousedown</code> 时候的 <code>clientX clientY</code> 和 <code>mousemove</code> 时候的 <code>clientX clientY</code> 的差值进行计算，比如移动 <code>10</code> 个像素就转动一度。这里需要注意的一点是，我们鼠标在垂直方向上移动的距离影响的是 <code>rotateX</code> 而不是 <code>rotateY</code>，因为初始方向移动相当于绕着 <code>X</code> 轴旋转。</p>
-<p>最后就是当 <code>mouseup</code> 的时候记录当前的 <code>rotateX</code> 和 <code>rotateY</code> 的值，让下次点击事件发生的时候从上次结束的状态开始旋转而不是回到初始状态。最后的代码如下。</p>
-<pre><code class="language-html">&lt;!DOCTYPE html&gt;
-&lt;html lang=&quot;en&quot;&gt;
-    &lt;head&gt;
-        &lt;meta charset=&quot;UTF-8&quot; /&gt;
-        &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
-        &lt;title&gt;Spin Dice&lt;/title&gt;
-        &lt;style&gt;
-            ul {
-                display: block;
-                width: 100px;
-                height: 100px;
-                margin: 100px auto;
-                padding: 0;
-                list-style: none;
-                /* perspective: 550px; */
-                transform-style: preserve-3d;
-                /* transition: all 0.3s ease-in; */
-                /* animation: spin 5s infinite linear; */
-                transform: rotateX(13deg) rotateY(13deg);
-            }
-            ul li {
-                position: absolute;
-                display: block;
-                width: 100%;
-                height: 100%;
-                font-size: 30px;
-                color: white;
-                line-height: 100px;
-                text-align: center;
-                backface-visibility: visible;
-            }
-            .front {
-                background-color: rgba(90, 90, 90, 0.7);
-                transform: translateZ(50px);
-            }
-            .back {
-                background-color: rgba(0, 210, 0, 0.7);
-                transform: rotateY(180deg) translateZ(50px);
-            }
-            .right {
-                background-color: rgba(210, 0, 0, 0.7);
-                transform: rotateY(90deg) translateZ(50px);
-            }
-            .left {
-                background-color: rgba(0, 0, 210, 0.7);
-                transform: rotateY(-90deg) translateZ(50px);
-            }
-            .top {
-                background-color: rgba(210, 210, 0, 0.7);
-                transform: rotateX(90deg) translateZ(50px);
-            }
-            .bottom {
-                background-color: rgba(210, 0, 210, 0.7);
-                transform: rotateX(-90deg) translateZ(50px);
-            }
-        &lt;/style&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
-        &lt;ul id=&quot;dice&quot;&gt;
-            &lt;li class=&quot;front&quot;&gt;1&lt;/li&gt;
-            &lt;li class=&quot;back&quot;&gt;2&lt;/li&gt;
-            &lt;li class=&quot;right&quot;&gt;3&lt;/li&gt;
-            &lt;li class=&quot;left&quot;&gt;4&lt;/li&gt;
-            &lt;li class=&quot;top&quot;&gt;5&lt;/li&gt;
-            &lt;li class=&quot;bottom&quot;&gt;6&lt;/li&gt;
-        &lt;/ul&gt;
-        &lt;script&gt;
-            let dice = document.getElementById('dice');
-            let baseX = 13;
-            let baseY = 13;
-            dice.addEventListener('mousedown', e =&gt; {
-                let rotateX = e.clientX;
-                let rotateY = e.clientY;
-
-                let move = e =&gt; {
-                    // console.log(baseX, rotateX, e.clientX);
-                    // console.log(baseY, rotateY, e.clientY);
-                    dice.style.transform = `rotateX(${baseX - (((e.clientY - rotateY) / 10) % 360)}deg) rotateY(${
-                        baseY + (((e.clientX - rotateX) / 10) % 360)
-                    }deg)`;
-                    // console.log(dice.style.transform);
-                };
-                let up = e =&gt; {
-                    baseX = baseX - (((e.clientY - rotateY) / 10) % 360);
-                    baseY = baseY + (((e.clientX - rotateX) / 10) % 360);
-                    // console.log(baseX, baseY);
-                    document.removeEventListener('mousemove', move);
-                    document.removeEventListener('mouseup', up);
-                };
-                document.addEventListener('mousemove', move);
-                document.addEventListener('mouseup', up);
-            });
-            document.addEventListener('selectstart', e =&gt; e.preventDefault());
-        &lt;/script&gt;
-    &lt;/body&gt;
-&lt;/html&gt;
-
+<p>这个属性是由浏览器厂商提供的，并且目前绝大多数的浏览器都支持这个属性，所以 <code>ECMAScript 2015</code> 中也将其写入标准附录中，保持浏览器的兼容性。但是直接修改对象的 <code>[[prototype]]</code> 在任何引擎和浏览器中都是非常慢并且影响性能的操作，使用这种方式来改变和继承属性是对性能影响非常严重的，并且性能消耗的时间也不是简单的花费在 <code>obj.__proto__ = ...</code> 语句上, 它还会影响到所有继承来自该 <code>[[Prototype]]</code> 的对象。标准中还提供了两组关于读写原型对象的方法 <code>Object.getPrototypeOf/Reflect.getPrototypeOf</code> 和 <code>Object.setPrototypeOf/Reflect.setPrototypeOf</code>。不过写对象和上面说的一样，依然是一个影响性能的操作，如果你关心性能，不应该用这些方法。比较好的实践是用 <code>Object.create()</code> 来设置原型，用 <code>Object.getPrototypeOf()</code> 来读取原型对象。</p>
+<blockquote>
+<p>我们同样可以用对象字面量来设置 <code>__proto__</code>，也可以自定义 <code>__proto__</code> 来覆盖 <code>Object.prototype.__proto__</code>。参考文章：<a href="https://www.clloz.com/programming/front-end/js/2020/09/09/javascript-object-prop-assign/" title="JavaScript对象属性类型和赋值细节">JavaScript对象属性类型和赋值细节</a>。</p>
+</blockquote>
+<p>不同类型的对象其 <code>[[prototype]]</code> 是不同的，对于使用数组字面量创建的对象，这个值是 <code>Array.prototype</code>。对于 <code>functions</code>，这个值是 <code>Function.prototype</code>。对于使用 <code>new fun</code> 创建的对象，其中 <code>fun</code> 是由 <code>js</code> 提供的内建构造器函数之一(<code>Array, Boolean, Date, Number, Object, String</code> 等等），这个值总是 <code>fun.prototype</code>。对于用 <code>js</code> 定义的其他 <code>js</code> 构造器函数创建的对象，这个值就是该构造器函数的 <code>prototype</code> 属性。关于内置对象之间的关系，我们后面会详细讨论。</p>
+<h4 id="object-和-function">Object 和 Function</h4>
+<p><code>Object</code> 和 <code>Function</code> 是 <code>JavaScript</code> 中最重要的两个对象，他们同时也是构造函数 <code>function Object(), function Function()</code>。几乎所有对象都是 <code>function Object()</code> 的实例，而所有函数都是 <code>function Function()</code> 的实例，包括 <code>Object</code> 也是由 <code>Function</code> 构造的。</p>
+<p>我们上面说过对象内部有一个 <code>[[prototype]]</code> 属性指向它的源性对象；而每一个函数都有一个 <code>prototype</code> 属性，指向由这个函数构造出的对象的 <code>[[prototype]]</code>。更准确的说，在函数被创建的时候，就有一个 <code>prototype</code> 属性指向一个对象，这个对象本身只有一个 <code>constructor</code> 属性指向这个函数。当用 <code>new func()</code> 创建对象的时候，新对象的 <code>[[prototype]]</code> 就指向构造函数的 <code>prototype</code> 对应的对象。不过需要注意的是 <code>prototype</code> 和 <code>constructor</code> 都是可以 <strong>重写</strong> 的。</p>
+<figure data-type="image" tabindex="2"><img src="https://img.clloz.com/blog/writing/proto2.png" alt="proto3" title="proto2" loading="lazy"></figure>
+<p>对于我们的自定义对象，这是很好理解的。那么内置对象之间的关系，特别是 <code>Object</code> 和 <code>Function</code> 之间的关系是怎么样的呢。先明确两点：</p>
+<ol>
+<li>一切函数都是由 <code>function Function()</code> 构造的，所以函数的 <code>[[prototype]]</code> 指向 <code>Function.prototype</code>。</li>
+<li>所有由 <code>function Object()</code> 构造的非函数对象的 <code>[[prototype]]</code> 指向 <code>Object.prototype</code>。</li>
+<li>函数的创建的同时，会创建一个 <code>function.prototype</code> 对象，该对象是一个由 <code>function Object()</code> 构造的对象。<code>prototype</code> 属性可以任意指定，指定的对象内可能没有 <code>constructor</code> 属性或者是错误的 <code>constructor</code>。</li>
+<li>所有非函数对象都是由构造函数通过 <code>new</code> 运算符创建的（本质都是 <code>new Object()</code>，很多内置对象可以省略 <code>new</code>，比如 <code>Function</code>， <code>Object</code>，<code>Array</code>，省略和不省略效果是一样的)。这个构造函数要么是自定义的（由 <code>function Function()</code> 构造），要么是 <code>function Object()</code>。</li>
+<li>自定义函数手动指定 <code>prototype</code> 为其它自定函数的实例， 可以让我们实现链式继承，这条链最终有一个节点会是有 <code>function Object()</code> 构造的对象，它的 <code>[[protottype]]</code> 指向 <code>Object.prototype</code>。所以我们可以说，所有的非函数对象都是 <code>function Object()</code> 的实例。</li>
+</ol>
+<p>其实记住这几点就可以应对绝大部分问题，如果你还对内置对象的关系有兴趣，可以继续往下看。</p>
+<hr>
+<p>根据我们上面的两条规律我们可以知道 <code>Object</code> 的 <code>[[prototype]]</code> 指向 <code>Function.prototype</code>，那么 <code>function Function()</code> ，<code>Function.prototype</code> 和 <code>Object.prototype</code> 的 <code>[[prototype]]</code> 都分别是什么呢？</p>
+<p>先说 <code>Object.prototype</code>，它是所有非函数对象的 <code>[[prototype]]</code> 指向，而它自己的 <code>[[prototype]]</code> 指向的就是 <code>null</code>，也就是一切对象的原型链的终点。它的 <code>constructor</code> 属性指向 <code>function Object()</code></p>
+<p>而 <code>function Function()</code> 的 <code>[[prototype]]</code> 和其它的函数一样，指向 <code>Function.prototype</code>，也就是说 <code>function Function()</code> 的 <code>prototype</code> 和 <code>[[prototype]]</code>指向的是同一个对象 <code>Function.prototype</code>。</p>
+<p><code>Function.prototype</code> 的 <code>[[prototype]]</code> 指向的是 <code>Object.prototype</code>。<code>consctructor</code> 指向的是 <code>function Function()</code>。其实 <code>Function.prototype</code> 本身就是函数，可以直接调用，接受任何参数并返回 <code>undefined</code>。</p>
+<p>为什么要这样呢？我认为是确保每一个函数对象，非函数对象，他们的原型链上都有 <code>Object.prototype</code>，都能够访问 <code>Object.prototype</code> 上定义的一些公有方法。</p>
+<pre><code class="language-javascript">constructor: ƒ Object()
+hasOwnProperty: ƒ hasOwnProperty()
+isPrototypeOf: ƒ isPrototypeOf()
+propertyIsEnumerable: ƒ propertyIsEnumerable()
+toLocaleString: ƒ toLocaleString()
+toString: ƒ toString()
+valueOf: ƒ valueOf()
+__defineGetter__: ƒ __defineGetter__()
+__defineSetter__: ƒ __defineSetter__()
+__lookupGetter__: ƒ __lookupGetter__()
+__lookupSetter__: ƒ __lookupSetter__()
+get __proto__: ƒ __proto__()
+set __proto__: ƒ __proto__()
 </code></pre>
-<p>注意要把 <code>CSS</code> 代码中的 <code>transition</code> 注释掉，否则影响旋转效果。</p>
+<p>想要更清晰的看清楚我上面说的关系，可以借助于这张来自网上的图，画的非常好。</p>
+<figure data-type="image" tabindex="3"><img src="https://img.clloz.com/blog/writing/proto3.jpg" alt="proto3" title="proto3" loading="lazy"></figure>
+<h4 id="其他内置对象">其他内置对象</h4>
+<p>最后在说一说其他的内置对象，绝大多数内置对象都是函数对象（<code>BigInt</code>，<code>Math</code>，<code>JSON</code> 和 <code>Reflect</code> 不是函数对象），虽然有些不能用 <code>new</code> 操作符（比如 <code>Symbol</code>，有些对象用不用 <code>new</code> 表现一样，比如 <code>Object</code>， <code>Function</code>，<code>Array</code> 等）。所以内置对象的 <code>[[prototype]]</code> 指向 <code>function.prototype</code>。内置对象的 <code>prototype</code> 一般来说就是一个普通的对象（用 <code>function Object()</code> 构造的）。这个对象上挂载了很多该类型可以使用的方法，比如 <code>Array.prototype</code> 有如下属性：</p>
+<pre><code class="language-javascript">concat: ƒ concat()
+constructor: ƒ Array()
+copyWithin: ƒ copyWithin()
+entries: ƒ entries()
+every: ƒ every()
+fill: ƒ fill()
+filter: ƒ filter()
+find: ƒ find()
+findIndex: ƒ findIndex()
+flat: ƒ flat()
+flatMap: ƒ flatMap()
+forEach: ƒ forEach()
+includes: ƒ includes()
+indexOf: ƒ indexOf()
+join: ƒ join()
+keys: ƒ keys()
+lastIndexOf: ƒ lastIndexOf()
+length: 0
+map: ƒ map()
+pop: ƒ pop()
+push: ƒ push()
+reduce: ƒ reduce()
+reduceRight: ƒ reduceRight()
+reverse: ƒ reverse()
+shift: ƒ shift()
+slice: ƒ slice()
+some: ƒ some()
+sort: ƒ sort()
+splice: ƒ splice()
+toLocaleString: ƒ toLocaleString()
+toString: ƒ toString()
+unshift: ƒ unshift()
+values: ƒ values()
+Symbol(Symbol.iterator): ƒ values()
+Symbol(Symbol.unscopables): {copyWithin: true, entries: true, fill: true, find: true, findIndex: true, …}
+__proto__: Object
+</code></pre>
+<p>需要注意的一点是，几乎所有内置对象的属性都是不可枚举的，所以无论是 <code>for ... in</code> 还是 <code>Object.keys()</code> 都是无法枚举这些属性的。我们自己也可以在内置对象的 <code>prototype</code> 上添加属性或者方法，让所有该类型的对象都能使用。</p>
+<p>基本包装类型 <code>String</code>，<code>Number</code> 和 <code>Boolean</code> 在一般情况下不要使用创建对象的方式来初始化对应的类型。使用这种方式创建的值都是对象（使用 <code>typeof</code> 返回 <code>object</code>），而且所有基本包装类型的对象都会被转换为布尔值 <code>true</code>。看下面的代码。</p>
+<pre><code class="language-javascript">console.log(typeof String('')) //string
+console.log(typeof new String('')) //object
+console.log(!!'') //false
+console.log(!!String('')) //false
+console.log(!!new String('')) //true
+
+console.log(typeof Number(0)) //number
+console.log(typeof new Number(0)) //object
+console.log(!!0) //false
+console.log(!!Number(0)) //false
+console.log(!!new Number(0)) //true
+
+console.log(typeof Boolean('')) //string
+console.log(typeof new Boolean('')) //object
+console.log(!!Boolean('')) //false
+console.log(!!new Boolean('')) //true
+</code></pre>
+<p>关于 <code>constructor</code> 和 <code>prototype</code> 有一个有趣的小题目，可以看一看：<a href="https://www.clloz.com/programming/front-end/js/2019/05/31/prototype-constructor/" title="关于constructor和prototype的思考">关于constructor和prototype的思考</a></p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain" title="继承与原型链">继承与原型链 - MDN</a></li>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/proto" title="Object.prototype.__proto__ - MDN">Object.prototype.<strong>proto</strong> - MDN</a></li>
+</ol>
 ]]></content>
     </entry>
     <entry>
@@ -749,6 +807,7 @@ setInterval(() =&gt; {
 ]]></summary>
         <content type="html"><![CDATA[<p>活了一百万次的猫是我非常喜欢的一本童话绘本，讲了一只活了一百万次的猫如何找到了真正生命的意义的故事。</p>
 <!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
 <p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
 <h3 id="活了100万次的猫-100万回生きたねこ">活了100万次的猫 100万回生きたねこ</h3>
 <p>活了一百万次的猫是我非常喜欢的一本童话绘本，讲了一只活了一百万次的猫如何找到了真正生命的意义的故事。我想每个人都曾经思考过自己来到这个世界上的意义，是学习更多的知识，赚更多的钱，还是获得更多人的尊重，每个人的想法各不相同，这本绘本的作者佐野洋子女士跟我的想法相通，我想我们都是渴望爱着别人也渴望被爱的，找寻到了一个自己爱的人和一份自己爱的工作并且能每天微笑着度过，即使将来我们老了病了，躺在床上等待生命的尽头的时候，我们也能微笑着，回首这一生，我的笑和泪都给了我最爱的人和事，这是一件多么幸福的事情。</p>

@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://clloz.github.io/</id>
     <title>Clloz - 素直になれない</title>
-    <updated>2020-09-26T13:53:33.429Z</updated>
+    <updated>2020-09-26T13:56:27.544Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://clloz.github.io/"/>
     <link rel="self" href="https://clloz.github.io/atom.xml"/>
@@ -342,7 +342,7 @@ setInterval(() =&gt; {
 <p>这样代码也简单多了，不过要比上面那个难理解一点。理解的关键就是，同一个方向的移动，<code>base</code> 是否超过一半其 <code>index</code> 是不同的。</p>
 <p>完整的代码查看：<a href="https://cdn.clloz.com/study/carousel.html" rel="noreferrer noopener" target="_blank">效果Demo</a></p>
 <h3 id="总结">总结</h3>
-<p>轮播问题的主要逻辑就是我们不需要关注所有图片，不需要每次移动都要保持视口外的图片都在**“正确”**的位置，我们只需要关注几张与当前显示相关的图片即可。</p>
+<p>轮播问题的主要逻辑就是我们不需要关注所有图片，不需要每次移动都要保持视口外的图片都在<strong>正确</strong>的位置，我们只需要关注几张与当前显示相关的图片即可。</p>
 ]]></content>
     </entry>
     <entry>

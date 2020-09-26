@@ -1,108 +1,112 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://clloz.github.io/</id>
-    <title>Clloz - 素直になれない</title>
-    <updated>2020-09-26T11:35:19.063Z</updated>
-    <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://clloz.github.io/"/>
-    <link rel="self" href="https://clloz.github.io/atom.xml"/>
-    <subtitle>博观而约取，厚积而薄发&lt;br&gt;
-本网站为&lt;a href=&quot;https://www.clloz.com&quot; target=&quot;_blank&quot;&gt;个人博客&lt;/a&gt;的备份</subtitle>
-    <logo>https://clloz.github.io/images/avatar.png</logo>
-    <icon>https://clloz.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, Clloz - 素直になれない</rights>
-    <entry>
-        <title type="html"><![CDATA[一台设备添加多个 Github 账号]]></title>
-        <id>https://clloz.github.io/post/ssh-multiple-github-account/</id>
-        <link href="https://clloz.github.io/post/ssh-multiple-github-account/">
-        </link>
-        <updated>2020-09-26T10:49:46.000Z</updated>
-        <summary type="html"><![CDATA[<p>如何在同一台机器上添加多个 Github 的 ssh 公私钥，来完成不同的仓库的工作。本文分享配置过程和使用教程。</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>如何在同一台机器上添加多个 Github 的 ssh 公私钥，来完成不同的仓库的工作。本文分享配置过程和使用教程。</p>
-<!-- more -->
-<blockquote>
-<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
-</blockquote>
-<h3 id="前言">前言</h3>
-<p>想要深入学习 <code>Git</code> 肯定要模拟多人操作同一个仓库，最好的方法就是自己创建两个账号进行模拟。<code>Github</code> 的账号注册很简单，但是一般我们在一台设备上只配置一个 <code>ssh</code> 公私钥，多个账号的 <code>ssh</code> 该如何配置呢。在谷歌上找的文章没有一个讲的特别清楚的，不过经过我的尝试，已经把配置和使用过程搞清楚了，本文和大家分享一下。</p>
-<h3 id="准备">准备</h3>
-<p>准备工作就是两个 <code>Github</code> 账号和两对 <code>ssh</code> 公私钥。<code>Github</code> 的账号注册就不说了，<code>ssh</code> 的公私钥的创建可以参考<a href="https://www.clloz.com/programming/assorted/2019/10/02/ssh-rsa/" title="ssh的简介和使用">ssh的简介和使用</a>。这里特别提一下，<code>ssh</code> 默认创建的公私钥文件名分别是 <code>id_rsa</code> 和 <code>id_rsa.pub</code>，为了清楚的区分我们是为 <code>Github</code> 创建的公私钥我们可以加上 <code>-f location</code> 参数来指定生成的文件的路径和名字，比如 <code>-f ~/.ssh/github1</code> 就会生成 <code>github1</code> 和 <code>github1.pub</code> 这一对公私钥。</p>
-<p>然后将两个公钥分别放到自己注册的两个 <code>Gihub</code> 账号的 <code>Settings -&gt; SSH and GPG keys</code> 中。</p>
-<blockquote>
-<p>注册账号的时候如果 <code>verify</code> 页面报错 <code>Unable to verify your captcha response</code>，很可能是连不上 <code>https://octocaptcha.com/</code>，需要代理。</p>
-</blockquote>
-<h3 id="设置过程">设置过程</h3>
-<p>现在我们已经生成两对公私钥，并且公钥也配置到对应的账户中去了，下面就是对机器的配置。</p>
-<p>我们通过 <code>ssh</code> 访问 <code>Github</code> 的项目。比如 <code>git clone</code>，<code>Github</code> 会给我们一个项目链接形如 <code>git@github.com:username/repository_name.git</code>，这个 <code>git@github.com</code> 就是我们连接 <code>Github</code> 的关键。当我们的设备中只有一对默认公私钥 <code>id_rsa</code> 的时候，<code>ssh</code> 请求默认就会认为私钥是 <code>id_rsa</code>，从而进行匹配。</p>
-<p>但是当我们的 <code>.ssh</code> 文件夹中有两对甚至更多的公私钥的时候，并且我们进行了自定义的命名，此时我们就要对公私钥进行配置，告诉 <code>ssh</code> 如何寻找对应的私钥。</p>
-<p>配置文件位于 <code>~/.ssh/config</code>，如何配置看下面的例子。更多 <code>ssh config</code> 的配置字段参考 <a href="https://deepzz.com/post/how-to-setup-ssh-config.html" title="SSH Config 那些你所知道和不知道的事">SSH Config 那些你所知道和不知道的事</a></p>
-<pre><code class="language-bash">#Github clloz@outlook.com
-host github.com
-    hostname github.com
-    User Clloz
-    IdentityFile /Users/clloz/.ssh/Clloz_Github
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
 
-#Github clloz1992@gmail.com
-host clloz1992
-    hostname github.com
-    User Clloz1992
-    IdentityFile /Users/clloz/.ssh/Clloz1992_Github
-</code></pre>
-<p>这几个字段意思如下:</p>
-<ul>
-<li><code>Host</code>: 我们上面说过 <code>Github</code> 的链接是 <code>git@github.com</code>，这个 <code>host</code> 就是我们自定义的，下面的 <code>hostname</code> 别名。</li>
-<li><code>hostname</code>：<code>Github</code> 域名，其实 <code>IP</code> 也可以，我们和 <code>git</code> 进行 <code>ssh</code> 通信的时候，请求从这个地址来。</li>
-<li><code>user</code>：我们在 <code>Github</code> 上注册的用户名（好像邮箱也可以）。</li>
-<li><code>IdentityFile</code>：对应的<strong>私钥</strong>的路径。</li>
-</ul>
-<p>这里特别提一下 <code>Host</code> 这个字段，理论上这个字段可以自定义，但是我建议你常用的那个 <code>GIthub</code> 账号这个字段就使用 <code>github.com</code>。首先我们说一下配置生效的原理，所有的 <code>Github</code> 的仓库的地址默认都是 <code>git@github.com</code> 开头，无论是来自哪个用户，也就是说 <code>hostname</code> 都是 <code>github.com</code>。现在我们在 <code>config</code> 文件中，为 <code>github.com</code> 指定了两个别名 <code>allias1</code> 和 <code>alias2</code>，现在我们设置 <code>remote</code> 或者 <code>git clone</code> 的时候不再是使用 <code>git@github.com</code>，而是换成 <code>git@alias1</code> 和 <code>git@alias2</code>。这样配置以后，每次用 <code>ssh</code> 通信的时候我们用别名做 <code>host</code>，而每个别名对应的私钥都在 <code>identityfile</code> 字段中配置了，自然能够成功的按账号进行区分。简单的说，<strong>就是原本我们的公私钥是按照 <code>hostname</code> 来匹配的，但是由于 <code>github</code> 的所有仓库 <code>hostname</code> 都一样，无法对用户进行区分，我们就用别名来设置 <code>host</code> 进行区分，别名的作用就类似于用户名</strong>，</p>
-<p>而由于 <code>Github</code> 上复制地址的时候默认就是 <code>git@github.com</code>，如果你将 <code>host</code> 自定义成其他的，每次 <code>git clone</code> 都要手动改一下 <code>host</code>，非常麻烦。如果不改的话将无法对仓库进行任何操作，因为此时 <code>github.com</code> 这个 <code>host</code> 在我们本地的 <code>ssh</code> 中是找不到对应的私钥的。而且如果你的本地本来就有很多原来 <code>clone</code> 的项目，他们的 <code>host</code> 都是 <code>github.com</code>，此时你也不能对他们进行任何操作，<code>git pull</code> 都不可以，你必须将 <code>remote</code> 修改为你配置后的 <code>host</code> 才能正常操作，如果本地仓库非常多的话，这将非常麻烦。关于报错可以参考下面的我将 <code>host</code> 改为一个自定义的值之后，对原来的 <code>github.com</code> 的仓库进行 <code>git pull</code> 报错如下：</p>
-<pre><code class="language-bash">git@github.com: Permission denied (publickey).
-fatal: Could not read from remote repository.
+<title>活了一百万次的猫 | Clloz - 素直になれない</title>
 
-Please make sure you have the correct access rights
-and the repository exists.
-</code></pre>
-<p>都设置完成后我们可以用 <code>ssh -T host_alias</code> 来进行测试，如果 <code>host</code> 和返回的用户名匹配成功则说明我们的设置生效了。</p>
-<pre><code class="language-bash">ssh -T git@clloz1992
-#Hi Clloz1992! You've successfully authenticated, but GitHub does not provide shell access.
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
-ssh -T git@github.com
-#Hi Clloz! You've successfully authenticated, but GitHub does not provide shell access.
-</code></pre>
-<hr>
-<p>经过上面的配置以后，我们已经能够正常的进行两个 <code>github</code> 账号的仓库管理了。需要注意的是分清楚当前仓库是属于哪个用户的。比如 <code>account1</code> 对应的 <code>host</code> 是 <code>allias1</code>，<code>accout2</code> 对应的 <code>host</code> 是 <code>alias2</code>，那么你 <code>clone</code> 或者设置 <code>remote</code> 的时候地址就要将 <code>github.com</code> 改为对应的 <code>alias</code>。如果你在 <code>accout2</code> 下面创建了一个仓库，然后 <code>clone</code> 的时候用的是 <code>git clone git@alias1:username/repository_name.git</code>。那么你会发现，当你进行 <code>push</code> 的时候会报如下的错误：</p>
-<pre><code class="language-bash">ERROR: Permission to Clloz/git_learning.git denied to Clloz1992.
-fatal: Could not read from remote repository.
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601120057456">
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css">
 
-Please make sure you have the correct access rights
-and the repository exists.
-</code></pre>
-<p>因为这是 <code>alias1</code> 的仓库，我们自然没有权限对其进行操作。不过我们可以登录 <code>alias1</code> 的 <code>Github</code> 账户，在对应的 <code>repository</code> 的 <code>Settings -&gt; Manage Access</code> 中将 <code>allias2</code> 对应的用户添加到 <code>Collaborator</code> 中，我们就能对这个仓库进行操作了。</p>
-<hr>
-<p>还有一点需要注意的，在 <code>git config --global</code> 中的 <code>user.name</code> 和 <code>user.email</code> 我们可以设置为常用账户的，在 <code>alias2</code> 的本地仓库中我们可以用 <code>git config --local</code> 进行单独的设置。我们在 <code>Github</code> 中看到的 <code>commit</code> 就是根据 <code>config</code> 来确定是哪个 <code>github</code> 用户提交的。比如我在 <code>alias2</code> 的仓库中设置 <code>config</code> 的 <code>user.name</code> 和 <code>user.email</code> 为 <code>alias1</code> 对应的用户信息然后进行 <code>commit push</code>，那么在 <code>github</code> 上看到的提交就是由 <code>alias1</code> 对用的用户完成的，<code>contributor</code> 中也多了 <code>alias1</code> 对应的用户，虽然我们并没有把他加入到 <code>Collaborator</code> 中。</p>
-<p>所以如果我们只是要模拟多人提交，我们也不必在本地配置两个 <code>github</code> 账户的 <code>ssh</code>，我们可以用同一个账号 <code>clone</code> 将 <code>repository</code> 克隆到两个不同的文件夹，然后两个文件夹的 <code>.git/config</code> 中的 <code>user.name</code> 和 <code>user.email</code> 配置成我们对应的 <code>github</code> 账号的就可以。因为 <code>github</code> 分辨 <code>commit</code> 的来源是根据 <code>config</code> 中的 <code>user</code> 信息的。</p>
-<p>所以我们总结一下：<code>ssh</code> 的公私钥只是根据 <code>host</code> 确定了当前的设备是否有权限访问某个 <code>Github</code> 下的仓库；而 <code>config</code> 中的 <code>user</code> 信息确定了当前在操作仓库的是谁。</p>
-<h3 id="ssh-agent">ssh-agent</h3>
-<p>最后再说一下 <code>ssh-agent</code>。关于 <code>ssh-agent</code> 的详细内容还是看<a href="https://www.clloz.com/programming/assorted/2019/10/02/ssh-rsa/" title="ssh的简介和使用">ssh的简介和使用</a>，我这里主要要说的是，如果你为私钥设置了 <code>passphrase</code>，想要使用 <code>ssh-agent</code>，那么你<strong>必须把两个账号的私钥都交给 <code>ssh-agent</code> 来代理</strong>，否则会出错。</p>
-<h3 id="参考文章">参考文章</h3>
-<ol>
-<li><a href="https://github.com/jawil/notes/issues/2" title="同一台电脑配置多个git账号">同一台电脑配置多个git账号</a></li>
-<li><a href="https://www.cnblogs.com/fanbi/p/7825746.html" title="一台电脑，两个及多个git账号配置">一台电脑，两个及多个git账号配置</a></li>
-<li><a href="https://me.chjiyun.com/2017/08/28/%E5%A4%9A%E4%B8%AA%E5%AF%86%E9%92%A5ssh-key%E7%9A%84%E7%94%9F%E6%88%90%E4%B8%8E%E7%AE%A1%E7%90%86/" title="多个密钥ssh-key的生成与管理">多个密钥ssh-key的生成与管理</a></li>
-</ol>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[活了一百万次的猫]]></title>
-        <id>https://clloz.github.io/post/neko/</id>
-        <link href="https://clloz.github.io/post/neko/">
-        </link>
-        <updated>2018-06-21T11:27:39.000Z</updated>
-        <summary type="html"><![CDATA[<p>活了一百万次的猫是我非常喜欢的一本童话绘本，讲了一只活了一百万次的猫如何找到了真正生命的意义的故事。</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>活了一百万次的猫是我非常喜欢的一本童话绘本，讲了一只活了一百万次的猫如何找到了真正生命的意义的故事。</p>
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="活了一百万次的猫是我非常喜欢的一本童话绘本，讲了一只活了一百万次的猫如何找到了真正生命的意义的故事。
+
+本文首发于个人博客clloz.com
+活了100万次的猫 100万回生きたねこ
+活了一百万次的猫是我非常喜欢的一本童话绘本，讲了一只活了..." />
+    <meta name="keywords" content="Cookie" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601120057456" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">活了一百万次的猫</h2>
+            <div class="post-date">2018-06-21</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/neko.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>活了一百万次的猫是我非常喜欢的一本童话绘本，讲了一只活了一百万次的猫如何找到了真正生命的意义的故事。</p>
 <!-- more -->
 <p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
 <h3 id="活了100万次的猫-100万回生きたねこ">活了100万次的猫 100万回生きたねこ</h3>
@@ -238,6 +242,50 @@ and the repository exists.
 <hr />
 <p>这本绘本中的插画都很漂亮，要说我最喜欢哪一张，那就是最后虎斑猫抱着白猫痛哭的那张，我既替他难过，又为他开心，一种复杂的心情交织着，让自己的眼泪也止不住。难过的是，再美好的事物也终有结束的一天，不管我们做什么努力，有些事情终究是无法改变的；开心的是，找寻到自己活着的意义比什么都重要，在爱里出生，又在爱里死亡，即使我在痛哭，但为了失去的爱而痛哭，何尝不是一种幸福。最后一幅插画位于整本书的背面，当我们看完整本书合上书的时候，能看到他们两个肩并肩看着远方的背影，是那么的温馨，安静，携手一生，最后在爱中为自己的生命画上完美的句点。<br>
 佐野洋子在六十六岁完成这部作品，也曾经来北京图书馆朗读过这部作品，我想这是她对一生经历的思考得出的故事，是她这一生对爱的理解，我也会努力追寻这样的人生。</p>
-]]></content>
-    </entry>
-</feed>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/cookie/" class="tag">
+                    Cookie
+                  </a>
+                
+              </div>
+            
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

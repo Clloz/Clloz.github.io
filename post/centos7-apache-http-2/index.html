@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>CentOS7 Apache 开启 HTTP/2 支持 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601130041433" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文记录在 CentOS7 上安装最新版 Apache 和开启HTTP2支持的过程。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+Apache Httpd 从 2.4.17 开始支持 mod_http2，不过 CentOS 7..." />
+    <meta name="keywords" content="Server" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601130041433" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">CentOS7 Apache 开启 HTTP/2 支持</h2>
+            <div class="post-date">2020-09-08</div>
+            
+              <div class="feature-container" style="background-image: url('/post-images/centos7-apache-http-2.png')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文记录在 CentOS7 上安装最新版 Apache 和开启HTTP2支持的过程。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p><code>Apache Httpd</code> 从 <code>2.4.17</code> 开始支持 <code>mod_http2</code>，不过 <code>CentOS 7</code> 的 <code>httpd</code> 版本一直停留在 <code>2.4.6</code>。今天详细说明一下如何安装升级 <code>Apache</code> 的最新版本和开启 <code>HTTP/2</code> 的支持。</p>
+<h3 id="关于-http2">关于 HTTP/2</h3>
+<p><code>HTTP/2</code> 简称为 <code>h2</code>（基于 <code>TLS/1.2</code> 或以上版本的加密连接）或 <code>h2c</code>（非加密连接），是 <code>HTTP</code> 协议的的第二个主要版本。是 <code>HTTP协</code> 议自 <code>1999</code> 年 <code>HTTP 1.1</code> 发布后的首个更新，主要基于 <code>SPDY</code> 协议。</p>
+<p><code>HTTP/2</code> 标准于 <code>2015年5月</code> 以 <code>RFC 7540</code> 正式发表。<code>HTTP/2</code> 的标准化工作由 <code>Chrome</code>、<code>Opera</code>、<code>Firefox</code>、<code>Internet Explorer 11</code>、<code>Safari</code>、<code>Amazon Silk</code>及 <code>Edge</code> 等浏览器提供支持。</p>
+<p>多数主流浏览器已经在 <code>2015</code> 年底支持了该协议。此外，根据 <code>W3Techs</code> 的数据，截至 <code>2019年6月</code>，全球有 <code>36.5%</code> 的网站支持了 <code>HTTP/2</code>。</p>
+<p>关于 <code>HTTP/2</code> 这里就不再详细介绍了，想要了解的可以参考 <a href="https://zh.wikipedia.org/wiki/HTTP/2" title="HTTP/2 - Wikipedia">HTTP/2 - Wikipedia</a> 和我的另一篇文章 <a href="https://www.clloz.com/programming/network/2019/05/02/http/#HTTP2" title="前端网络基础和HTTP">前端网络基础和HTTP</a>。</p>
+<p><code>HTTP/2</code> 的优势可以看这篇知乎上的文章： <a href="https://zhuanlan.zhihu.com/p/29609078" title="怎样把网站升级到http/2">怎样把网站升级到http/2</a></p>
+<h3 id="升级-apache">升级 Apache</h3>
+<p>首先是要升级 <code>Apache</code> 的版本，你可以用 <code>yum info httpd</code> 查看一下 <code>CeontOS 7</code> 软件库中的 <code>Apache</code> 版本，不出意外是 <code>2.4.6</code>。</p>
+<p><code>CodeIT</code> 提供了一个很好的自定义库。这个库提供了最新版本的服务器软件(<code>Apache &amp; Nginx</code>)。在安装 <code>CodeIT</code> 库之前，你需要开启 <code>EPEL</code> 。<code>EPEL</code> 提供了 <code>CodeIT</code> 库需要的依赖。</p>
+<pre><code class="language-bash">sudo yum install -y epel-release
+
+cd /etc/yum.repos.d &amp;&amp; wget https://repo.codeit.guru/codeit.el`rpm -q --qf &quot;%{VERSION}&quot; $(rpm -q --whatprovides redhat-release)`.repo
+</code></pre>
+<p>此时我们再用 <code>yum info httpd</code> 查看 <code>Apache</code> 版本会发现已经到最新的版本了（我今天安装的是 <code>2.4.46</code>）。</p>
+<h3 id="安装依赖">安装依赖</h3>
+<p>需要安装的依赖主要是 <code>openssl</code> 和 <code>nghttp2</code>，其中 <code>openssl</code> 版本要大于 <code>1.0.2</code>，不过这两个依赖在 <code>CentOS 7</code> 软件库中都是有的，直接用 <code>yum</code> 安装即可。</p>
+<pre><code class="language-bash">yum install openssl nghttp2
+</code></pre>
+<h3 id="配置-httpdconf">配置 httpd.conf</h3>
+<p>这里参考 <code>Apache</code> 的 <a href="https://httpd.apache.org/docs/2.4/howto/http2.html" title="官方文档">官方文档</a> 即可，文档也有 <a href="https://www.docs4dev.com/docs/zh/apache/2.4/reference/howto-http2.html" title="中文版">中文版</a>。</p>
+<p>根据文档中的说明，我们需要加载 <code>mod_http2</code> 模块，这个模块是依赖于上面安装的 <code>nghttp2</code> 的。然后就是添加一行配置即可。</p>
+<pre><code class="language-bash"># 加载 mod_http2
+LoadModule http2_module modules/mod_http2.so
+
+# 配置文件中添加指令，该指令允许h2协议，并让其成为服务器连接上的首选协议
+Protocols h2 http/1.1
+
+# 要启用所有 HTTP/2 变体时，使用如下指令
+Protocols h2 h2c http/1.1
+
+# 根据放置此指令的位置，它会影响所有连接或仅影响到某个虚拟主机的连接。比如下面的配置仅允许使用 HTTP/1 进行连接，但与提供 HTTP/2 的test.example.org的 SSL 连接除外。
+Protocols http/1.1
+&lt;VirtualHost ...&gt;
+    ServerName test.example.org
+    Protocols h2 http/1.1
+&lt;/VirtualHost&gt;
+</code></pre>
+<p>到这里就已经完成全部配置，<code>systemctl restart httpd</code> 即可。此时打开浏览器的开发者工具访问自己的网站会发现 <code>HTTP/2</code> 已经生效。除了通过开发者工具，这个 <a href="https://tools.keycdn.com/http2-test" title="http2 - test网站">http2-test</a> 网站也可以帮助你检测网站是否开启 <code>HTTP/2</code> 的支持。$</p>
+<h3 id="内存占用">内存占用</h3>
+<p>如果 <code>Apache</code> 出现内存占用过高，那么修改 <code>httpd-mpm.conf</code> 中的 <code>prefork</code> 工作模式的参数，将 <code>MaxConnectionPerChild</code> 改为 <code>50</code>。文件位置用命令 <code>find / -name httpd-mpm.conf</code> 查找。更多内容参考文章 <a href="https://abc-ziv.github.io/2018/06/13/2018-06-27-OutOfMemory/" title="Apache内存溢出的分析与解决">Apache内存溢出的分析与解决</a></p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://www.cnblogs.com/ihuangjianxin/p/9036646.html" title="如何在Centos7下升级Apache至最新版本">如何在Centos7下升级Apache至最新版本</a></li>
+<li><a href="https://www.mf8.biz/apache-httpd-%E5%BC%80%E5%90%AF-https-%E5%92%8C-http2/" title="Apache Httpd 开启 HTTPS 和 HTTP/2">Apache Httpd 开启 HTTPS 和 HTTP/2</a></li>
+<li><a href="https://www.jb51.net/article/76432.htm" title="详解为新版Apache服务器开启HTTP/2支持的方法">详解为新版Apache服务器开启HTTP/2支持的方法</a></li>
+<li><a href="https://my.oschina.net/u/3495789/blog/4346276" title="Apache如何开启HTTP/2">Apache如何启用HTTP/2</a></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/server/" class="tag">
+                    Server
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/logical-operators/">
+                  <h3 class="post-title">
+                    JavaScript逻辑运算符
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

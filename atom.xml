@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://clloz.github.io/</id>
     <title>Clloz - 素直になれない</title>
-    <updated>2020-09-26T13:56:27.544Z</updated>
+    <updated>2020-09-26T14:21:15.186Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://clloz.github.io/"/>
     <link rel="self" href="https://clloz.github.io/atom.xml"/>
@@ -664,6 +664,205 @@ alias unproxy='unset all_proxy'
 ]]></content>
     </entry>
     <entry>
+        <title type="html"><![CDATA[更换 Apache 到 Nginx]]></title>
+        <id>https://clloz.github.io/post/change-apache-to-nginx/</id>
+        <link href="https://clloz.github.io/post/change-apache-to-nginx/">
+        </link>
+        <updated>2020-09-11T13:57:24.000Z</updated>
+        <summary type="html"><![CDATA[<p>Apache的内存开销非常大， 对于内存较小的云服务器非常不友好。本文记录将 Web 服务器从 Apache 更换到 nginx 的过程。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>Apache的内存开销非常大， 对于内存较小的云服务器非常不友好。本文记录将 Web 服务器从 Apache 更换到 nginx 的过程。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>将服务器上的 <code>Apache</code> 升级到 <code>2.4.46</code> 后，内充占用率飙涨，改了 <code>MaxConnectionPerChild</code> 配置到 <code>50</code> 也不见效。<code>2G</code> 的内存占用率已经超过 <code>90</code>，<code>Apache</code> 吃掉了差不多 <code>1G</code> 内存。<code>systemctl restart httpd</code> 以后，很快又把内存吃回去。虽然一直都遇到内存占用的问题，但之前没有这么严重，也就凑活着用了。每次想换 <code>nginx</code> 都觉得太折腾就作罢。现在这情况只能强行折腾了，服务器都卡的用不了了。下面分享一下更换 <code>web</code> 服务器的过程。</p>
+<h3 id="过程">过程</h3>
+<p>其实过程也比较简单，停了 <code>apache</code>。</p>
+<pre><code class="language-bash">systemctl stop httpd
+systemctl disable httpd
+</code></pre>
+<p>安装 <code>nginx</code>，直接用 <code>yum</code> 安装即可。启动并设置开机启动，同时确保 <code>php-fpm</code> 也启动了。</p>
+<pre><code class="language-bash">yum install nginx
+systemctl start nginx
+systemctl enable ninx
+</code></pre>
+<p>剩下的就是配置了，配置文件路径 <code>/etc/nginx/nginx.conf</code>。<code>nginx</code> 支持模块化的配置，你可以把不同功能的配置写到不同的文件里面，然后用 <code>include</code> 引入。单独的 <code>conf</code> 文件要放到 <code>/etc/nginx/conf.d</code> 文件夹里。如果你不想创建单独的文件，就把配置写在 <code>nginx.conf</code>文件夹里也可以，是一个 <code>server {}</code>。需要特别注意的是你的配置要写到 <code>include /etc/nginx/conf.d/*.conf</code> 这一句的 <strong>前面</strong>。我一开始就是看错成后面，白白乱折腾了一阵子。</p>
+<p>然后 <code>nginx</code> 的配置其实还是比较好理解的，但是不支持 <code>.htaccess</code>。关于配置我这里就不细说了，我也就东拼西凑搞了个差不多的，目前看来基本能用了，有些问题可能后期使用中才能慢慢发现，这里就给大家贴一下我现在的配置。</p>
+<pre><code class="language-bash">server {
+	#http重定向到https
+	listen    80;
+	listen [::]:80;
+	server_name	www.clloz.com clloz.com;
+	return 301	https://$server_name$request_uri;
+}
+server {
+    listen                  443 ssl http2;
+    listen                  [::]:443 ssl http2;
+    server_name             www.clloz.com clloz.com;
+
+	#网站根目录
+    root		    /var/www/html;
+
+	#https
+    ssl_certificate         ssl/3793755_www.clloz.com.pem;
+    ssl_certificate_key     ssl/3793755_www.clloz.com.key;
+    ssl_session_timeout 5m;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4; #使用此加密套件。
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2; #使用该协议进行配置。
+    ssl_prefer_server_ciphers on;
+
+    # 安全标头
+    add_header Strict-Transport-Security &quot;max-age=31536000; includeSubDomains; preload&quot; always;
+    add_header X-Frame-Options DENY;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-Xss-Protection 1;
+
+    # 禁用目录列表
+    autoindex off;
+
+    # 限制请求次数
+    #limit_req_zone $binary_remote_addr zone=WPRATELIMIT:10m rate=2r/s;
+    #location ~ \wp-login.php$ {
+    #    limit_req zone=WPRATELIMIT;
+    #}
+
+    #隐藏 nginx 版本.
+    server_tokens off;
+
+    #隐藏 PHP 版本
+    fastcgi_hide_header X-Powered-By;
+    proxy_hide_header X-Powered-By;
+
+    # 禁止访问敏感文件
+    location ~ /\.(svn|git)/* {
+        deny all;
+    	access_log off;
+    	log_not_found off;
+    }
+    location ~ /\.ht {
+    	deny all;
+    	access_log off;
+    	log_not_found off;
+    }
+    location ~ /\.user.ini {
+    	deny all;
+    	access_log off;
+    	log_not_found off;
+    }
+
+    # 禁止直接访问php文件
+#    location ~* /(?:uploads|files|wp-content|wp-includes|akismet)/.*.php$ {
+#    	deny all;
+#    	access_log off;
+#    	log_not_found off;
+#    }
+
+	#固定链接交给php-fpm处理
+    location / {
+		index index.php index.html index.htm;
+		try_files $uri $uri/ /index.php?$args;
+    }
+
+	# 禁止访问指定类型文件
+    location ~ \.(ini|conf)$ {
+    	deny all;
+    }
+
+    # 允许内部分  wp-includes 目录的 .php 文件
+    location ~* ^/wp-includes/.*\.(php|phps)$ {
+        internal;
+    }
+
+    #禁止访问 wp-config.php install.php 文件
+    location = /wp-config.php {
+        deny all;
+    }
+    location = /wp-admin/install.php {
+        deny all;
+    }
+
+
+    # 禁止访问 /wp-content/ 目录的 php 格式文件 (包含子目录)
+    location ~* ^/wp-content/.*.(php|phps)$ {
+        deny all;
+    }
+    # 固定连接的php处理
+    location ~* ^/s/.*.(php|phps)$ {
+        #deny all;
+	return 404;
+    }
+    location ~* ^/programming/.*.(php|phps)$ {
+        #deny all;
+	return 404;
+    }
+    location ~* ^/essay/.*.(php|phps)$ {
+        #deny all;
+	return 404;
+    }
+    location ~* ^/sweets/.*.(php|phps)$ {
+        #deny all;
+	return 404;
+    }
+    location ~* ^/links/.*.(php|phps)$ {
+        #deny all;
+	return 404;
+    }
+    location ~* ^/abouts/.*.(php|phps)$ {
+        #deny all;
+	return 404;
+    }
+
+    location ~* /(?:uploads|files|wp-content|wp-includes|akismet)/.*.php$ {
+    	deny all;
+    	access_log off;
+    	log_not_found off;
+    }
+
+	# 错误页面设置
+    error_page 403 /403.html;
+    location = /403.html {
+        root /etc/nginx/error_pages;
+        internal;
+    }
+    error_page 404 /404.html;
+    location = /404.html {
+        root /etc/nginx/error_pages;
+        internal;
+    }
+    error_page 500 /500.html;
+    location = /500.html {
+        root /etc/nginx/error_pages;
+        internal;
+    }
+    error_page 503 /503.html;
+    location = /503.html {
+        root /etc/nginx/error_pages;
+        internal;
+    }
+
+
+    location ~ .php$ {
+    	fastcgi_pass   127.0.0.1:9000;
+        fastcgi_index  index.php;
+    	fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+    }
+}
+</code></pre>
+<p>还有一个没有解决的问题就是，<code>php</code> 类型的 <code>url</code> 都交给 <code>php-fpm</code> 处理，当找不到 <code>url</code> 的时候，<code>php-fpm</code> 会直接返回一个 <code>file not found</code>。我们在 <code>nginx</code> 中设置的 <code>404</code> 页面也不会显示。我本来想看看 <code>php-fpm</code> 能不能设置默认 <code>404</code> 页面的，不过没找到方法。<code>nginx</code> 这边也没设么很好的处理方法，我最后的解决办法就是用 <code>location</code> 来过滤固定链接，只要检测到是固定链接，同时路径是以 <code>php</code> 结束的直接返回 <code>404</code>，固定链接一共也就几种（取决于你有几个一级分类目录）。这个方法有一个瑕疵就是根目录下的以 <code>php</code> 结尾的路径无法过滤，因为根目录下有些 <code>php</code> 是要访问的，我们没法一刀切。不过目前也没有找到其他的好办法，就先这样吧，问题也不大。</p>
+<p>**更新：根目录下路径下的 <code>php</code> 结尾的路径我用正则表达式 <code>^/(?!(wp-|xmlrpc))[^/]*php$</code> 进行了处理，把除了 <code>wp-</code> 开头的和 <code>index.php</code>，<code>xmlrpc.php</code> 以外的全部过滤了。除了 <code>wp-content</code>，<code>wp-includes</code>，<code>wp-admin</code> 路径下，其他的带 <code>/</code> 的路径访问 <code>php</code> 都直接返回 <code>404</code>，正则表达式为 <code>^/(?!wp-content|wp-includes|wp-admin|editormd).*/.*php$</code>。</p>
+<p>这里顺便说一下 <code>location</code> 配置指令格式为：<code>location [ = | ~ | ~* | ^~ ] uri {...}</code>。这里的 <code>uri</code> 分为标准 <code>uri</code> 和正则 <code>uri</code>，两者的唯一区别是 <code>uri</code> 中是否包含正则表达式。<code>uri</code> 前面的方括号中的内容是可选项，解释如下：</p>
+<ul>
+<li><code>=</code> ：用于标准 <code>uri</code> 前，要求请求字符串与 <code>uri</code> 严格匹配，一旦匹配成功则停止</li>
+<li><code>~</code> ：用于正则 <code>uri</code> 前，并且区分大小写</li>
+<li><code>~*</code> ：用于正则 <code>uri</code> 前，但不区分大小写</li>
+<li><code>^~</code> ：用于标准 <code>uri</code> 前，要求 <code>Nginx</code> 找到标识 <code>uri</code> 和请求字符串匹配度最高的 <code>location</code> 后，立即使用此 <code>location</code> 处理请求，而不再使用 <code>location</code> 块中的正则 <code>uri</code> 和请求字符串做匹配</li>
+</ul>
+<p>由于我只是更换 <code>web</code> 服务器，所以还算比较简单，如果你是从头安装，那么你可以看我之前的文章，或者参考腾讯云的这篇教程：<a href="https://cloud.tencent.com/document/product/213/38056" title="手动搭建 LNMP 环境（CentOS 7）">手动搭建 LNMP 环境（CentOS 7）</a></p>
+]]></content>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[JavaScript 原型机制]]></title>
         <id>https://clloz.github.io/post/javascript-prototype/</id>
         <link href="https://clloz.github.io/post/javascript-prototype/">
@@ -798,150 +997,302 @@ console.log(!!new Boolean('')) //true
 ]]></content>
     </entry>
     <entry>
-        <title type="html"><![CDATA[活了一百万次的猫]]></title>
-        <id>https://clloz.github.io/post/neko/</id>
-        <link href="https://clloz.github.io/post/neko/">
+        <title type="html"><![CDATA[Object.create(null) 和 {...}]]></title>
+        <id>https://clloz.github.io/post/object-create-null/</id>
+        <link href="https://clloz.github.io/post/object-create-null/">
         </link>
-        <updated>2018-06-21T11:27:39.000Z</updated>
-        <summary type="html"><![CDATA[<p>活了一百万次的猫是我非常喜欢的一本童话绘本，讲了一只活了一百万次的猫如何找到了真正生命的意义的故事。</p>
+        <updated>2020-09-10T13:59:32.000Z</updated>
+        <summary type="html"><![CDATA[<p>一些库的作者创建空对象的时候会使用 Object.create(null)，这么做的好处和意义是什么，它和字面量方式创建空对象有什么不同，本文对此进行分析。</p>
 ]]></summary>
-        <content type="html"><![CDATA[<p>活了一百万次的猫是我非常喜欢的一本童话绘本，讲了一只活了一百万次的猫如何找到了真正生命的意义的故事。</p>
+        <content type="html"><![CDATA[<p>一些库的作者创建空对象的时候会使用 Object.create(null)，这么做的好处和意义是什么，它和字面量方式创建空对象有什么不同，本文对此进行分析。</p>
 <!-- more -->
 <p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
 <p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
-<h3 id="活了100万次的猫-100万回生きたねこ">活了100万次的猫 100万回生きたねこ</h3>
-<p>活了一百万次的猫是我非常喜欢的一本童话绘本，讲了一只活了一百万次的猫如何找到了真正生命的意义的故事。我想每个人都曾经思考过自己来到这个世界上的意义，是学习更多的知识，赚更多的钱，还是获得更多人的尊重，每个人的想法各不相同，这本绘本的作者佐野洋子女士跟我的想法相通，我想我们都是渴望爱着别人也渴望被爱的，找寻到了一个自己爱的人和一份自己爱的工作并且能每天微笑着度过，即使将来我们老了病了，躺在床上等待生命的尽头的时候，我们也能微笑着，回首这一生，我的笑和泪都给了我最爱的人和事，这是一件多么幸福的事情。</p>
-<hr />
-<p>１００万年も　しなない　ねこが　いました。 <strong>有一只一百万年都没有死的猫。</strong><br>
-１００万回も　しんで　１００万回も　生きたのです。　<strong>他死过100万次也活过一百万次。</strong></p>
-<img class="alignnone size-medium" src="https://img.clloz.com/blog/neko/430626.jpg" width="475" height="400" />
-<p>りっぱな とら猫でした。 <strong>他是一只漂亮的虎斑猫。</strong><br>
-１００万人の人が　そのねこをかわいがり。 <strong>一百万个人疼爱过这只猫。</strong><br>
-１００万人のひとが　そのねこが死んだとき泣きました。 <strong>一百万个人在这只猫死的时候为他哭过。</strong><br>
-ねこは 1 回もなきませんでした。 <strong>猫一次也没有哭过。</strong></p>
-<hr />
-<img class="alignnone size-medium" src="https://img.clloz.com/blog/neko/430627.jpg" width="452" height="400" />
-<p>あるとき ねこは 王さまの ねこでした。 <strong>有一次，猫是国王的猫。</strong><br>
-ねこは 王さまなんか きらいでした。 <strong>猫讨厌什么国王。</strong><br>
-王さまは せんそうが じょうずで いつも せんそうを していました。** 国王很会打仗，一直打仗打个不停。**<br>
-そして ねこをりっぱなかごにいれて せんそうにつれていきました。<strong>猫被国王放在一个漂亮的篮子里带到了战场。</strong><br>
-ある日 ねこは とんできた やに あたって しんでしまいました。 <strong>有一天，猫被突然飞来的乱箭射死了。</strong><br>
-王さまは たたかいの まっさいちゅうに ねこを だいて なきました。 <strong>国王在战场的中间抱着猫痛哭。</strong><br>
-王さまは せんそうを やめて おしろに 帰ってきました。 <strong>国王不打仗了，回到了城堡。</strong><br>
-そして おしろの にわに ねこを うめました。 <strong>把猫埋在了城堡的花园里。</strong></p>
-<hr />
-<img class="alignnone size-medium" src="https://img.clloz.com/blog/neko/430628.jpg" width="477" height="400" />
-<p>あるとき ねこは 船のりの ねこでした。<strong>有一次，猫是水手的猫。</strong><br>
-ねこは 海なんか きらいでした。 <strong>猫讨厌大海什么的。</strong><br>
-船のりは せかいじゅうの海と せかいじゅうのみなとに ねこをつれていきました。 <strong>水手带着猫，游遍了世界上的大海和港口。</strong><br>
-ある日 ねこは船からおちてしまいました。 <strong>有一天，猫从船上掉下去了。</strong><br>
-ねこはおよげなかったのです。 <strong>猫不会游泳。</strong><br>
-船のりが いそいであみですくいあげると ねこは びしょぬれになって しんでいました。 <strong>水手赶紧用网把猫捞了上来，猫已经被淹死了。</strong><br>
-船のりは ぬれた ぞうきんのようになった ねこを だいて 大きな声で なきました。<strong>水手把像湿抹布一样的猫抱在怀里放声大哭。</strong><br>
-そして遠い みなと町のこうえんの木の下にねこをうめました。 <strong>然后，水手把猫葬在了遥远港口的公园的树下。</strong></p>
-<hr />
-<img class="alignnone size-medium" src="https://img.clloz.com/blog/neko/430629.jpg" width="396" height="333" />
-<p>あるとき ねこは サーカスの手品つかいのねこでした。 <strong>有一次，猫是马戏团魔术师的猫。</strong><br>
-ねこは サーカスなんか きらいでした。 <strong>猫讨厌什么魔术师。</strong><br>
-手品つかいは 毎日ねこを はこの中に入れて のこぎりで まっぷたつに しました。 <strong>魔术师每天把猫放到箱子里用锯子锯成两半。</strong><br>
-それから まるのままのねこを はこからとりだし はくしゅかっさいをうけました。 <strong>然后，当他把完好的猫从箱子里取出来的时候，观众们拍手叫好。</strong><br>
-ある日 手品つかいは まちがえて ほんとうに ねこをまっぷたつに してしまいました。 <strong>有一天，魔术师失误了，真的把猫切成了两半。</strong><br>
-手品つかいは まっぷたつに なってしまったねこを 両手にぶらさげて大きな声で なきました。 <strong>魔术师用两手拎着已经被锯成两半的猫大声痛哭。</strong><br>
-だれも はくしゅかっさいを しませんでした。 <strong>没有一个观众鼓掌了。</strong><br>
-手品つかいは サーカス小屋のうらに ねこをうめました。 <strong>魔术师把猫葬在了马戏团小屋的后面。</strong></p>
-<hr />
-<img class="alignnone size-medium" src="https://img.clloz.com/blog/neko/430630.jpg" width="382" height="333" />
-<p>あるとき ねこは どろぼうの ねこでした。 <strong>有一次，猫是小偷的猫。</strong><br>
-ねこは どろぼうなんか だいきらいでした。 <strong>猫最讨厌什么小偷。</strong><br>
-どろぼうは ねこと いっしょに くらい町を ねこのように しずかに歩きまわりました。 <strong>小偷和猫一起在黑暗的街道上像猫一样轻手轻脚的游荡。</strong><br>
-どろぼうは いぬのいる 家にだけ どろぼうに はいりました。 <strong>小偷只到养狗的人家去偷东西。</strong><br>
-いぬが ねこに ほえているあいだに どろぼうは 金庫をこじあけました。 <strong>趁着够对着猫叫的时候打开保险箱。</strong><br>
-ある日 ねこは いぬにかみころされてしまいまいした。 <strong>有一天，猫被狗咬死了。</strong><br>
-どろぼうは ぬすんだ ダイヤモンドと いっしょに ねこをだいて 夜の町を 大きな声で なきながら 歩きました。 <strong>小偷抱着偷来的钻石和猫在夜晚的街道上边走边大声哭泣。</strong><br>
-そして いえにかえって 小さなにわに ねこをうめました。 <strong>然后，回到家，小偷把猫葬在了庭院里。</strong></p>
-<hr />
-<img class="alignnone size-medium" src="https://img.clloz.com/blog/neko/430631.jpg" width="478" height="400" />
-<p>あるとき ねこは ひとりぼっちの おばあさんの ねこでした。 <strong>有一次，猫是孤独的老婆婆的猫。</strong><br>
-ねこは おばあさんなんか だいきらいでした。 <strong>猫最讨厌什么老婆婆。</strong><br>
-おばあさんは 毎日 ねこをだいて 小さなまどから 外を 見ていました。 <strong>老婆婆每天抱着猫从小小的窗户看着外面。</strong><br>
-ねこは 一日じゅう おばあさんの ひざの上で ねむっていました。 <strong>猫一整天都在老婆婆的膝盖上睡觉。</strong><br>
-やがて ねこは 年をとって しにました。 <strong>不久，猫年纪大了，死了。</strong><br>
-よぼよぼの おばあさんは よぼよぼの しんだねこを だいて 一日じゅう なきました。 <strong>步履蹒跚的老婆婆抱着老死的猫哭了一整天。</strong><br>
-おばあさんは にわの木の下に ねこをうめました。 <strong>老婆婆把猫葬在了庭院的树下。</strong></p>
-<hr />
-<img class="alignnone size-medium" src="https://img.clloz.com/blog/neko/430632.jpg" width="454" height="400" />
-<p>あるとき ねこは 小さな 女の子の ねこでした。 <strong>有一次，猫是小女孩的猫。</strong><br>
-ねこは 子どもなんか だいきらいでした。 <strong>猫最讨厌什么小女孩了。</strong><br>
-女の子は ねこを おんぶしたり しっかり だいて ねたりしました。 <strong>小女孩不是背着猫就是紧紧地抱着猫睡觉。</strong><br>
-ないたときは ねこの せなかで なみだを ふきました。 <strong>哭的时候就在猫的背上擦眼泪。</strong><br>
-ある日 ねこは 女の子の せなかで おぶいひもが 首に まきついて しんでしまいました。 <strong>有一天，猫在小女孩的背上被背带缠住脖子勒死了。</strong><br>
-ぐらぐらの頭に なってしまった ねこを だいて 女の子は 一日じゅう なきました。 <strong>小女孩抱着头断了的猫哭了一整天。</strong><br>
-そして ねこを にわの 木の下に うめました。 <strong>然后，小女孩把猫葬在了庭院的树下。</strong><br>
-ねこは しぬのなんか へいきだったのです。 <strong>猫对死亡已经麻木了。</strong></p>
-<hr />
-<img class="alignnone size-medium" src="https://img.clloz.com/blog/neko/430633.jpg" width="391" height="333" />
-<p>あるとき ねこは だれの ねこでも ありませんでした。 <strong>有一次，猫再也不是别人的猫了。</strong><br>
-のらねこだったのです。 <strong>猫是一只野猫。</strong><br>
-ねこは はじめて 自分のねこに なりました。 <strong>猫第一次成了自己的猫。</strong><br>
-ねこは 自分がだいすきでした。 <strong>猫最喜欢自己了。</strong><br>
-なにしろ りっぱなとらねこだったので りっぱなのらねこになりました。 <strong>原本他就是一直漂亮的虎斑猫，这次当然也是一直漂亮的野猫。</strong></p>
-<hr />
-<img src="https://img.clloz.com/blog/neko/430634.jpg" />
-<p>どんな めすねこも ねこのおよめさんに なりたがりました。 <strong>所有的母猫都想做他的新娘。</strong><br>
-大きなさかなを プレゼントする ねこも いました。 <strong>有的猫送给他大鱼。</strong><br>
-上等のねずみを さしだす ねこも いました。 <strong>有的猫送给他上等的老鼠。</strong><br>
-めずらしい またたびを おみやげにする ねこも いました。 <strong>有的猫送给他珍贵的木天蓼。</strong><br>
-りっぱな とらもようを なめてくれる ねこも いました。 <strong>有的猫为他舔毛。</strong><br>
-ねこは いいました。 <strong>猫说了：</strong><br>
-「おれは １００万回も しんだんだぜ。いまさら おっかしくて！」 <strong>我可是死了一百万次的猫，就这些东西我可不稀罕。</strong><br>
-ねこは だれよりも 自分が すきだったのです。 <strong>猫还是最喜欢自己。</strong></p>
-<hr />
-<img src="https://img.clloz.com/blog/neko/430635.jpg" alt="" />
-<p>たった １ぴき ねこに 見むきも しない白いうつくしいねこがいました。 <strong>只有一只漂亮的白猫，看都没看一眼。</strong><br>
-ねこは 白いねこの そばに いって <strong>猫来到白猫的身边说：</strong><br>
-「おれは １００万回も しんだんだぜ！」 と いいました。 <strong>“我已经死了一百万次了。”</strong><br>
-白いねこは「そう。」と いったきりでした。 <strong>白猫只说了一句：“是吗”</strong><br>
-ねこは すこしはらをたてました。なにしろ 自分がだいすきでしたからね。 <strong>猫有点生气，毕竟他是那么喜欢自己。</strong><br>
-つぎの日も つぎの日も ねこは白いねこの ところへいって いいました。 <strong>第二天，第三天，猫又到白猫那边说：</strong><br>
-「きみは まだ １回も 生きおわって いないんだろ。」 <strong>“你一次还没活完吧”</strong><br>
-白いねこは「そう。」と いったきりでした。 <strong>白猫还是只说了一句“是吗”</strong></p>
-<hr />
-<img src="https://img.clloz.com/blog/neko/430636.jpg" alt="" />
-<p>ある日ねこは白いねこの前でくるくると３回ちゅうがえりをしていいました。 <strong>一天，猫跑到白猫面前骨碌骨碌地翻了三个跟头。</strong><br>
-「おれ サーカスの ねこだったことも あるんだぜ。」 <strong>“我曾经是马戏团的猫”</strong><br>
-白いねこは「そう。」と いったきりでした。 <strong>白猫说“是吗”</strong><br>
-「おれは１００万回も・・・・・・。」と いいかけて ねこは <strong>“我可是活了一百万次。。。”猫说道一半</strong><br>
-「そばに いても いいかい。」と 白いねこに たずねました。 <strong>“我可以待在你身边么” 猫问白猫。</strong><br>
-白いねこは「ええ。」と いいました。 <strong>白猫说：“好”</strong><br>
-ねこは 白いねこの そばに いつまでも いました。 <strong>猫从此一直待在了白猫身边。</strong></p>
-<hr />
-<img src="https://img.clloz.com/blog/neko/430637.jpg" alt="" />
-<p>白いねこは かわいい子ねこを たくさんうみました。 <strong>白猫生了很多可爱的小猫。</strong><br>
-ねこは もう「１００万回も・・・・・・。」とは けっしていいませんでした。 <strong>猫再也不说我活了一百万次了。</strong><br>
-ねこは 白いねことたくさんの 子ねこを自分よりも すきなくらいでした。 <strong>比起自己，猫更喜欢白猫和小猫们。</strong></p>
-<hr />
-<img src="https://img.clloz.com/blog/neko/430638.jpg" alt="" />
-<p>やがて 子ねこたちは 大きくなって それぞれ どこかへ いきました。 <strong>不久，小猫们长大了，一个接一个地离开了。</strong><br>
-「あいつらも りっぱな のらねこに なったなあ。」 <strong>“孩子们也成了不赖的野猫呢”</strong><br>
-と ねこは まんぞくして いいました。 <strong>猫满足地说道。</strong><br>
-「ええ。」と 白いねこは いいました。 <strong>“是啊” 白猫回道。</strong><br>
-そして グルグルと やさしく のどを ならしました。 <strong>然后，白猫的喉咙里发出了轻柔的咕噜咕噜声。</strong><br>
-白いねこは すこし おばあさんに なっていました。 <strong>白猫慢慢变老了。</strong><br>
-ねこは いっそう やさしく グルグルと のどを ならしました。 <strong>猫也从喉咙里发出了轻柔的咕噜咕噜声。</strong><br>
-ねこは 白いねこといっしょに いつまでも生きていたいと思いました。 <strong>猫想和白猫永远一起生活下去。</strong></p>
-<hr />
-<img src="https://img.clloz.com/blog/neko/430639.jpg" alt="" />
-<p>ある日 白いねこは ねこのとなりで しずかにうごかなくなっていました。 <strong>一天，白猫在猫的身边一动不动了。</strong><br>
-ねこは はじめてなきました。 夜になって 朝になって また夜になって 朝になって ねこは１００万回もなきました。 <strong>猫第一次哭了，从夜里哭到早上，又从早上哭到夜里，整整哭了一百万次。</strong><br>
-朝になって 夜になって ある日のお昼に ねこはなきやみました。 <strong>一天又一天过去了，一天中午，猫停止了哭泣。</strong><br>
-ねこは 白いねこの となりで しずかに うごかなくなりました。 <strong>猫在白猫的身边安静地一动不动了。</strong></p>
-<hr />
-<img src="https://img.clloz.com/blog/neko/430640.jpg" alt="" />
-ねこは もう けっして 生きかえりませんでした。 **猫再也没有活过来了。**
-<img src="https://img.clloz.com/blog/neko/timg.jpg" alt="" />
-<hr />
-<p>这本绘本中的插画都很漂亮，要说我最喜欢哪一张，那就是最后虎斑猫抱着白猫痛哭的那张，我既替他难过，又为他开心，一种复杂的心情交织着，让自己的眼泪也止不住。难过的是，再美好的事物也终有结束的一天，不管我们做什么努力，有些事情终究是无法改变的；开心的是，找寻到自己活着的意义比什么都重要，在爱里出生，又在爱里死亡，即使我在痛哭，但为了失去的爱而痛哭，何尝不是一种幸福。最后一幅插画位于整本书的背面，当我们看完整本书合上书的时候，能看到他们两个肩并肩看着远方的背影，是那么的温馨，安静，携手一生，最后在爱中为自己的生命画上完美的句点。<br>
-佐野洋子在六十六岁完成这部作品，也曾经来北京图书馆朗读过这部作品，我想这是她对一生经历的思考得出的故事，是她这一生对爱的理解，我也会努力追寻这样的人生。</p>
+<h3 id="前言">前言</h3>
+<p>我们会在一些框架的源码中看到作者用 <code>Object.create(null)</code> 来初始化一个新的对象，和我们平常使用的对象字面量 <code>{}</code> 不同。本文讲解一下这两者的区别。</p>
+<h3 id="对象初始化">对象初始化</h3>
+<p>在 <code>JavaScript</code> 中初始化对象的方法有三种：<code>Object.create()</code>，<code>new Object()</code> 和字面量标记。我们分别来讲一讲三者的区别。</p>
+<h4 id="objectcreate">Object.create()</h4>
+<p><code>Object.create()</code> 方法接受两个参数，一个是新对象的原型对象，一个是要添加到新对象的属性（可选，是一个对象，添加的属性默认不可枚举，属性的形式参考 <code>Object.defineProperty()</code>）。返回值一个新对象，带着指定的原型对象和属性。</p>
+<p><code>Object.create()</code> 内部的原理参考 <code>MDN</code> 的实现：</p>
+<pre><code class="language-javascript">//请注意，尽管在 ES5 中 Object.create支持设置为[[Prototype]]为null，但因为那些ECMAScript5以前版本限制，此 polyfill 无法支持该特性。
+if (typeof Object.create !== &quot;function&quot;) {
+    Object.create = function (proto, propertiesObject) {
+        if (typeof proto !== 'object' &amp;&amp; typeof proto !== 'function') {
+            throw new TypeError('Object prototype may only be an Object: ' + proto);
+        } else if (proto === null) {
+            throw new Error(&quot;This browser's implementation of Object.create is a shim and doesn't support 'null' as the first argument.&quot;);
+        }
+
+        if (typeof propertiesObject !== 'undefined') throw new Error(&quot;This browser's implementation of Object.create is a shim and doesn't support a second argument.&quot;);
+
+        function F() {}
+        F.prototype = proto;
+
+        return new F();
+    };
+}
+</code></pre>
+<p><code>Object.create()</code> 可以帮我们实现继承，并且配置属性特性。也可以结合 <code>Object.assign()</code> 来实现多继承。</p>
+<pre><code class="language-javascript">function MyClass() {
+     SuperClass.call(this);
+     OtherSuperClass.call(this);
+}
+
+// 继承一个类
+MyClass.prototype = Object.create(SuperClass.prototype);
+// 混合其它
+Object.assign(MyClass.prototype, OtherSuperClass.prototype);
+// 重新指定constructor
+MyClass.prototype.constructor = MyClass;
+
+MyClass.prototype.myMethod = function() {
+     // do a thing
+};
+</code></pre>
+<h4 id="new-object">new Object()</h4>
+<p>在 <code>JavaScript</code> 中，几乎所有的对象都是 <code>Object</code> 类型的实例，它们都会从 <code>Object.prototype</code> 继承属性和方法。<code>Object</code>  构造函数为给定值创建一个对象包装器。用 <code>Object</code> 构造函数创建新的对象，参数接收任何值，但是根据值的不同会产生不同的对象。</p>
+<ul>
+<li>如果给定值是 <code>null</code> 或 <code>undefined</code>，将会创建并返回一个空对象（没有给定值也可以认为是 <code>undefined</code>）</li>
+<li>如果传进去的是一个基本类型的值，则会构造其包装类型的对象</li>
+<li>如果传进去的是引用类型的值，仍然会返回这个值，经他们复制的变量保有和源对象相同的引用地址</li>
+<li>当以非构造函数形式被调用时，<code>Object</code> 的行为等同于 <code>new Object()</code>。</li>
+</ul>
+<p>在实际编码中我们很少用到这种方式初始化对象。</p>
+<h4 id="对象字面量">对象字面量</h4>
+<p>一个对象初始化器，由花括号<code>{}</code> 包含的一个由零个或多个对象属性名和其关联值组成的一个逗号分隔的列表构成。这是我们最常使用的一种初始化对象的方式。之所以使用最频繁，是因为他是最方便的一种创建对象的方式。我们可以在创建对象的时候同时创建属性，并且在 <code>ES6</code> 之后，字面量方式创建对象添加了更多支持，包括扩展运算符，计算属性名等。</p>
+<p>定义属性为 <code>__proto__:</code> 值 或 <code>&quot;__proto__&quot;:</code> 值 时，不会创建名为 <code>__proto__</code> 属性。如果给出的值是对象或者 <code>null</code>，那么对象的 <code>[[Prototype]]</code> 会被设置为给出的值。注意的是一定要使用冒号的方式定义，不使用冒号标记的属性定义，不会变更对象的原型；而是和其他具有不同名字的属性一样是普通属性定义。下面这些形式都不可以。</p>
+<pre><code class="language-javascript">var __proto__ = &quot;variable&quot;;
+
+var obj1 = { __proto__ };
+console.log(Object.getPrototypeOf(obj1) === Object.prototype); //true
+console.log(obj1.hasOwnProperty(&quot;__proto__&quot;)); //true
+console.log(obj1.__proto__ === &quot;variable&quot;); //true
+
+var obj2 = { __proto__() { return &quot;hello&quot;; } };
+console.log(obj2.__proto__() === &quot;hello&quot;); //true
+
+var obj3 = { [&quot;__prot&quot; + &quot;o__&quot;]: 17 };
+console.log(obj3.__proto__ === 17); //true
+</code></pre>
+<p>还有一点就是对象字面量虽然和 <code>JSON</code> 很像，但他们不是同一个东西，主要不同点有以下：</p>
+<ul>
+<li><code>JSON</code> 只允许 <code>&quot;property&quot;: value syntax</code> 形式的属性定义。属性名必须用双引号括起来。且属性定义不允许使用简便写法。</li>
+<li><code>JSON</code> 中，属性的值仅允许字符串，数字，数组，<code>true</code>，<code>false</code>，<code>null</code> 或其他（<code>JSON</code>）对象。</li>
+<li><code>JSON</code> 中，不允许将值设置为函数。</li>
+<li><code>Date</code> 等对象，经 <code>JSON.parse()</code> 处理后，会变成字符串。</li>
+<li><code>JSON.parse()</code> 不会处理计算的属性名，会当做错误抛出。</li>
+</ul>
+<h3 id="objectcreatenull-和">Object.create(null) 和 {...}</h3>
+<p>最后来说一说 <code>Object.create(null)</code> 和 <code>{...}</code> 的区别。</p>
+<p>其实很简单，<code>{}</code> 是一个继承自 <code>Object.prototype</code> 的空对象，它能够使用 <code>Object.prototype</code> 上定义的一些方法，比如 <code>hasOwnProperty()</code>，<code>toString()</code> 等。他的结果和 <code>new Object()</code>（可以传 <code>null</code> 或者 <code>undefined</code> 做参数） 或者 <code>Object.create(Object.prototype)</code> 是一样的。</p>
+<p>而 <code>Object.create(null)</code> 是以继承自 <code>null</code> 的对象，它是一个没有任何属性，包括 <code>[[prototype]]</code>，包括原型的非常**“干净”** 的对象，和 <code>{__porot__: null}</code> 是一样的（不建议用这种方式设置原型）。在 <code>chrome</code> 中打印这个对象然后展开会显示 <code>No properties</code>。</p>
+<p>所以他们唯一的区别就是一个有 <code>[[prototype]]</code>，另一个没有。不过我个人认为这是没什么影响的，定义和原型上同名的方法会覆盖原型的方法，而且 <code>Object.prototype</code> 上的所有属性和方法都是不可枚举的，所以 <code>for ... in</code> 也是不会访问到多原型上的属性。两者之间应该也没有很大的性能差异。我也是在想不出有什么不得不用 <code>Object.create(null)</code> 的场景，除非你不希望自己的对象上有除了自己定义以外的能访问的属性🤔。</p>
+<p>所以我觉得日常编码中使用哪个都可以，对象字面量肯定更方便。<code>Object.create(null)</code> 可以创建一个更干净的对象，但是由于 <code>Object.prototpye</code> 上的属性都不可枚举，其实也不会产生影响，可以放心使用。</p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object" title="Object - MDN">Object - MDN</a></li>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Object_initializer" title="对象字面量">对象字面量</a></li>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/create" title="Object.create()">Object.create()</a></li>
+<li><a href="https://juejin.im/post/6844903589815517192" title="详解 Object.create(null)">详解 Object.create(null)</a></li>
+</ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[JavaScript对象属性类型和赋值细节]]></title>
+        <id>https://clloz.github.io/post/javascript-object-prop-assign/</id>
+        <link href="https://clloz.github.io/post/javascript-object-prop-assign/">
+        </link>
+        <updated>2020-09-09T14:02:54.000Z</updated>
+        <summary type="html"><![CDATA[<p>本文主要分析JavaScript中对象的数据属性和访问器属性中的特性，这些特性的应用以及对不同类型的属性进行赋值的时候有哪些违反直觉的行为。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>本文主要分析JavaScript中对象的数据属性和访问器属性中的特性，这些特性的应用以及对不同类型的属性进行赋值的时候有哪些违反直觉的行为。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>在研究 <code>JavaScript</code> 中深浅拷贝的方式的时候遇到一个违反我直觉的内容，就是 <code>JavaScript</code> 对象在和原型对象的情况下的赋值行为。本文介绍一下这部分的一些细节。</p>
+<h3 id="问题">问题</h3>
+<p>在研究 <code>Object.create</code> 方法的时候，发现用 <code>Object.create</code> 创建的对象的时候，给访问到的原型中的属性赋值的时候会在新创建的对象中新建这个属性。看如下代码：</p>
+<pre><code class="language-javascript">let Obj = {
+	a: 1,
+	b: 2
+}
+
+let obj = Object.create(Obj);
+
+obj.a = 10;
+
+console.log(obj, Obj); //{ a: 10 } { a: 1, b: 2 }
+</code></pre>
+<p>我也曾使用这个方法来复制对象的属性。但是今天仔细看里面的细节，发现这是违反我直觉的。我自己的思路是，<code>obj</code> 对象没有 <code>a</code> 属性，所以访问到的是原型 <code>Obj</code> 上的 <code>a</code> 属性，那么我修改属性的时候应该修改的也是原型上的属性。但是实际情况是一个 <code>a</code> 属性在 <code>obj</code> 对象上创建，原型上的 <code>a</code> 属性还保持原来的状态。</p>
+<p>其实仔细想一下，这种处理才是合理的。原型存在的目的是为了继承，继承的目的本质也是为了复用。而用来复用的方法或者属性随便就被修改了，会影响到很多其他对象。所以 <code>JavaScript</code> 的这种处理是合理的。</p>
+<p>我们可以把原型中的属性认为是一个<strong>默认值</strong>，当我们的对象没有对应属性的时候，原型能够提供一个默认值给我们，而默认值是不应该随便被修改的。甚至当我们用 <code>delete</code> 删除对象的属性的时候，原型上的同名属性依然是可以访问的，这也正是原型的意义。而且仔细想一想，非常频繁被使用的赋值操作都可以修改原型上的属性的话，将会是非常危险的。</p>
+<h3 id="深入">深入</h3>
+<p>上面我们对属性的赋值的行为举了一个例子，在参考了网络上的其他文章后，我发现这个简单的赋值行为其实还有更多可以研究的行为。</p>
+<h4 id="属性类型">属性类型</h4>
+<p>在分析具体的情况之前我们先说一下 <code>JavaScript</code> 中对象的属性。<code>JavaScript</code> 中属性分为两种类型，一种是数据属性 <code>data properties</code>，一种是访问器属性 <code>accessor properties</code>。<code>JavaScript</code> 标准还定义了一些用来描述属性的 <strong>特性</strong> <code>attributes</code>。属性的精确描述方式称为属性描述符 <code>properties descriptor</code>，也是 <code>Object.defineProperty()</code> 方法的第三个参数，数据属性的描述符称为 <code>data descriptor</code>，访问器属性的描述符称为 <code>accessor descriptor</code>。</p>
+<p>属性描述符其实就是对属性的精确定义，数据描述符是一个具有值的属性，该值可以是可写的，也可以是不可写的。访问器描述符是由 <code>getter</code> 函数和 <code>setter</code> 函数所描述的属性。一个描述符只能是这两者其中之一，不能同时是两者。这两种描述符都是对象。</p>
+<p>数据描述符和访问器描述符都支持支持以下两个 <code>attribute</code> 描述属性：</p>
+<ul>
+<li><code>configurable</code>：特性表示对象的属性是否可以被删除，以及除 <code>value</code> 和 <code>writable</code> 特性外的其他特性是否可以被修改。。默认为 <code>false</code>。<code>configurable</code> 属性设置为 <code>false</code>，则该属性被认为是 <strong>不可配置的</strong>，并且没有属性可以被改变（除了单向改变 <code>writable</code> 为 <code>false</code>）。当属性不可配置时，不能在数据和访问器属性类型之间切换。</li>
+<li><code>enumerable</code>：当且仅当该属性的 <code>enumerable</code> 键值为 <code>true</code> 时，该属性才会出现在对象的枚举属性中。默认为 <code>false</code>。定义了对象的属性是否可以在 <code>for...in</code> 循环和 <code>Object.keys()</code> 中被枚举。</li>
+</ul>
+<p>数据描述符还支持两个独占的 <code>attribute</code> 来描述属性：</p>
+<ul>
+<li><code>value</code>：该属性对应的值。可以是任何有效的 <code>JavaScript</code> 值（数值，对象，函数等）。默认为 <code>undefined</code>。</li>
+<li><code>writable</code>：当且仅当该属性的 <code>writable</code> 键值为 <code>true</code> 时，属性的值，也就是上面的 <code>value</code>，才能被赋值运算符改变。默认为 <code>false</code>。</li>
+</ul>
+<p>访问器属性也有两个独占的 <code>attribute</code> （两个都是函数）来描述属性：</p>
+<p><code>get</code>：属性的 <code>getter</code> 函数，如果没有 <code>getter</code>，则为 <code>undefined</code>。当访问该属性时，会调用此函数。执行时不传入任何参数，但是会传入 <code>this</code> 对象（由于继承关系，这里的 <code>this</code> 并不一定是定义该属性的对象，比如是从原型脸上访问到的 <code>get</code>）。该函数的返回值会被用作属性的值。默认为 <code>undefined</code>。<br>
+<code>set</code>：属性的 <code>setter</code> 函数，如果没有 <code>setter</code>，则为 <code>undefined</code>。当属性值被修改时，会调用此函数。该方法接受一个参数（也就是被赋予的新值），会传入赋值时的 <code>this</code> 对象。默认为 <code>undefined</code>。</p>
+<p><code>get</code> 和 <code>set</code> 并一定要成对出现，只指定 <code>getter</code> 意味着属性是不能写，尝试写入属性会被忽略。 在严格模式下，尝试写入只指定了 <code>getter</code> 函数的属性会抛出错误。类似地，只指定 <code>setter</code> 函数的属性也不能读，否则在非严格模式下会返回 <code>undefined</code>，而在严格模式下会抛出错误。</p>
+<pre><code class="language-javascript">// this 指向
+function myclass() {
+}
+
+Object.defineProperty(myclass.prototype, &quot;x&quot;, {
+  get() {
+    return this.stored_x;
+  },
+  set(x) {
+    this.stored_x = x;
+  }
+});
+
+var a = new myclass();
+var b = new myclass();
+a.x = 1; //this 是 a
+console.log(b.x); // undefined //this 是 b
+</code></pre>
+<p>拥有布尔值的特性 <code>configurable</code>、<code>enumerable</code> 和 <code>writable</code> 的默认值都是 <code>false</code>。属性值和函数的键 <code>value</code>、<code>get</code> 和 <code>set</code> 字段的默认值为 <code>undefined</code>。默认值在描述符省略某些字段时启用。对于直接用对象字面量或属性访问器（点运算符或者方括号运算符）赋值的方式（比如 <code>obj.a = 10</code>  ）创建的属性其数据描述符中的属性的默认值和 <code>Object.defineProperty()</code> 方法是不同的，参考如下代码：</p>
+<pre><code class="language-javascript">let a = {
+	m: 1,
+	set t(arg) {}
+}
+console.log(Object.getOwnPropertyDescriptors(a))
+
+//{
+//	m: { value: 1, writable: true, enumerable: true, configurable: true },
+//	t: {
+//		get: undefined,
+//		set: [Function: set t],
+//		enumerable: true,
+//		configurable: true
+//	}
+//}
+</code></pre>
+<p>一个 <code>configurable</code> 为 <code>true</code> 的属性是可以在数据属性和访问器属性之间切换，方法就是用 <code>Object.defineProperty()</code> 方法重新定义一个同名属性。</p>
+<pre><code class="language-javascript">let a = {}
+a.m = 10; //字面量定义，所有的布尔型 attribute 都为 true
+
+Object.defineProperty(a, 'm', {
+	get () {
+		return 100;
+	}
+})
+
+console.log(a.m) //100
+
+Object.defineProperty(a, 'm', {
+	value: 20
+})
+
+console.log(a.m) //20
+</code></pre>
+<p>如果一个描述符不具有 <code>value</code>、<code>writable</code>、<code>get</code> 和 <code>set</code> 中的任意一个键，那么它将被认为是一个数据描述符。如果一个描述符同时拥有 <code>value</code> 或 <code>writable</code> 和 <code>get</code> 或 <code>set</code> 键，则会产生一个异常。</p>
+<p>无论是数据属性还是访问器属性，都是可以从原型上继承的。如果原型上是一些不希望被修改的默认值，可以用 <code>Object.freeze</code> 冻结源性对象，防止后续代码添加或删除对象原型的属性。</p>
+<p>如果原型上有了同名的访问器属性，那么你无法用属性访问器（点运算符或者方括号运算符）赋值的方式，比如 <code>obj.a = 10</code>，在子对象上创建同名属性（只能用 <code>Object.defineProperty() 方法</code>），在子对象上访问或者修改这个属性都会调用原型上的 <code>get</code> 或者 <code>set</code> 方法（如果只指定了一个，那么行为参考上面的 <code>get</code> 和 <code>set</code> 部分）。和访问器属性不一样，数据属性始终在对象自身上设置，而不会影响到原型上的属性。但如果一个不可写的属性被继承，它仍然可以防止修改对象的属性。这也是我们这篇文章讨论的重点。</p>
+<pre><code class="language-javascript">//只设置set
+let value = 10;
+let a = {
+	set m (m) {
+		value = m; 
+	},
+}
+let b = Object.create(a)
+console.log(a.m) //没有设置get 返回undefined 严格模式下报错
+console.log(b.m) //b对象没有m属性，调用a的get方法。返回undefined，同上
+Object.defineProperty(b, 'm', {
+	value: 100,
+	writable: true,
+	configurable: true,
+	enmerable: true
+})
+console.log(b) //{m: 100}
+console.log(b.m, a.m) //100 undefined
+
+//只设置get
+let value = 10;
+let a = {
+	get m () {
+		return value;
+	},
+}
+let b = Object.create(a)
+console.log(a.m)//10
+a.m = 100; //没有设置set，赋值会被忽略，严格模式下报错
+console.log(a.m) //10
+
+console.log(b.m) //10, b上面没有m属性，返回a.m
+b.m = 100 //属性访问器（点运算符或方括号运算符）无法创建同名属性
+console.log(b.m) //10, 依然返回a.m
+Object.defineProperty(b, 'm', {
+	value: 100,
+	writable: true,
+	configurable: true,
+	enmerable: true
+})
+console.log(b, b.m) //{m:100} 100
+console.log(a.m) //10 a对象不受影响
+</code></pre>
+<p>我们平时可能使用数据属性比较多，但是其访问器属性也有很多应用场景。比如我们属性的 <code>Vue</code> 的双向数据绑定就是用 <code>set</code> 实现的。</p>
+<h4 id="赋值行为">赋值行为</h4>
+<h5 id="原型链上没有同名属性">原型链上没有同名属性</h5>
+<p>这是最简单的情况，会直接在子对象上创建一个新的属性。<code>JavaScript</code> 会现在子对象中检索该属性，如果没有找到则会沿着原型链寻找到原型链的终点 <code>null</code>，在原型链的任何位置找到会立即返回找到的值。</p>
+<pre><code class="language-javascript">let a = {}
+let b = Object.create(a);
+b.m = 10;
+console.log(b) //{m: 10}
+</code></pre>
+<h5 id="原型链上有同名可写属性">原型链上有同名可写属性</h5>
+<p>这种情况就是开头的问题中提到的情况，同样会在子对象上创建新的属性。</p>
+<pre><code class="language-javascript">let a = {
+	m: 2
+}
+let b = Object.create(a);
+b.m = 10;
+console.log(a) //{m: 2} a对象不变
+console.log(b) //{m: 10}
+</code></pre>
+<h5 id="原型链上有同名不可写属性">原型链上有同名不可写属性</h5>
+<p>这种情况下不会在子对象上创建新的属性，赋值也不会执行，在严格模式下会报错。至于为什么这样设计，<a href="https://www.zhihu.com/question/31934148/answer/53949560" title="贺师俊">贺师俊 </a> 认为是保持 <code>getter-only property</code>（只定义了<code>get</code> 方法的访问器属性，上面详细介绍了） 和 <code>non-writable property</code> 行为的一致。<code>You Dont Know Js</code> 则认为是为了保持和传统语言继承表现的一致。</p>
+<pre><code class="language-javascript">//'use strict'
+let a = {}
+Object.defineProperty(a, 'm', {
+	value: 10,
+	configurable: true,
+	enumerable: true,
+	writable: false
+})
+
+console.log(a.m)
+a.m = 100 //无效，严格模式下会报错 TypeError: Cannot assign to read only property 'm' of object
+
+let b = Object.create(a);
+console.log(b.m)
+b.m = 200 //无效，严格模式下报错
+console.log(b) //{} 不会创建新的属性
+</code></pre>
+<h5 id="访问器属性">访问器属性</h5>
+<p>关于访问器属性，我在上一节详细介绍过了。如果不考虑用 <code>Object.defineProperty</code> 来定义属性描述符，我们是无法在子对象上创建新的同名属性的，我们对同名属性的操作都是在调用原型对象上对应属性的 <code>get</code> 和 <code>set</code> 方法，唯一不同的就是方法内的 <code>this</code> 指向会发生变化。</p>
+<h3 id="总结">总结</h3>
+<p>其实对属性类型和赋值行为的讨论，最终还是会回到继承机制的问题上。属性的类型和继承的机制在标准的发展过程中也不是一成不变的，<code>ES5</code> 标准中属性描述里的特性都是没法直接在 <code>JS</code> 中访问和操作的，它只是在实现引擎是使用的。而现在 <code>getter</code> 和 <code>setter</code> 也能够让我们实现一些高级特性。而继承机制需要在很多方面取得一个平衡，比如复用，灵活性和数据的安全性等。</p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty" title="Object.defineProperty() - MDN">Object.defineProperty() - MDN</a></li>
+<li><a href="https://segmentfault.com/a/1190000016865771" title="js细节剖析">js细节剖析</a></li>
+</ol>
 ]]></content>
     </entry>
 </feed>

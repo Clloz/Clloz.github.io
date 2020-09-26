@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>JavaScript浅拷贝和深拷贝 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601130041433" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="JavaScript中如何实现浅拷贝和深拷贝，JavaScript 的不同数据类型是如何在内存中进行存储的，深拷贝如何对循环引用，Symbol，属性特性进行处理，本文一一进行讨论。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+..." />
+    <meta name="keywords" content="JavaScript" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601130041433" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">JavaScript浅拷贝和深拷贝</h2>
+            <div class="post-date">2020-09-09</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/javascript-shallow-deep-copy.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>JavaScript中如何实现浅拷贝和深拷贝，JavaScript 的不同数据类型是如何在内存中进行存储的，深拷贝如何对循环引用，Symbol，属性特性进行处理，本文一一进行讨论。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p><code>JavaScript</code> 中最重要的就是对象，除了 <code>Number, String, Null, Undefined, Boolean, Symbol, BigInt</code> 等基本数据类型，剩下的就 <code>Object</code> 对象。<code>JavaScript</code> 也给我们提供了一系列内置对象，比如 <code>Function，Array，Math，Date，RegExp</code> 等等，他们都是用 <code>function Object()</code> 构造的。我们使用 <code>JavaScript</code> 大多是时候都是在操作对象。本文就讲一讲复制对象涉及到的浅拷贝和深拷贝。</p>
+<h3 id="内存堆栈">内存堆栈</h3>
+<p>在讲对象的复制之前我们先来了解一下 <code>JavaScript</code> 中的数据类型在内存中是如何存放的。</p>
+<p>每一个数据都需要分配一块内存空间，内存空间分为两种：栈 <code>stack</code> 和 堆 <code>heap</code>：<code>stack</code> 为自动分配的内存空间，它由系统自动释放；而 <code>heap</code> 则是动态分配的内存，大小不定也不会自动释。基本类型值是存储在栈中的简单数据段，也就是说，他们的值直接存储在变量访问的位置。堆是存放数据的基于散列算法的数据结构，在 <code>javascript</code> 中，引用值是存放在堆中的。</p>
+<pre><code class="language-javascript">let a = 10;
+let b = 20;
+let obj = {
+	name: 'clloz'
+}
+let obj2 = obj
+</code></pre>
+<p>比如这段代码在内存中的结构应该为：</p>
+<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/shallowcopy.png" alt="shallowcoppy" loading="lazy"></figure>
+<p>所以访问基本类型的变量时，是直接访问到栈内存中其真正的值；而访问引用类型的变量时，是通过栈内存中保存的引用地址去访问。</p>
+<p>栈的优势就是存取速度比堆要快，仅次于直接位于 <code>CPU</code> 中的寄存器，但缺点是，存在栈中的数据大小与生存期必须是确定的，缺乏灵活性。堆的优势是可以动态地分配内存大小，生存期也不必事先告诉编译器，垃圾收集器会自动地收走这些不再使用的数据，但是缺点是由于在运行时动态分配内存，所以存取速度较慢。所以对于基本数据类型，他们占用内存比较小，如果放在堆中，查找会浪费很多时间，而把堆中的数据放入栈中也会影响栈的效率。比如对象和数组是可以无限拓展的，正好放在可以动态分配大小的堆中。</p>
+<p>从上面的例子中我们可以看到，我们将一个对象赋值给一个变量的时候，系统会在栈中为我们分配一块空间，里面存入对象在堆中的地址。<code>obj</code> 和 <code>obj1</code> 指向的是堆中的同一块内存，不管我们用哪个标识符来操作对象中的数据，都会影响到另一个，因为他们本质就是同一个对象的不同名字。而如果是基本数据类型的复制，则直接在栈中将值写入，新变量的改变不会影响到原来的变量。</p>
+<p>这就是值传递和地址传递的主要区别，也就是深拷贝和浅拷贝的产生的原因。当我们想要真正地复制一个对象，希望开辟一块新的内存空间，新对象的操作不会影响到原来的对象，就需要用深拷贝的方式。</p>
+<h3 id="概念">概念</h3>
+<p>有了上面对数据类型和内存对战的概念，我们可以来说一说浅拷贝 <code>shallow copy</code> 和深拷贝 <code>deep copy</code> 的概念了。</p>
+<ul>
+<li>浅拷贝：地址传递，本质是指向同一对象的不同标识符。对对象进行改动会影响到所有浅拷贝对象。</li>
+<li>深拷贝：真正的复制对象，在堆中单独开辟一块内存空间，复制对象的所有属性，包括嵌套的对象也会复制。当我们不希望新的对象和之前的对象关联时，我们应该使用深拷贝。</li>
+</ul>
+<h3 id="浅拷贝实现">浅拷贝实现</h3>
+<h4 id="赋值">赋值</h4>
+<p>最简单的浅拷贝方式就是我们最常用的赋值。</p>
+<h4 id="objectassingn">Object.assingn()</h4>
+<p><code>Object.assign()</code> 方法也是常用的浅拷贝方法，该方法只会拷贝源对象自身的并且可枚举的属性到目标对象，<code>String</code> 类型和 <code>Symbol</code> 类型的属性都会被拷贝。不过需要注意的是 <code>Object.assign()</code> 是一层深拷贝，看下面的代码：</p>
+<pre><code class="language-javascript">let a = {
+	p1: 10,
+	p2: 20,
+	p3: {
+		m: 100,
+		n: 200
+	}
+}
+let b = Object.assign({}, a);
+console.log(b) //{ p1: 10, p2: 20, p3: { m: 100, n: 200 } }
+b.p1 = 'teste';
+console.log(a) //{ p1: 10, p2: 20, p3: { m: 100, n: 200 } } a中的p1没有改变
+b.p3.m = 'test'
+console.log(a) //{ p1: 10, p2: 20, p3: { m: 'test', n: 200 } } a.m是一个嵌套对象，浅拷贝
+</code></pre>
+<p>我们看到拷贝后的 <code>b</code> 对象将 <code>p1</code> 改变后，<code>a</code> 中的 <code>p1</code> 并没有改变，所以是一层深拷贝。</p>
+<hr>
+<p>关于 <code>Object.assign()</code> 还有需要注意的点就是，该方法只能拷贝源对象的可枚举的自身属性，同时拷贝时无法拷贝属性的特性们，而且访问器属性会被转换成数据属性（值为访问器属性的 <code>getter</code> 的返回值，也无法拷贝源对象的原型。看下面的例子。</p>
+<pre><code class="language-javascript">//'use strict'
+let a_p = {
+	fun: () =&gt; console.log('a.[[prototype]]')
+}
+let a = Object.create(a_p);
+let out_var = 'out variable'
+
+Object.defineProperty(a, Symbol('symbol'), {
+	value: 'symbol',
+	enumerable: true
+})
+
+Object.defineProperty(a, 'val', { //不可枚举属性
+	value: 100,
+	configurable: false,
+	enumerable: false,
+	writable: true
+})
+
+Object.defineProperty(a, 'enum', {//可枚举属性
+	value: 'enumerable',
+	configurable: false,
+	enumerable: true,
+	writable: false
+})
+
+
+Object.defineProperty(a, 'm', { //不可枚举的访问器属性
+  	enumerable: false,
+	set(val) {
+		this.val = val;
+	},
+	get() {
+		return this.val;
+	}
+})
+
+Object.defineProperty(a, 'n', { //可枚举的访问器属性
+	enumerable: true,
+	set(val) {
+		a.val = val
+	},
+	get() {
+		return a.val
+	}
+})
+
+
+let b = Object.assign({}, a)
+console.log(b) //{ enum: 'enumerable', n: 100, [Symbol(symbol)]: 'symbol' } 只有可枚举的数据属性和访问器属性是会被复制的。访问器属性被转换成数据属性，值是调用访问器属性getter的返回值
+console.log(Object.getOwnPropertyDescriptor(b, 'enum')) //属性描述符全部变为 true
+//{
+//	value: 'enumerable',
+//	writable: true,
+//	enumerable: true,
+//	configurable: true
+//}
+console.log(Object.getPrototypeOf(b) === Object.prototype) //true 没有复制原型
+</code></pre>
+<p>如果想要实现复制属性的特性，访问器属性以及链接原型，可用如下的方法：</p>
+<pre><code class="language-javascript">let c = Object.create(
+	Object.getPrototypeOf(a),
+	Object.getOwnPropertyDescriptors(a)
+);
+</code></pre>
+<h4 id="objectcreate">Object.create()</h4>
+<p>用 <code>Object.create()</code> 也可以实现对象的一层深拷贝。主要是结合对象的属性类型和赋值特性，可以参考另一篇文章：<a href="https://www.clloz.com/programming/front-end/js/2020/09/09/javascript-object-prop-assign/#i-8" title="JavaScript对象属性类型和赋值细节">JavaScript对象属性类型和赋值细节</a></p>
+<h3 id="深拷贝实现">深拷贝实现</h3>
+<h4 id="对象字面量">对象字面量</h4>
+<p>最简单的做法就是用对象字面量重新定义一个对象。这种方法很笨拙也不通用。</p>
+<h4 id="json-序列化和反序列化">JSON 序列化和反序列化</h4>
+<p>用 <code>JSON.stringify()</code> 和 <code>JSON.parse()</code> 进行序列化反序列化。先将一个 <code>JavaScript</code> 对象转为一个 <code>JSON</code> 字符串，然后再将字符串转为对象。这种方法不能复制非枚举属性，也不能复制属性特性，也不能复制访问器属性。而且<code>JSON.parse()</code>和 <code>JSON.stringify()</code> 能正确处理的对象只有 <code>Number</code>、<code>String</code>、<code>Array</code> 和 <code>Boolean</code> 等能够被 <code>json</code> 表示的数据结构，因此函数，<code>RegExp</code>这种不能被 <code>json</code> 表示的类型将不能被正确处理。</p>
+<p>还有一点存在循环引用的对象，例如 <code>let a = {m:a}</code> 这样的对象序列化会报错 <code>TypeError: Converting circular structure to JSON</code>。</p>
+<p>这个方法根据自己的需求使用。</p>
+<h4 id="forin-递归">for...in 递归</h4>
+<p>这个方法是最好理解的，代码如下。注意 <code>for...in</code> 会遍历所有能访问到的属性，包括原型链上的。</p>
+<pre><code class="language-javascript">let testObj = {
+	num: 0,
+	str: 'clloz',
+	boolean: true,
+	unf: undefined,
+	nul: null,
+	obj: {
+		name: 'clloz',
+		id: 1
+	},
+	arr: [0, 1, 2],
+	func: function() {
+		console.log('clloz')
+	},
+	date: new Date(0),
+	reg: new RegExp('/clloz/ig'),
+	err: new Error('clloz')
+}
+
+function isObject(obj) {
+	return (typeof obj === 'function' || typeof obj === 'object') &amp;&amp; obj !== null;
+}
+
+function deepClone(obj) {
+	if (!isObject(obj)) {
+		throw new Error('obj is not a Object!');
+	}
+	
+	let isArray = Array.isArray(obj);
+	
+	let newObj = isArray ? [] : {};
+	
+	for (let prop in obj) {
+		if (obj.hasOwnProperty(prop)) {
+			newObj[prop] = isObject(obj[prop]) ? deepClone(obj[prop]) : obj[prop];
+		}
+	}
+	return newObj;
+}
+
+let a = deepClone(testObj)
+console.log(a)
+//{
+//	num: 0,
+//	str: '',
+//	boolean: true,
+//	unf: undefined,
+//	nul: null,
+//	obj: { name: '我是一个对象', id: 1 },
+//	arr: [ 0, 1, 2 ],
+//	func: {},
+//	date: {},
+//	reg: {},
+//	err: {}
+//}
+
+console.log(a.obj === testObj.obj) //false
+console.log(a.arr === testObj.arr) //false
+</code></pre>
+<p>最终成功拷贝了 <code>obj</code> 和 <code>arr</code>。<code>func</code>，<code>date</code>，<code>reg</code> 和 <code>err</code> 没有拷贝成功，因为他们不是普通的 <code>Object</code> 结构。</p>
+<h4 id="第三方库">第三方库</h4>
+<p><code>jQuery.extend</code>, <a href="https://github.com/lodash/lodash/blob/master/.internal/baseClone.js" title="baseClone -lodash">baseClone -lodash</a>，还有 <code>lodash</code>自定义深拷贝方法 <a href="https://lodash.com/docs/4.17.15#cloneDeepWith" title="cloneDeepWith">cloneDeepWith</a>。有兴趣可以去阅读以下源码。</p>
+<h3 id="深入">深入</h3>
+<h4 id="循环引用">循环引用</h4>
+<p>我们在深拷贝的 <code>JSON</code> 序列化部分说到了循环引用会引起序列化报错的问题。但时期我们的 <code>for...in</code> 方法遇到循环引用一样会出问题。</p>
+<p>比如上面的例子，我们为 <code>testObj</code> 添加一个属性 <code>loop: testObj</code>，在执行会发现栈溢出了 <code>RangeError: Maximum call stack size exceeded</code>。</p>
+<p>如果你用了 <code>lodash</code> 的 <code>baseClone</code> 会发现它的执行不会报错，因为它用栈来保存克隆的对象，用来检测循环引用。</p>
+<pre><code class="language-javascript">  // Check for circular references and return its corresponding clone.
+  stack || (stack = new Stack)
+  const stacked = stack.get(value)
+  if (stacked) {
+    return stacked
+  }
+</code></pre>
+<h4 id="symbol">Symbol</h4>
+<p>如果属性的 <code>key</code> 是一个 <code>Symbol</code>，那么 <code>for...in</code> 无法遍历到该属性。这里我们可以用 <code>Reflect.ownKeys()</code> 方法。也可以使用 <code>Object.getOwnPropertySymbols()</code> 方法。</p>
+<pre><code class="language-javascript">function deepClone(obj) {
+	if (!isObject(obj)) {
+		throw new Error('obj 不是一个对象！')
+	}
+
+	let isArray = Array.isArray(obj)
+	let newObj = isArray ? [...obj] : { ...obj }
+	Reflect.ownKeys(newObj).forEach(key =&gt; {
+		newObj[key] = isObject(obj[key]) ? deepClone(obj[key]) : obj[key]
+	})
+
+	return newObj
+}
+</code></pre>
+<h4 id="不可枚举属性">不可枚举属性</h4>
+<p>关于不可枚举属性的深拷贝，我想到的是用 <code>Object.getOwnPropertyNames</code> 来遍历添加。如果遇到 <code>value</code> 是对象则递归。不过很多内置对象需要单独处理，比如 <code>Function</code>，<code>RegExp</code>，<code>Date</code> 等。</p>
+<pre><code class="language-javascript">
+let testObj = {
+	num: 0,
+	str: 'clloz',
+	boolean: true,
+	unf: undefined,
+	nul: null,
+	obj: {
+		name: 'clloz',
+		id: 1
+	},
+	arr: [0, 1, 2],
+	func: function() {
+		console.log('clloz')
+	},
+	date: new Date(0),
+	reg: new RegExp('/clloz/ig'),
+	err: new Error('clloz')
+}
+Object.defineProperty(testObj, 'test', {
+	value: {
+		name: 'clloz',
+		age: 28
+	},
+	writable: true,
+	enumerable: false,
+	configurable: true,
+})
+
+function isObject(obj) {
+	return (typeof obj === 'object') &amp;&amp; obj !== null &amp;&amp; obj instanceof RegExp !== true &amp;&amp; obj instanceof Date !== true;
+}
+
+function deepClone(obj) {
+	if (!isObject(obj)) {
+		throw new Error('obj is not a Object!');
+	}
+	
+	let isArray = Array.isArray(obj);
+	
+	let newObj = isArray ? [] : {};
+	
+	let keys = Object.getOwnPropertyNames(obj);
+	
+	for (let key of keys) {
+		if (isObject(Object.getOwnPropertyDescriptor(obj, key).value)) {
+			Object.defineProperty(newObj, key, {
+				value: deepClone(obj[key]),
+				configurable: Object.getOwnPropertyDescriptor(obj, key).configurable,
+				enumerable: Object.getOwnPropertyDescriptor(obj, key).enumerable,
+				writable: Object.getOwnPropertyDescriptor(obj, key).writable,
+			})
+		} else {
+			Object.defineProperty(newObj, key, Object.getOwnPropertyDescriptor(obj, key))
+		}
+	}
+	return newObj;
+}
+
+let a = deepClone(testObj)
+console.log(Object.getOwnPropertyDescriptors(a))
+console.log(a.obj === testObj.obj) //false
+console.log(a.arr === testObj.arr) //false
+
+</code></pre>
+<p>这个实现在加上 <code>Symbol</code>的处理，循环引用的处理基本就可以应对大多数情况了。如果你还想增加对原型的支持，那么可以在创建对象的时候用 <code>Object.create()</code>。</p>
+<h3 id="总结">总结</h3>
+<p>如果要实现一个能应对各种对象各种情况的深拷贝函数还是非常不容易的，本文处理的情况包括：</p>
+<ul>
+<li><code>Symbol</code>：用 <code>Reflect.ownKeys()</code> 或者 <code>Object.getOwnPropertySymbols()</code></li>
+<li><code>for-in</code>：遍历原型链上的属性，如果不需要原型上的方法，可以添加判断。</li>
+<li><code>Object.getOwnPropertyNames</code>: 实现非枚举属性的拷贝</li>
+<li>循环引用的处理</li>
+</ul>
+<p>在日常的编码中我们不太会遇到这么复杂的情况，大多数情况下我们要深拷贝的对象用 <code>for...in</code> 或者序列化就可以处理了。扩展这么多主要是为了加深对 <code>JavaScript</code> 对象的理解。</p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://segmentfault.com/a/1190000015830451" title="JS数据类型和内存堆栈">JS数据类型和内存堆栈</a></li>
+<li><a href="https://blog.csdn.net/jingtian678/article/details/83902819" title="JS的栈与堆的讲解">JS的栈与堆的讲解</a></li>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyDescriptors" title="Object.getOwnPropertyDescriptors() - MDN">Object.getOwnPropertyDescriptors() - MDN</a></li>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/assign" title="Object.assign() - MDN">Object.assign() - MDN</a></li>
+<li><a href="https://juejin.im/post/6844903592587952135#heading-6" title="深入深入在深入JS深拷贝对象">深入深入在深入JS深拷贝对象</a></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/javascript/" class="tag">
+                    JavaScript
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/centos7-apache-http-2/">
+                  <h3 class="post-title">
+                    CentOS7 Apache 开启 HTTP/2 支持
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

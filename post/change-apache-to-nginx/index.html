@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>更换 Apache 到 Nginx | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601130041433" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="Apache的内存开销非常大， 对于内存较小的云服务器非常不友好。本文记录将 Web 服务器从 Apache 更换到 nginx 的过程。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+将服务器上的 Apache 升级到 2.4..." />
+    <meta name="keywords" content="Server" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601130041433" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">更换 Apache 到 Nginx</h2>
+            <div class="post-date">2020-09-11</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/change-apache-to-nginx.png')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>Apache的内存开销非常大， 对于内存较小的云服务器非常不友好。本文记录将 Web 服务器从 Apache 更换到 nginx 的过程。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>将服务器上的 <code>Apache</code> 升级到 <code>2.4.46</code> 后，内充占用率飙涨，改了 <code>MaxConnectionPerChild</code> 配置到 <code>50</code> 也不见效。<code>2G</code> 的内存占用率已经超过 <code>90</code>，<code>Apache</code> 吃掉了差不多 <code>1G</code> 内存。<code>systemctl restart httpd</code> 以后，很快又把内存吃回去。虽然一直都遇到内存占用的问题，但之前没有这么严重，也就凑活着用了。每次想换 <code>nginx</code> 都觉得太折腾就作罢。现在这情况只能强行折腾了，服务器都卡的用不了了。下面分享一下更换 <code>web</code> 服务器的过程。</p>
+<h3 id="过程">过程</h3>
+<p>其实过程也比较简单，停了 <code>apache</code>。</p>
+<pre><code class="language-bash">systemctl stop httpd
+systemctl disable httpd
+</code></pre>
+<p>安装 <code>nginx</code>，直接用 <code>yum</code> 安装即可。启动并设置开机启动，同时确保 <code>php-fpm</code> 也启动了。</p>
+<pre><code class="language-bash">yum install nginx
+systemctl start nginx
+systemctl enable ninx
+</code></pre>
+<p>剩下的就是配置了，配置文件路径 <code>/etc/nginx/nginx.conf</code>。<code>nginx</code> 支持模块化的配置，你可以把不同功能的配置写到不同的文件里面，然后用 <code>include</code> 引入。单独的 <code>conf</code> 文件要放到 <code>/etc/nginx/conf.d</code> 文件夹里。如果你不想创建单独的文件，就把配置写在 <code>nginx.conf</code>文件夹里也可以，是一个 <code>server {}</code>。需要特别注意的是你的配置要写到 <code>include /etc/nginx/conf.d/*.conf</code> 这一句的 <strong>前面</strong>。我一开始就是看错成后面，白白乱折腾了一阵子。</p>
+<p>然后 <code>nginx</code> 的配置其实还是比较好理解的，但是不支持 <code>.htaccess</code>。关于配置我这里就不细说了，我也就东拼西凑搞了个差不多的，目前看来基本能用了，有些问题可能后期使用中才能慢慢发现，这里就给大家贴一下我现在的配置。</p>
+<pre><code class="language-bash">server {
+	#http重定向到https
+	listen    80;
+	listen [::]:80;
+	server_name	www.clloz.com clloz.com;
+	return 301	https://$server_name$request_uri;
+}
+server {
+    listen                  443 ssl http2;
+    listen                  [::]:443 ssl http2;
+    server_name             www.clloz.com clloz.com;
+
+	#网站根目录
+    root		    /var/www/html;
+
+	#https
+    ssl_certificate         ssl/3793755_www.clloz.com.pem;
+    ssl_certificate_key     ssl/3793755_www.clloz.com.key;
+    ssl_session_timeout 5m;
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4; #使用此加密套件。
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2; #使用该协议进行配置。
+    ssl_prefer_server_ciphers on;
+
+    # 安全标头
+    add_header Strict-Transport-Security &quot;max-age=31536000; includeSubDomains; preload&quot; always;
+    add_header X-Frame-Options DENY;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-Xss-Protection 1;
+
+    # 禁用目录列表
+    autoindex off;
+
+    # 限制请求次数
+    #limit_req_zone $binary_remote_addr zone=WPRATELIMIT:10m rate=2r/s;
+    #location ~ \wp-login.php$ {
+    #    limit_req zone=WPRATELIMIT;
+    #}
+
+    #隐藏 nginx 版本.
+    server_tokens off;
+
+    #隐藏 PHP 版本
+    fastcgi_hide_header X-Powered-By;
+    proxy_hide_header X-Powered-By;
+
+    # 禁止访问敏感文件
+    location ~ /\.(svn|git)/* {
+        deny all;
+    	access_log off;
+    	log_not_found off;
+    }
+    location ~ /\.ht {
+    	deny all;
+    	access_log off;
+    	log_not_found off;
+    }
+    location ~ /\.user.ini {
+    	deny all;
+    	access_log off;
+    	log_not_found off;
+    }
+
+    # 禁止直接访问php文件
+#    location ~* /(?:uploads|files|wp-content|wp-includes|akismet)/.*.php$ {
+#    	deny all;
+#    	access_log off;
+#    	log_not_found off;
+#    }
+
+	#固定链接交给php-fpm处理
+    location / {
+		index index.php index.html index.htm;
+		try_files $uri $uri/ /index.php?$args;
+    }
+
+	# 禁止访问指定类型文件
+    location ~ \.(ini|conf)$ {
+    	deny all;
+    }
+
+    # 允许内部分  wp-includes 目录的 .php 文件
+    location ~* ^/wp-includes/.*\.(php|phps)$ {
+        internal;
+    }
+
+    #禁止访问 wp-config.php install.php 文件
+    location = /wp-config.php {
+        deny all;
+    }
+    location = /wp-admin/install.php {
+        deny all;
+    }
+
+
+    # 禁止访问 /wp-content/ 目录的 php 格式文件 (包含子目录)
+    location ~* ^/wp-content/.*.(php|phps)$ {
+        deny all;
+    }
+    # 固定连接的php处理
+    location ~* ^/s/.*.(php|phps)$ {
+        #deny all;
+	return 404;
+    }
+    location ~* ^/programming/.*.(php|phps)$ {
+        #deny all;
+	return 404;
+    }
+    location ~* ^/essay/.*.(php|phps)$ {
+        #deny all;
+	return 404;
+    }
+    location ~* ^/sweets/.*.(php|phps)$ {
+        #deny all;
+	return 404;
+    }
+    location ~* ^/links/.*.(php|phps)$ {
+        #deny all;
+	return 404;
+    }
+    location ~* ^/abouts/.*.(php|phps)$ {
+        #deny all;
+	return 404;
+    }
+
+    location ~* /(?:uploads|files|wp-content|wp-includes|akismet)/.*.php$ {
+    	deny all;
+    	access_log off;
+    	log_not_found off;
+    }
+
+	# 错误页面设置
+    error_page 403 /403.html;
+    location = /403.html {
+        root /etc/nginx/error_pages;
+        internal;
+    }
+    error_page 404 /404.html;
+    location = /404.html {
+        root /etc/nginx/error_pages;
+        internal;
+    }
+    error_page 500 /500.html;
+    location = /500.html {
+        root /etc/nginx/error_pages;
+        internal;
+    }
+    error_page 503 /503.html;
+    location = /503.html {
+        root /etc/nginx/error_pages;
+        internal;
+    }
+
+
+    location ~ .php$ {
+    	fastcgi_pass   127.0.0.1:9000;
+        fastcgi_index  index.php;
+    	fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+    }
+}
+</code></pre>
+<p>还有一个没有解决的问题就是，<code>php</code> 类型的 <code>url</code> 都交给 <code>php-fpm</code> 处理，当找不到 <code>url</code> 的时候，<code>php-fpm</code> 会直接返回一个 <code>file not found</code>。我们在 <code>nginx</code> 中设置的 <code>404</code> 页面也不会显示。我本来想看看 <code>php-fpm</code> 能不能设置默认 <code>404</code> 页面的，不过没找到方法。<code>nginx</code> 这边也没设么很好的处理方法，我最后的解决办法就是用 <code>location</code> 来过滤固定链接，只要检测到是固定链接，同时路径是以 <code>php</code> 结束的直接返回 <code>404</code>，固定链接一共也就几种（取决于你有几个一级分类目录）。这个方法有一个瑕疵就是根目录下的以 <code>php</code> 结尾的路径无法过滤，因为根目录下有些 <code>php</code> 是要访问的，我们没法一刀切。不过目前也没有找到其他的好办法，就先这样吧，问题也不大。</p>
+<p>**更新：根目录下路径下的 <code>php</code> 结尾的路径我用正则表达式 <code>^/(?!(wp-|xmlrpc))[^/]*php$</code> 进行了处理，把除了 <code>wp-</code> 开头的和 <code>index.php</code>，<code>xmlrpc.php</code> 以外的全部过滤了。除了 <code>wp-content</code>，<code>wp-includes</code>，<code>wp-admin</code> 路径下，其他的带 <code>/</code> 的路径访问 <code>php</code> 都直接返回 <code>404</code>，正则表达式为 <code>^/(?!wp-content|wp-includes|wp-admin|editormd).*/.*php$</code>。</p>
+<p>这里顺便说一下 <code>location</code> 配置指令格式为：<code>location [ = | ~ | ~* | ^~ ] uri {...}</code>。这里的 <code>uri</code> 分为标准 <code>uri</code> 和正则 <code>uri</code>，两者的唯一区别是 <code>uri</code> 中是否包含正则表达式。<code>uri</code> 前面的方括号中的内容是可选项，解释如下：</p>
+<ul>
+<li><code>=</code> ：用于标准 <code>uri</code> 前，要求请求字符串与 <code>uri</code> 严格匹配，一旦匹配成功则停止</li>
+<li><code>~</code> ：用于正则 <code>uri</code> 前，并且区分大小写</li>
+<li><code>~*</code> ：用于正则 <code>uri</code> 前，但不区分大小写</li>
+<li><code>^~</code> ：用于标准 <code>uri</code> 前，要求 <code>Nginx</code> 找到标识 <code>uri</code> 和请求字符串匹配度最高的 <code>location</code> 后，立即使用此 <code>location</code> 处理请求，而不再使用 <code>location</code> 块中的正则 <code>uri</code> 和请求字符串做匹配</li>
+</ul>
+<p>由于我只是更换 <code>web</code> 服务器，所以还算比较简单，如果你是从头安装，那么你可以看我之前的文章，或者参考腾讯云的这篇教程：<a href="https://cloud.tencent.com/document/product/213/38056" title="手动搭建 LNMP 环境（CentOS 7）">手动搭建 LNMP 环境（CentOS 7）</a></p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/server/" class="tag">
+                    Server
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/javascript-prototype/">
+                  <h3 class="post-title">
+                    JavaScript 原型机制
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

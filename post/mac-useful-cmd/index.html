@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>几个有用的 Mac 命令 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601130041433" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文介绍几个我比较常用的 Mac 特有的命令，包括终端的复制粘贴 pbcopy 和 pbpaste，以及可以选择不同语言进行发音的 say 命令。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+在 Linux常用命令 中介绍了一..." />
+    <meta name="keywords" content="Assorted" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601130041433" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">几个有用的 Mac 命令</h2>
+            <div class="post-date">2020-08-30</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/mac-useful-cmd.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文介绍几个我比较常用的 Mac 特有的命令，包括终端的复制粘贴 pbcopy 和 pbpaste，以及可以选择不同语言进行发音的 say 命令。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>在 <a href="https://www.clloz.com/programming/computer-science/operating-system/2020/08/18/linux-command/" title="Linux常用命令">Linux常用命令</a> 中介绍了一些在 <code>Linux</code> 中的常用命令。虽然 <code>Mac OS X</code> 和 <code>Linux</code> 都是基于 <code>Unix</code> 的，但是有些系统命令并不是通用的，本文就介绍一些只有 <code>Mac</code> 上可以使用的比较有用的命令。</p>
+<h3 id="pbcopy-和-pbpaste">pbcopy 和 pbpaste</h3>
+<p>原来我想复制一个文件中的内容，都是用 <code>cat</code> 命令打印出来然后复制，或者直接在软件中打开文件后再全选复制。在 <code>Mac</code> 中其实有命令可以直接实现这个功能，就是 <code>pbcopy</code> 和 <code>pbpaste</code>。这两个命令打通了终端和剪贴板。它们不仅可以复制文件，也可以结合其他命令进行使用。</p>
+<pre><code class="language-bash">#将主目录的文件列表复制到剪贴板
+ls ~ | pbcopy
+
+#将任意文件的内容复制到剪贴板
+pbcopy &lt; filename.txt
+</code></pre>
+<h3 id="mdfind">mdfind</h3>
+<p><code>mdfind</code> 是 <code>Mac</code> 上更强大的文件搜索命令，可以理解为命令行版的 <code>spotlight</code>。</p>
+<pre><code class="language-bash">#按文件名关键字查找文件：
+mdfind -name keyword
+
+#查找文件内容中包含关键字的文件
+mdfind &quot;key string&quot;
+
+#-onlyin 参数指定搜索范围
+mdfind -onlyin ~/Library txt
+</code></pre>
+<h3 id="launchctl">launchctl</h3>
+<p><code>Mac</code> 上没有 <code>systemctl</code> 和 <code>services</code> 命令。管理服务的命令是 <code>launchctl</code>，我个人觉得不是很好用，如果你有使用 <code>homebrew</code> 也可以使用 <code>homebrew</code> 的 <code>services</code> 管理命令 <code>brew services</code>。</p>
+<pre><code class="language-bash">#加载一个服务到启动列表
+sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
+#卸载一个服务
+sudo launchctl unload  /System/Library/LaunchDaemons/ssh.plist
+#查看服务
+sudo launchctl list | grep &lt;&lt;Service Name&gt;&gt;
+#停止
+sudo launchctl stop &lt;&lt;Service Name&gt;&gt;
+#开始
+sudo launchctl start &lt;&lt;Service Name&gt;&gt;
+#kill
+sudo launchctl kill &lt;&lt;Service Name&gt;&gt; 
+</code></pre>
+<h3 id="say">say</h3>
+<p><code>say</code> 命令使用 <code>VoiceOver</code> 给你朗读文本，比较特别的是你可以选择语言和发音（需要安装 <code>System Preferences -&gt; Accessibility -&gt; Speech</code>）。</p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://segmentfault.com/a/1190000000509514" title="8个不可不知的Mac OS X专用命令行工具">8个不可不知的Mac OS X专用命令行工具</a></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/assorted/" class="tag">
+                    Assorted
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/alfred/">
+                  <h3 class="post-title">
+                    Alfred入门
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

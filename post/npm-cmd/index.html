@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>npm常用命令 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601130041433" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文记录一些常用的 npm 命令，包括通用，安装，卸载和更新相关的命令，以及镜像的更换和恢复。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+整理 npm 常用的一些命令，方便查看。
+通用命令
+帮助命令
+npm &lt;comm..." />
+    <meta name="keywords" content="JavaScript" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601130041433" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">npm常用命令</h2>
+            <div class="post-date">2020-09-02</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/npm-cmd.png')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文记录一些常用的 npm 命令，包括通用，安装，卸载和更新相关的命令，以及镜像的更换和恢复。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>整理 <code>npm</code> 常用的一些命令，方便查看。</p>
+<h3 id="通用命令">通用命令</h3>
+<h4 id="帮助命令">帮助命令</h4>
+<pre><code class="language-bash">npm &lt;command&gt; -h  #快速查看某条命令的简单使用帮助，包括语法和别名。
+npm -l            #显示所有可用命令和说明
+npm help &lt;term&gt;   #查看命令的详细帮助
+</code></pre>
+<h4 id="初始化">初始化</h4>
+<pre><code class="language-bash">npm init    #在命令行所在的文件夹初始化一个项目（创建 package.json 文件）
+npm init --yes    #跳过配置，强制yes
+</code></pre>
+<h3 id="模块">模块</h3>
+<h4 id="通用命令-2">通用命令</h4>
+<pre><code class="language-bash">npm root    #查看本地安装的目录
+
+npm root -g    #查看全局安装的目录
+
+npm info package    #查看包信息
+
+npm ls    #查看本地安装包
+
+npm ls -g    #查看全局安装包，包含依赖
+
+npm ls -g --depth 0    #查看全局安装包，不包含依赖
+
+npm outdated    #列出所有不是最新版的包，可以带参数
+
+npm cache clean    #清除本地缓存
+
+npm config ls -l    #查看npm配置
+
+npm view package versions    #查看包的所有版本
+
+npm publish     #发布包
+
+npm access    #设置发布包的访问级别
+
+npm search    #搜索registry
+</code></pre>
+<h4 id="安装模块">安装模块</h4>
+<pre><code class="language-bash">npm install package    #局部安装模块，安装在命令行所在的文件夹；并将模块依赖写入到 package.json 文件的 dependencies 中（生产环境）
+#简写
+npm i package
+
+npm install --save-prod package    #局部安装时将模块依赖写入到 package.json 文件的 dependencies 中（生产环境）
+#简写
+npm install -P package
+
+npm install --save-dev package    #局部安装时将模块依赖写入到 package.json 文件的 devDependencies 中（开发环境）
+#简写
+npm install -D package
+
+npm install -g package    #全局安装模块
+
+#从github仓库安装
+npm install git://github.com/package/path.git
+npm install git://github.com/package/path.git#0.1.0
+
+npm install &lt;packageName&gt; --force    #强制重新安装
+
+#安装指定版本
+npm install sax@latest
+npm install sax@0.1.1
+npm install sax@&quot;&gt;=0.1.0 &lt;0.2.0&quot;
+
+#安装beta版
+npm install &lt;module-name&gt;@beta (latest beta)
+npm install &lt;module-name&gt;@1.3.1-beta.3
+
+#只安装package.json中的dependencies字段的模块
+npm install --production
+NODE_ENV=production npm install
+</code></pre>
+<h4 id="卸载模块">卸载模块</h4>
+<pre><code class="language-bash">npm uninstall package    #卸载局部模块
+
+npm uninstall -g package    #卸载全局模块
+</code></pre>
+<h4 id="更新模块">更新模块</h4>
+<pre><code class="language-bash">npm update package    #更新局部模块
+
+npm update -g package    #更新全局模块
+
+npm update -g package@version   #更新全局模块 package-name 到 x.x.x 版本
+
+</code></pre>
+<h3 id="npm-镜像">npm 镜像</h3>
+<pre><code class="language-bash">npm install express --registry https://registry.npm.taobao.org    #临时使用
+
+npm config set registry https://registry.npm.taobao.org    #永久更换 可以用 npm config get registry或npm info
+
+npm config set registry https://registry.npmjs.org    #设置为默认镜像
+</code></pre>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://javascript.ruanyifeng.com/nodejs/npm.html#toc2" title="npm模块管理器">npm模块管理器</a></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/javascript/" class="tag">
+                    JavaScript
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/css-selector/">
+                  <h3 class="post-title">
+                    CSS 选择器 Selector
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

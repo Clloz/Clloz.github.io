@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>Alfred入门 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601130041433" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="Alfred 是一个非常有用的 Mac 上的工作流工具，熟练使用能够极大地提高我们使用 Mac 的效率，本文介绍 Alfred 的基础用法。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+Mac 系统本身提供了 spotligh..." />
+    <meta name="keywords" content="Assorted" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601130041433" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">Alfred入门</h2>
+            <div class="post-date">2020-08-28</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/alfred.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>Alfred 是一个非常有用的 Mac 上的工作流工具，熟练使用能够极大地提高我们使用 Mac 的效率，本文介绍 Alfred 的基础用法。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p><code>Mac</code> 系统本身提供了 <code>spotlight</code> 来供用户查询应用、文稿及其他文件等信息，但是我个人觉得不是很好用，一直都没怎么用过。<code>Alfred</code> 以前也听说过，但是没有详细了解，我一直也为很鸡肋。不过今天仔细研究了一下感觉确实是一个能提高 <code>Mac</code> 使用效率的工具。本文讲一下该软件的一些基础用法。</p>
+<h3 id="购买安装">购买安装</h3>
+<p>软件有两个版本，<code>single license</code> 和 <code>mega supporter</code>，前者可以在两台设备上上使用当前版本（即小版本可以更新，大版本不能更新，你买的 <code>4.x</code> 版本就不能更新到 <code>5.x</code>），后者就是在以太设备上永久更新。现在绝大多数买断制的软件都是这种模式。价格分别是 <code>29£</code> 和 <code>49£</code>，真的是有点贵，我是在淘宝上买的那种授权版。</p>
+<p>也可以使用免费版，那样的话你只能进行基础的文件查找。</p>
+<h3 id="功能">功能</h3>
+<p><code>Alfred</code> 提供了非常丰富的功能，所有功能的调用方式都是以命令的形式，和终端的感觉类似，只不过它能在任何环境下直接启动，比较方便。</p>
+<h4 id="基础设置">基础设置</h4>
+<p>基础设置中主要就是设置开机启动和调用快捷键。我的快捷键设置为双击 ⌘ 启动 <code>Alfred</code>。</p>
+<p>在默认的查找结果中（即没有给出任何执行的情况下），可以选择哪些文件类型或文件夹需要被检索。这里我就添加了两个文件夹到 <code>Search Scope</code> 中，一个是 <code>~</code> 文件夹，一个是我的 <code>SD</code> 卡的对应的 <code>Volume</code>。如果你查找某个文件夹没有找到，那么可以检查一下是否对应的文件夹不在软件的检索范围。</p>
+<p>如果没有检查到任何结果，默认情况下会显示三个查询选项：在谷歌，亚马逊，维基中查找。</p>
+<p>查询出的选项除了可以用 ⌘ 加上数字进行选择。</p>
+<h4 id="文件查找">文件查找</h4>
+<p>文件查找分为两个部分，一个是基础的 <code>file search</code>；另一个是 <code>action</code>，即对查找到的文件夹进行一些操作。</p>
+<p><code>file search</code> 的部分主要有四个指令 <code>open</code>，<code>find</code>，<code>in</code> 和 <code>tags</code>。<code>open</code> 和 <code>find</code> 都非常简单，<code>in</code> 是用来查询文本内容是否包含某一串字符；<code>tags</code> 则是查询文件夹标记的（估计大部分人很少使用，除了默认的几个颜色标记还可以在 <code>Finder</code> 的 <code>Preferences</code> 中添加），比如你有一个 <code>tags</code> 是 <code>工作</code>，那么你用 <code>tags 工作</code> 就能找到打了这个 <code>tag</code> 的文件夹。</p>
+<p>文件查询也支持导航，你可以用左右方向键进入或退出文件夹，<code>previous</code> 执行可以打开上次打开的文件夹的父文件夹。</p>
+<p><code>action</code> 则是和文件相关的一系列操作，我们用 <code>find</code> 指令找到对应文件夹选项后，点击 ⌃ （可以自己录制快捷键）就可以打开操作面板，选择你想要的操作。操作包括在 <code>finder</code> 中查看，复制文件，复制路径等。</p>
+<h4 id="web-search-和-web-bookmarks">Web Search 和 Web Bookmarks</h4>
+<p>这两个功能就比较简单，<code>Web Search</code> 就是提供了一些常用网站的查询链接，直接可以输入关键词加查询内容直接在浏览器中打开查询页面，只是一个简化操作而已。软件自己提供了常用的一些网站，你也可以根据自己的需求添加，</p>
+<p><code>Web Bookmarks</code> 也很好理解，就是检索内容包括了浏览器的书签（只支持 <code>safari</code> 和 <code>chrome</code>），也就是你只要保存了一个书签，直接调出 <code>Alfred</code> 的查询框就可以进行模糊查询，这一功能还是非常方便的。</p>
+<h4 id="剪切板历史">剪切板历史</h4>
+<p>这个功能也是比较好用的，它能够记录我们进行剪切复制操作的历史，包括了文本，图片和文件。只要输入关键词 <code>clipboard</code> 就能够进行查询（也可以录制快捷键）。</p>
+<h4 id="计算器和字典">计算器和字典</h4>
+<p>这两个功能都不用说太多，比较简单也很好用。<code>Mac</code> 自带的字典不是很好用，也没有发音，建议使用下面插件部分介绍的有道词典。</p>
+<h4 id="snippets">snippets</h4>
+<p>这个功能可以称为模板，有时候我们需要在一些地方填写自己的地址邮件等比较长的文本，我们可以预先在软件中写好模板，然后只要在任意文本框内输入指令就会直接转化成我们模版中的内容。比如你的地址用关键词 <code>\\address</code> 为名字记录成模版，然后在任意文本框中输入 <code>\\address</code> 会自动替换为你的地址。</p>
+<h4 id="系统指令">系统指令</h4>
+<p><code>Alfred</code> 还提供了丰富的 <code>Mac</code> 系统功能对应的指令，比如锁屏，重启，关机，清空回收站，音量调节，强制关闭等等。</p>
+<h4 id="终端">终端</h4>
+<p><code>Alfred</code> 也支持直接执行终端命令，指令为 <code>&lt;</code>，默认调用的终端是 <code>terminal</code>。如果你跟我一样使用的是 <code>iTerm</code>，那么你就参考 <a href="https://github.com/vitorgalvao/custom-alfred-iterm-scripts" title="更换默认终端为iTerm2">更换默认终端为iTerm2</a> 进行更换。不过根据我的实际使用情况，这个功能比较鸡肋，因为每次都还是在终端打开一个新的 <code>tab</code>，然后执行指令，不是很好用。</p>
+<h3 id="插件">插件</h3>
+<p>目前没有一个专门管理插件的网站，如果你想寻找插件，可以到<a href="https://www.alfredapp.com/workflows/" title="官网">官网</a>以及<a href="https://www.alfredforum.com/" title="官方论坛">官方论坛</a>。其他的只能借助搜索引擎查询或者按照自己的需求写一个。下面放一下我尝试的插件的链接。</p>
+<ol>
+<li><a href="http://www.packal.org/workflow/colors" title="颜色格式转换">颜色格式转换</a></li>
+<li><a href="https://github.com/deanishe/alfred-reddit" title="Reddit浏览工具">Reddit浏览工具</a></li>
+<li><a href="https://github.com/deanishe/alfred-stackexchange" title="StackOverFlow问题查询工具">StackOverFlow问题查询工具</a></li>
+<li><a href="https://github.com/zqzten/alfred-web-search-suggest" title="搜索工具（支持谷歌，百度，知乎，微博等）">搜索工具（支持谷歌，百度，知乎，微博等）</a></li>
+<li><a href="https://github.com/h3l/douban-workflow" title="豆瓣书籍电影查询工具">豆瓣书籍电影查询工具</a></li>
+<li><a href="https://github.com/gharlan/alfred-github-workflow" title="github工具">github工具</a></li>
+<li><a href="https://github.com/derimagia/awesome-alfred-workflows" title="awesome-workflow">awesome-workflow</a></li>
+<li><a href="https://github.com/wensonsmith/YoudaoTranslate" title="有道翻译">有道翻译</a></li>
+<li><a href="https://github.com/ajgon/alfred2-html-entity-lookup" title="html字符实体查询">html字符实体查询</a></li>
+<li><a href="https://github.com/ruedap/alfred-font-awesome-workflow" title="font awesome 图表查询">font awesome 图标查询</a></li>
+<li><a href="https://github.com/willfarrell/alfred-pkgman-workflow" title="包查询">包查询</a></li>
+<li><a href="https://github.com/willfarrell/alfred-encode-decode-workflow" title="对字符进行多种形式的编码解码">对字符进行多种形式的编码解码</a></li>
+<li><a href="https://raw.githubusercontent.com/willfarrell/alfred-workflows/master/IPAddress.alfredworkflow" title="ip信息查询">ip信息查询</a></li>
+<li><a href="https://github.com/ngreenstein/alfred-process-killer" title="强制结束进程">强制结束进程</a></li>
+<li><code>Dash API</code> 查询集成，由 <code>Dash</code> 软件提供。</li>
+</ol>
+<p>其实插件功能就类似于 <code>Mac</code> 的 <code>automator</code>，不过它提供了更多更人性化的支持。关于自己写 <code>workflow</code> 我还在研究，，给几篇文章大家参考一下。</p>
+<ol>
+<li><a href="https://zhuanlan.zhihu.com/p/66514693" title="Alfred 3 天气预报workflow">Alfred 3 天气预报workflow</a></li>
+<li><a href="https://allenwu.itscoder.com/how-to-write-a-workflow-for-mac" title="如何去写一个第三方的workflow">如何去写一个第三方的workflow</a></li>
+<li><a href="https://juejin.im/post/6844903490406318093" title="用NodeJS把玩一番workflow">用NodeJS把玩一番workflow</a></li>
+</ol>
+<p>把自己日常的工作流形成 <code>workflow</code>，能够极大的提高我们在 <code>Mac</code> 上的使用效率，这也是 <code>Alfred</code> 最强大的功能，不过需要一点学习成本。</p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://louiszhai.github.io/2018/05/31/alfred/#alfred-workflow" title="Alfred神器使用手册">Alfred神器使用手册</a></li>
+<li><a href="https://1991421.cn/2019/04/06/b908e228/" title="Alfred打磨之路">Alfred打磨之路</a></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/assorted/" class="tag">
+                    Assorted
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/css-specification-choose/">
+                  <h3 class="post-title">
+                    CSS标准
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

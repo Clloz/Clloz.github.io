@@ -9,7 +9,7 @@
 
 <!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
 <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
-<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601126024088" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601128288554" />
 <link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
 
 
@@ -34,7 +34,7 @@ Clloz
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://clloz.github.io/">
-        <img src="https://clloz.github.io//images/avatar.png?v=1601126024088" class="site-logo">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601128288554" class="site-logo">
         <h1 class="site-title">Clloz - 素直になれない</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -114,7 +114,7 @@ Clloz
 <p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
 <h3 id="前言">前言</h3>
 <p>用 <code>CSS</code> 实现一个 <code>3d</code> 的骰子，然后实现用鼠标拖动旋转的效果。实现的效果如下，可以拖动这个骰子进行旋转。</p>
-<p>查看效果点击<a href="https://cdn.clloz.com/study/spin-dice/spin-dice.html">效果Demo</a></p>
+<p>查看效果点击：<a href="https://cdn.clloz.com/study/spin-dice/spin-dice.html" rel="noreferrer noopener" target="_blank">效果Demo</a></p>
 <h3 id="css-实现-3d-骰子">CSS 实现 3D 骰子</h3>
 <p>想要实现一个 <code>3d</code> 的骰子，肯定是要使用 <code>transform</code>。关于 <code>transform</code> 的细节本文就不多讲了，可以参考 <code>MDN</code> 和 <a href="https://www.cnblogs.com/xiaohuochai/p/5351477.html" title="深入理解CSS变形transform(3d)">深入理解CSS变形transform(3d)</a>。我们主要讲讲如何实现效果。</p>
 <p><code>HTML</code> 的结构很简单，我们需要一个包含块（最后我们旋转的就是这个包含块），和 <code>6</code> 个子元素作为骰子的六个面。</p>
@@ -187,10 +187,10 @@ Clloz
 }
 </code></pre>
 <p>此时我们就已经得到一个 <code>3d</code> 的骰子了。我们可以给它一个初始的角度或者加上透视，就能够看到 <code>3d</code> 的效果。</p>
-<p>查看效果点击 <a href="https://cdn.clloz.com/study/spin-dice/static-spin-dice.html">效果Demo</a></p>
+<p>查看效果点击：<a href="https://cdn.clloz.com/study/spin-dice/static-spin-dice.html" rel="noreferrer noopener" target="_blank">效果Demo</a></p>
 <h4 id="旋转动画">旋转动画</h4>
 <p>在实现拖动旋转之前，我们先做一个旋转动画来了解 <code>3d</code> 旋转。我们实现将这个骰子立起来，然后进行旋转，效果如下。</p>
-<p>查看效果点击 <a href="https://cdn.clloz.com/study/spin-dice/vertical-spin-dice.html">效果Demo</a></p>
+<p>查看效果点击：<a href="https://cdn.clloz.com/study/spin-dice/vertical-spin-dice.html" rel="norenoreferrer noopenerferer" target="_blank">效果Demo</a></p>
 <p>如何实现这样的效果呢，我们要做的就是先将筛子立起来。其实就是以 <code>z</code> 轴顺时针旋转 <code>45deg</code>，然后以 <code>x</code> 轴逆时针旋转 <code>45deg</code>。最后的旋转方向我们使用 <code>rotate3d(1, 1, 1, ndeg)</code> 来实现，这里的三个 <code>1</code> 可以理解成向量，我们的旋转轴就是原点到这个向量的连线，原点默认在中心，而 <code>1，1，1</code> 的位置就相当于在 <code>xyz</code> 的坐标系中取点 <code>(1, 1, 1)</code>（这里注意坐标轴的方向和我们平时数学题中的方向不同），他们的连线就是一个垂直穿过的对角的轴。最后的效果就是一个立起来的骰子沿着垂直方向旋转。</p>
 <blockquote>
 <p><code>safari</code>，<code>firefox</code> 以及 <code>iOS</code> 上的 <code>chrome</code> 都不支持 <code>keyframe</code> 只写两帧（也就是 <code>from - to</code> 和 <code>0% - 100%</code> 的形式）我最终尝试只有 <code>0% 25% 50% 75% 100%</code> 这种形式能正常工作。</p>

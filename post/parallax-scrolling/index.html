@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>CSS实现视差滚动 Parallax Scrolling | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601122423435" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="使用纯 CSS 的方式实现视差滚动效果，主要是利用透视的原理让元素的滚动产生差异，从而达到视觉效果。
+
+本文首发于个人博客clloz.com
+前言
+在博客首页的头部背景图本来是用 JavaScript 实现的视差滚动，但是觉得性能不是很好。..." />
+    <meta name="keywords" content="CSS" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601122423435" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">CSS实现视差滚动 Parallax Scrolling</h2>
+            <div class="post-date">2020-09-24</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/parallax-scrolling.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>使用纯 CSS 的方式实现视差滚动效果，主要是利用透视的原理让元素的滚动产生差异，从而达到视觉效果。</p>
+<!-- more -->
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>在博客首页的头部背景图本来是用 <code>JavaScript</code> 实现的视差滚动，但是觉得性能不是很好。于是尝试用 <code>CSS</code> 来实现视差滚动的效果。</p>
+<h3 id="原理">原理</h3>
+<p>用 <code>CSS</code> 实现视差滚动的原理就是利用 <code>3d</code> 空间的 <code>z</code> 轴距离产生的近大远小，让元素之间的滚动距离产生差距。<code>perspective</code> 的属性值确定观察的 <code>z</code> 轴坐标，比如我们设 <code>perspective: 1px</code>，最后所有的透视效果都是以和 <code>z = 1px</code> 的位置观察的效果是相同的。<code>z</code> 轴的原点就是我们的屏幕，所有的最后显示效果，都是投影在屏幕上的效果。如果以人眼作为比喻的话，<code>perspective</code> 就是我们的眼睛位置，而屏幕就是视网膜的位置。</p>
+<p>如果我们以 <code>z = -1px</code> 为观察点，在z <code>z = 0</code> 和 <code>z= -1px</code> 的位置放两个相同长度的元素，那么实际的成像效果就后面的元素只有前面的元素的长度的一半。如果我们想要让位于 <code>z = -1px</code> 位置的元素看上去和 <code>z = 0</code> 的元素一样大，那么我们就需要将它的边长放大到两倍，可以用 <code>scale(2)</code> 实现。放大后，从我们的 <code>perspective</code> 位置看上去就和 <code>z = 0</code> 的元素是一样的，但是如果我们对屏幕进行滚动，可以理解为我们将我们的观察点沿着 <code>y</code> 轴上下移动，这个位移对于 <code>z = 0</code> 和 <code>z = -1px</code> 的元素是相同的，但是由于 <code>z = -1px</code> 的元素的边长是 <code>z = 0</code> 位置元素的两倍，所以视觉上，我们觉得 <code>z = -1px</code> 的元素的位移好像更短，这就是视差效果。</p>
+<p>详细的研究和推理过程可以参考 <a href="https://css-tricks.com/tour-performant-responsive-css-site/" title="Tour of a Performant and Responsive CSS Only Site">Tour of a Performant and Responsive CSS Only Site</a></p>
+<h3 id="实现">实现</h3>
+<p>有了原理之后，实现就简单了。我们将要进行视差移动的元素放到 <code>-1px</code> 的位置，同时放大两倍，将 <code>perspective</code> 设置到 <code>1px</code> 即可。</p>
+<pre><code class="language-html">
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+    &lt;head&gt;
+        &lt;meta charset=&quot;UTF-8&quot; /&gt;
+        &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+        &lt;title&gt;parallax&lt;/title&gt;
+        &lt;style&gt;
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+            }
+            .container {
+                position: relative;
+                height: 100%;
+                overflow: auto;
+                perspective: 1px;
+                perspective-origin: 0 0;
+            }
+            .bg {
+                /* position: absolute; */
+                width: 100%;
+                height: 600px;
+                background-image: url('bg.jpg');
+                background-size: cover;
+                transform-origin: 0 0;
+                transform: translateZ(-1px) scale(2);
+            }
+            .content {
+                height: 3000px;
+                background: pink;
+                margin: -60px 15px 0;
+                position: relative;
+            }
+        &lt;/style&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;div class=&quot;container&quot;&gt;
+            &lt;div class=&quot;bg&quot;&gt;&lt;/div&gt;
+            &lt;div class=&quot;content&quot;&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><code>Demo</code> 效果可以查看：<a href="https://cdn.clloz.com/study/parallax_scroll.html" title="视差滚动效果demo">视差滚动效果demo</a></p>
+<h3 id="总结">总结</h3>
+<p>这种 <code>CSS</code> 实现的视差滚动效果在手机上没法达到效果，手机上可以实现透视的效果，但是滚动的效果出不来。最终我也没有应用到博客上。几种视差滚动的实现方式，包括 <code>js</code>，<code>background-attachment</code> 和 透视，都没有一个十分满意的方法，因为性能都不是非常好，而且改动也非常多，最后我干脆就把把这个效果拿掉了，</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/css/" class="tag">
+                    CSS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/carousel/">
+                  <h3 class="post-title">
+                    图片轮播
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

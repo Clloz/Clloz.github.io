@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://clloz.github.io/</id>
     <title>Clloz - 素直になれない</title>
-    <updated>2020-09-26T11:35:19.063Z</updated>
+    <updated>2020-09-26T12:13:53.038Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://clloz.github.io/"/>
     <link rel="self" href="https://clloz.github.io/atom.xml"/>
@@ -11,6 +11,204 @@
     <logo>https://clloz.github.io/images/avatar.png</logo>
     <icon>https://clloz.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, Clloz - 素直になれない</rights>
+    <entry>
+        <title type="html"><![CDATA[拖动旋转的 3D 骰子效果]]></title>
+        <id>https://clloz.github.io/post/tuo-dong-xuan-zhuan-de-3d-tou-zi-xiao-guo/</id>
+        <link href="https://clloz.github.io/post/tuo-dong-xuan-zhuan-de-3d-tou-zi-xiao-guo/">
+        </link>
+        <updated>2020-09-26T12:09:53.000Z</updated>
+        <summary type="html"><![CDATA[<p>本文主要讲解如何用 CSS 实现一个 3D 骰子，以及如何使用 transform 将骰子按自己的需求转动。最后实现用 javascript 实现拖动骰子进行转动的功能。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>本文主要讲解如何用 CSS 实现一个 3D 骰子，以及如何使用 transform 将骰子按自己的需求转动。最后实现用 javascript 实现拖动骰子进行转动的功能。</p>
+<!-- more -->
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>用 <code>CSS</code> 实现一个 <code>3d</code> 的骰子，然后实现用鼠标拖动旋转的效果。实现的效果如下，可以拖动这个骰子进行旋转。</p>
+<iframe width="100%" height="300px" style="border: none" src="https://cdn.clloz.com/study/spin-dice/spin-dice.html"></iframe>
+<h3 id="css-实现-3d-骰子">CSS 实现 3D 骰子</h3>
+<p>想要实现一个 <code>3d</code> 的骰子，肯定是要使用 <code>transform</code>。关于 <code>transform</code> 的细节本文就不多讲了，可以参考 <code>MDN</code> 和 <a href="https://www.cnblogs.com/xiaohuochai/p/5351477.html" title="深入理解CSS变形transform(3d)">深入理解CSS变形transform(3d)</a>。我们主要讲讲如何实现效果。</p>
+<p><code>HTML</code> 的结构很简单，我们需要一个包含块（最后我们旋转的就是这个包含块），和 <code>6</code> 个子元素作为骰子的六个面。</p>
+<pre><code class="language-html">&lt;ul id=&quot;dice&quot;&gt;
+	&lt;li class=&quot;front&quot;&gt;1&lt;/li&gt;
+	&lt;li class=&quot;back&quot;&gt;2&lt;/li&gt;
+	&lt;li class=&quot;right&quot;&gt;3&lt;/li&gt;
+	&lt;li class=&quot;left&quot;&gt;4&lt;/li&gt;
+	&lt;li class=&quot;top&quot;&gt;5&lt;/li&gt;
+	&lt;li class=&quot;bottom&quot;&gt;6&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+<p>父元素的处理非常简单，主要的属性就是 <code>transform-style: preserve-3d</code>，因为我们的子元素是在 <code>3d</code> 空间中的。</p>
+<pre><code class="language-css">ul {
+	display: block;
+	width: 100px;
+	height: 100px;
+	margin: 100px auto;
+	padding: 0;
+	list-style: none;
+	transform-style: preserve-3d;
+}
+</code></pre>
+<h4 id="六个面的-transform">六个面的 transform</h4>
+<p>在处理 <code>transform</code> 之前我们用绝对定位把六个面的元素都固定到父元素的 <code>top left</code> 位置，这样六个面的 <code>transform</code> 的坐标就都相同了。每个面的 <code>transform</code> 都不相同，我们需要在脑海中模拟一下从当前位置到目标位置的移动过程。这里需要注意两点，第一点是坐标轴的方向，<code>z</code> 轴是垂直屏幕向外的的，也就是向外移动是正，向内移动是负，同理 <code>x</code> 轴是左为正，<code>y</code> 轴是下为正；第二点就是元素拥有独立的坐标系，而不是共用同一个坐标自，当一个元素发生了旋转，他的坐标系也在旋转。比如我将一个元素以 <code>x</code> 轴为旋转轴旋转了 <code>180deg</code>，那么此时他的 <code>z</code> 轴就不在是<strong>垂直屏幕向外</strong>，而是<strong>垂直屏幕向内</strong>的，这一点要注意一下。根据这些规则我们来总结一下各个面需要如何移动，我们以骰子的边长为 <code>100px</code> 为例。</p>
+<ul>
+<li><code>front</code>：沿着 <code>z</code> 轴向外移动 <code>50px</code>。</li>
+<li><code>back</code>：沿着 <code>z</code> 轴向内移动 <code>50px</code>。</li>
+<li><code>right</code>：以 <code>y</code> 轴为旋转轴顺时针旋转 <code>90deg</code>，然后向右移动 <code>50px</code>。</li>
+<li><code>left</code>：以 <code>y</code> 轴为旋转轴逆时针旋转 <code>90deg</code>，然后向左移动 <code>50px</code>。</li>
+<li><code>top</code>：以 <code>x</code> 轴为旋转轴顺时针旋转 <code>90deg</code>，然后向上移动 <code>50px</code>。</li>
+<li><code>bottom</code>： 以 <code>x</code> 轴为旋转轴逆时针旋转 <code>90deg</code>，然后向下移动 <code>50px</code>。</li>
+</ul>
+<p>这里的顺时针逆时针我个人总结就是从旋转轴的正方向向负方向看，比如 <code>x</code> 轴是从右往左看，<code>y</code> 轴是从下网上看，如果方向看反的话，顺时针逆时针也会搞反。这里的旋转需要一点空间想象力，特别是刚刚接触 <code>3d</code> 的 <code>transform</code>。</p>
+<p>根据上面总结的各个面的移动方式，我们就可以写出我们的代码了。</p>
+<pre><code class="language-css">ul li {
+	position: absolute;
+	display: block;
+	width: 100%;
+	height: 100%;
+	font-size: 30px;
+	color: white;
+	line-height: 100px;
+	text-align: center;
+	backface-visibility: visible;
+}
+.front {
+	background-color: rgba(90, 90, 90, 0.7);
+	transform: translateZ(50px);
+}
+.back {
+	background-color: rgba(0, 210, 0, 0.7);
+	transform: rotateY(180deg) translateZ(50px);
+}
+.right {
+	background-color: rgba(210, 0, 0, 0.7);
+	transform: rotateY(90deg) translateZ(50px);
+}
+.left {
+	background-color: rgba(0, 0, 210, 0.7);
+	transform: rotateY(-90deg) translateZ(50px);
+}
+.top {
+	background-color: rgba(210, 210, 0, 0.7);
+	transform: rotateX(90deg) translateZ(50px);
+}
+.bottom {
+	background-color: rgba(210, 0, 210, 0.7);
+	transform: rotateX(-90deg) translateZ(50px);
+}
+</code></pre>
+<p>此时我们就已经得到一个 <code>3d</code> 的骰子了。我们可以给它一个初始的角度或者加上透视，就能够看到 <code>3d</code> 的效果。</p>
+<iframe width="100%" height="350px" style="border: none" src="https://cdn.clloz.com/study/spin-dice/static-spin-dice.html"></iframe>
+<h4 id="旋转动画">旋转动画</h4>
+<p>在实现拖动旋转之前，我们先做一个旋转动画来了解 <code>3d</code> 旋转。我们实现将这个骰子立起来，然后进行旋转，效果如下。</p>
+<iframe width="100%" height="350px" style="border: none" src="https://cdn.clloz.com/study/spin-dice/vertical-spin-dice.html"></iframe>
+<p>如何实现这样的效果呢，我们要做的就是先将筛子立起来。其实就是以 <code>z</code> 轴顺时针旋转 <code>45deg</code>，然后以 <code>x</code> 轴逆时针旋转 <code>45deg</code>。最后的旋转方向我们使用 <code>rotate3d(1, 1, 1, ndeg)</code> 来实现，这里的三个 <code>1</code> 可以理解成向量，我们的旋转轴就是原点到这个向量的连线，原点默认在中心，而 <code>1，1，1</code> 的位置就相当于在 <code>xyz</code> 的坐标系中取点 <code>(1, 1, 1)</code>（这里注意坐标轴的方向和我们平时数学题中的方向不同），他们的连线就是一个垂直穿过的对角的轴。最后的效果就是一个立起来的骰子沿着垂直方向旋转。</p>
+<blockquote>
+<p><code>safari</code>，<code>firefox</code> 以及 <code>iOS</code> 上的 <code>chrome</code> 都不支持 <code>keyframe</code> 只写两帧（也就是 <code>from - to</code> 和 <code>0% - 100%</code> 的形式）我最终尝试只有 <code>0% 25% 50% 75% 100%</code> 这种形式能正常工作。</p>
+</blockquote>
+<h3 id="拖动旋转">拖动旋转</h3>
+<p>把旋转的原理搞清楚了，实现拖动旋转就非常简单了。我们要做的就是触发 <code>mousemove</code> 的时候就重新计算我们的 <code>transform</code> 的值，这个值的计算就根据 <code>mousedown</code> 时候的 <code>clientX clientY</code> 和 <code>mousemove</code> 时候的 <code>clientX clientY</code> 的差值进行计算，比如移动 <code>10</code> 个像素就转动一度。这里需要注意的一点是，我们鼠标在垂直方向上移动的距离影响的是 <code>rotateX</code> 而不是 <code>rotateY</code>，因为初始方向移动相当于绕着 <code>X</code> 轴旋转。</p>
+<p>最后就是当 <code>mouseup</code> 的时候记录当前的 <code>rotateX</code> 和 <code>rotateY</code> 的值，让下次点击事件发生的时候从上次结束的状态开始旋转而不是回到初始状态。最后的代码如下。</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+    &lt;head&gt;
+        &lt;meta charset=&quot;UTF-8&quot; /&gt;
+        &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+        &lt;title&gt;Spin Dice&lt;/title&gt;
+        &lt;style&gt;
+            ul {
+                display: block;
+                width: 100px;
+                height: 100px;
+                margin: 100px auto;
+                padding: 0;
+                list-style: none;
+                /* perspective: 550px; */
+                transform-style: preserve-3d;
+                /* transition: all 0.3s ease-in; */
+                /* animation: spin 5s infinite linear; */
+                transform: rotateX(13deg) rotateY(13deg);
+            }
+            ul li {
+                position: absolute;
+                display: block;
+                width: 100%;
+                height: 100%;
+                font-size: 30px;
+                color: white;
+                line-height: 100px;
+                text-align: center;
+                backface-visibility: visible;
+            }
+            .front {
+                background-color: rgba(90, 90, 90, 0.7);
+                transform: translateZ(50px);
+            }
+            .back {
+                background-color: rgba(0, 210, 0, 0.7);
+                transform: rotateY(180deg) translateZ(50px);
+            }
+            .right {
+                background-color: rgba(210, 0, 0, 0.7);
+                transform: rotateY(90deg) translateZ(50px);
+            }
+            .left {
+                background-color: rgba(0, 0, 210, 0.7);
+                transform: rotateY(-90deg) translateZ(50px);
+            }
+            .top {
+                background-color: rgba(210, 210, 0, 0.7);
+                transform: rotateX(90deg) translateZ(50px);
+            }
+            .bottom {
+                background-color: rgba(210, 0, 210, 0.7);
+                transform: rotateX(-90deg) translateZ(50px);
+            }
+        &lt;/style&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;ul id=&quot;dice&quot;&gt;
+            &lt;li class=&quot;front&quot;&gt;1&lt;/li&gt;
+            &lt;li class=&quot;back&quot;&gt;2&lt;/li&gt;
+            &lt;li class=&quot;right&quot;&gt;3&lt;/li&gt;
+            &lt;li class=&quot;left&quot;&gt;4&lt;/li&gt;
+            &lt;li class=&quot;top&quot;&gt;5&lt;/li&gt;
+            &lt;li class=&quot;bottom&quot;&gt;6&lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;script&gt;
+            let dice = document.getElementById('dice');
+            let baseX = 13;
+            let baseY = 13;
+            dice.addEventListener('mousedown', e =&gt; {
+                let rotateX = e.clientX;
+                let rotateY = e.clientY;
+
+                let move = e =&gt; {
+                    // console.log(baseX, rotateX, e.clientX);
+                    // console.log(baseY, rotateY, e.clientY);
+                    dice.style.transform = `rotateX(${baseX - (((e.clientY - rotateY) / 10) % 360)}deg) rotateY(${
+                        baseY + (((e.clientX - rotateX) / 10) % 360)
+                    }deg)`;
+                    // console.log(dice.style.transform);
+                };
+                let up = e =&gt; {
+                    baseX = baseX - (((e.clientY - rotateY) / 10) % 360);
+                    baseY = baseY + (((e.clientX - rotateX) / 10) % 360);
+                    // console.log(baseX, baseY);
+                    document.removeEventListener('mousemove', move);
+                    document.removeEventListener('mouseup', up);
+                };
+                document.addEventListener('mousemove', move);
+                document.addEventListener('mouseup', up);
+            });
+            document.addEventListener('selectstart', e =&gt; e.preventDefault());
+        &lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+
+</code></pre>
+<p>注意要把 <code>CSS</code> 代码中的 <code>transition</code> 注释掉，否则影响旋转效果。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[一台设备添加多个 Github 账号]]></title>
         <id>https://clloz.github.io/post/ssh-multiple-github-account/</id>
@@ -92,6 +290,453 @@ and the repository exists.
 <li><a href="https://www.cnblogs.com/fanbi/p/7825746.html" title="一台电脑，两个及多个git账号配置">一台电脑，两个及多个git账号配置</a></li>
 <li><a href="https://me.chjiyun.com/2017/08/28/%E5%A4%9A%E4%B8%AA%E5%AF%86%E9%92%A5ssh-key%E7%9A%84%E7%94%9F%E6%88%90%E4%B8%8E%E7%AE%A1%E7%90%86/" title="多个密钥ssh-key的生成与管理">多个密钥ssh-key的生成与管理</a></li>
 </ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[CSS实现视差滚动 Parallax Scrolling]]></title>
+        <id>https://clloz.github.io/post/parallax-scrolling/</id>
+        <link href="https://clloz.github.io/post/parallax-scrolling/">
+        </link>
+        <updated>2020-09-24T11:54:10.000Z</updated>
+        <summary type="html"><![CDATA[<p>使用纯 CSS 的方式实现视差滚动效果，主要是利用透视的原理让元素的滚动产生差异，从而达到视觉效果。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>使用纯 CSS 的方式实现视差滚动效果，主要是利用透视的原理让元素的滚动产生差异，从而达到视觉效果。</p>
+<!-- more -->
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>在博客首页的头部背景图本来是用 <code>JavaScript</code> 实现的视差滚动，但是觉得性能不是很好。于是尝试用 <code>CSS</code> 来实现视差滚动的效果。</p>
+<h3 id="原理">原理</h3>
+<p>用 <code>CSS</code> 实现视差滚动的原理就是利用 <code>3d</code> 空间的 <code>z</code> 轴距离产生的近大远小，让元素之间的滚动距离产生差距。<code>perspective</code> 的属性值确定观察的 <code>z</code> 轴坐标，比如我们设 <code>perspective: 1px</code>，最后所有的透视效果都是以和 <code>z = 1px</code> 的位置观察的效果是相同的。<code>z</code> 轴的原点就是我们的屏幕，所有的最后显示效果，都是投影在屏幕上的效果。如果以人眼作为比喻的话，<code>perspective</code> 就是我们的眼睛位置，而屏幕就是视网膜的位置。</p>
+<p>如果我们以 <code>z = -1px</code> 为观察点，在z <code>z = 0</code> 和 <code>z= -1px</code> 的位置放两个相同长度的元素，那么实际的成像效果就后面的元素只有前面的元素的长度的一半。如果我们想要让位于 <code>z = -1px</code> 位置的元素看上去和 <code>z = 0</code> 的元素一样大，那么我们就需要将它的边长放大到两倍，可以用 <code>scale(2)</code> 实现。放大后，从我们的 <code>perspective</code> 位置看上去就和 <code>z = 0</code> 的元素是一样的，但是如果我们对屏幕进行滚动，可以理解为我们将我们的观察点沿着 <code>y</code> 轴上下移动，这个位移对于 <code>z = 0</code> 和 <code>z = -1px</code> 的元素是相同的，但是由于 <code>z = -1px</code> 的元素的边长是 <code>z = 0</code> 位置元素的两倍，所以视觉上，我们觉得 <code>z = -1px</code> 的元素的位移好像更短，这就是视差效果。</p>
+<p>详细的研究和推理过程可以参考 <a href="https://css-tricks.com/tour-performant-responsive-css-site/" title="Tour of a Performant and Responsive CSS Only Site">Tour of a Performant and Responsive CSS Only Site</a></p>
+<h3 id="实现">实现</h3>
+<p>有了原理之后，实现就简单了。我们将要进行视差移动的元素放到 <code>-1px</code> 的位置，同时放大两倍，将 <code>perspective</code> 设置到 <code>1px</code> 即可。</p>
+<pre><code class="language-html">
+&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+    &lt;head&gt;
+        &lt;meta charset=&quot;UTF-8&quot; /&gt;
+        &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+        &lt;title&gt;parallax&lt;/title&gt;
+        &lt;style&gt;
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+            }
+            .container {
+                position: relative;
+                height: 100%;
+                overflow: auto;
+                perspective: 1px;
+                perspective-origin: 0 0;
+            }
+            .bg {
+                /* position: absolute; */
+                width: 100%;
+                height: 600px;
+                background-image: url('bg.jpg');
+                background-size: cover;
+                transform-origin: 0 0;
+                transform: translateZ(-1px) scale(2);
+            }
+            .content {
+                height: 3000px;
+                background: pink;
+                margin: -60px 15px 0;
+                position: relative;
+            }
+        &lt;/style&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;div class=&quot;container&quot;&gt;
+            &lt;div class=&quot;bg&quot;&gt;&lt;/div&gt;
+            &lt;div class=&quot;content&quot;&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><code>Demo</code> 效果可以查看：<a href="https://cdn.clloz.com/study/parallax_scroll.html" title="视差滚动效果demo">视差滚动效果demo</a></p>
+<h3 id="总结">总结</h3>
+<p>这种 <code>CSS</code> 实现的视差滚动效果在手机上没法达到效果，手机上可以实现透视的效果，但是滚动的效果出不来。最终我也没有应用到博客上。几种视差滚动的实现方式，包括 <code>js</code>，<code>background-attachment</code> 和 透视，都没有一个十分满意的方法，因为性能都不是非常好，而且改动也非常多，最后我干脆就把把这个效果拿掉了，</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[图片轮播]]></title>
+        <id>https://clloz.github.io/post/carousel/</id>
+        <link href="https://clloz.github.io/post/carousel/">
+        </link>
+        <updated>2020-09-22T11:59:17.000Z</updated>
+        <summary type="html"><![CDATA[<p>本文用两种方式实现图片轮播的效果，包括自动轮播和拖动轮播。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>本文用两种方式实现图片轮播的效果，包括自动轮播和拖动轮播。</p>
+<!-- more -->
+<h3 id="前言">前言</h3>
+<p>用两种方式实现图片轮播，自动轮播和拖动轮播。</p>
+<h3 id="代码结构">代码结构</h3>
+<p>由于 <code>img</code> 是一个可选标签，可以被拖动，我们这里选择用 <code>background-image</code> 来实现。基本的 <code>DOM</code> 结构和 <code>CSS</code> 如下：</p>
+<pre><code class="language-html">&lt;style&gt;
+	.carousel {
+		width: 500px;
+		height: 280px;
+		margin: 30px auto;
+		font-size: 0;
+		white-space: nowrap;
+		overflow: hidden;
+	}
+	.carousel &gt; div {
+		display: inline-block;
+		width: 500px;
+		height: 280px;
+		background-size: contain;
+		transition: ease 0.5s;
+	}
+	.carousel &gt; div:nth-child(1) {
+		background-image: url('https://img.clloz.com/blog/writing/cat1.jpg');
+	}
+	.carousel &gt; div:nth-child(2) {
+		background-image: url('https://img.clloz.com/blog/writing/cat2.jpg');
+	}
+	.carousel &gt; div:nth-child(3) {
+		background-image: url('https://img.clloz.com/blog/writing/cat3.jpg');
+	}
+	.carousel &gt; div:nth-child(4) {
+		background-image: url('https://img.clloz.com/blog/writing/cat4.jpg');
+	}
+&lt;/style&gt;
+
+&lt;div class=&quot;carousel cp1&quot;&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;carousel cp2&quot;&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<p>我们用 <code>display: inline-block</code> 和 <code>overflow: hidden</code> 让图片横向排列并且一次只显示一张。这里需要注意 <code>inline-block</code> 空格导致的间隙问题，我直接用 <code>font-size: 0</code> 来解决。</p>
+<h3 id="自动轮播">自动轮播</h3>
+<p>自动轮播的逻辑是比较简单的，我们其实只要关注两张图片，即当前图片和下一张图片。设每一张图片的编号为 <code>index</code> （从 <code>0</code> 开始），每一张图片要显示所对应的 <code>translateX</code> 的值就是 <code>-(index * 100)%</code>。所以我们只需要每次移动时将当前图片和下一章图片左移一个单位（即一张图片的宽度），同时将下一次要显示的图片放到当前图片的右边一个单位。如下图：</p>
+<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/carousel.png" alt="carousel" title="carousel" loading="lazy"></figure>
+<p>关键逻辑就是将下次要显示的图片移动到预备位置，并且这个过程要关掉动画效果。最后的代码如下：</p>
+<pre><code class="language-javascript">// transform loop settimeout
+let el2 = document.querySelector('.carousel.cp2');
+let currentIndex = 0;
+setInterval(() =&gt; {
+	let children = el2.children;
+	let nextIndex = (currentIndex + 1) % children.length;
+	let current = children[currentIndex];
+	let next = children[nextIndex];
+
+	next.style.transition = 'none';
+	next.style.transform = `translateX(${100 - nextIndex * 100}%)`;
+
+	setTimeout(() =&gt; {
+		next.style.transition = '';
+		current.style.transform = `translateX(${-100 - currentIndex * 100}%)`;
+		next.style.transform = `translateX(${-nextIndex * 100}%)`;
+		currentIndex = nextIndex;
+	}, 16);
+}, 3000);
+</code></pre>
+<p>动画效果的开关我们可以用 <code>element.style.transition</code> 来控制行内样式的值来达到效果。因为行内样式的优先级最高，当我们设置其值为 <code>none</code> 会覆盖 <code>style</code> 标签中的样式。当我们将 <code>element.style.transition</code> 的值设为 <code>''</code>，<code>style</code> 标签中的对应样式又生效了</p>
+<p>代码中间使用了一个小技巧。就是如果连续对同一个元素进行操作，浏览器会忽略前一个操作，这里我们用一个 <code>setTimeout</code> 避免浏览器的这种行为，<code>16ms</code> 为浏览器一帧的时间。</p>
+<p>还有一点就是最后一张图片的下一张应该是第一张，这里我们可以使用简单的模运算来达到效果，模就是元素的个数。</p>
+<h3 id="拖动轮播">拖动轮播</h3>
+<p>拖动轮播的逻辑要比自动复杂一些，因为拖动的情况下我们既可以向左又可以向右进行拖动。并且当拖动结束的时候，显示窗口中会有两张图片，我们要根据面积来判断哪张图片显示，并且要把另一张图片也移动到窗口外。</p>
+<p>首先我们要处理拖动事件，这个逻辑和我在<a href="https://www.clloz.com/programming/front-end/css/2020/09/18/spin-dice/" title="拖动旋转 3D 的骰子效果">拖动旋转 3D 的骰子效果</a>一文中的逻辑是相同，我们对包含元素，也就是代码中的 <code>.carousel</code> 绑定一个 <code>mousedown</code> 事件，在其回调函数中绑定 <code>mousemove</code> 和 <code>mouseup</code> 事件。注意后两个事件要绑定到 <code>document</code> 上，因为我们即使拖动到元素外也是一个完整的 <code>mousemove</code> 行为，并且绑定到 <code>document</code> 上即使我们拖出浏览器外也依然能保持触发 <code>mousemove</code> 事件。</p>
+<p><code>mousedown</code> 事件我们只要做一件事就是记录用户点击的初始位置坐标，用 <code>clientX</code>（因为轮播是横向的，我们只需要判断 <code>x</code> 方向的移动距离）</p>
+<p><code>mousemove</code> 我们要处理图片的移动，这里我们需要将动画效果关闭。以一张图片的的宽度为一个单位，我们只需要知道一共滚过了几个单位，就知道当前显示图片的 <code>index</code>，然后在计算当前 <code>index</code> 的前一张和后一张就能够得到连续的效果。<code>mousemove</code> 回调函数如下：</p>
+<pre><code class="language-javascript">let move = e =&gt; {
+	let x = e.clientX - startX;
+
+	//拖动的整数屏
+	let current = index - (x - (x % 500)) / 500;
+
+	for (let offset of [-1, 0, 1]) {
+		//计算可能出现的图片下标
+		let pos = current + offset;
+		pos = (pos + children.length) % children.length; //要处理大屏幕拖动小于 -children.length 的情况
+
+		children[pos].style.transition = 'none';
+		children[pos].style.transform = `translateX(${-pos * 500 + offset * 500 + (x % 500)}px)`; //当前，前一个，后一个图片当前位置
+	}
+};
+</code></pre>
+<hr>
+<p><code>mouseup</code> 是这里面逻辑稍微复杂的一个，当我们拖动停止的时候，视口里面会有两张图片（一般情况下）（<code>x</code> 为 <code>e.clientX - startX</code>，即从触发 <code>mousedown</code> 到 <code>mouseup</code> 水平方向一共移动了多少像素），我们要判断哪张图片所占面积比较大，让这张图片用动画移动到整个视口，而另一张图片用动画移出视口。这里我讲两种实现方式。</p>
+<p>第一种是比较好理解，但是代码量比较大。我们可以用 <code>(x - (x % 500)) / 500</code> 得出一共滚动了多少个单位，<code>index - (x - (x % 500)) / 500</code> 这张图片在触发 <code>mouseup</code> 时必然在视口内，只是我们不确定它是要移出的还是要显示的，我们只需要分情况，用 <code>if</code> 判断一下 <code>x % 500</code> 的各种情况。</p>
+<p><code>x % 500</code> 的值就是页面滚动完整数个单位后多的部分，这部分如果超过一半的图片宽度，当前图片就要从视口移出；如果小于一半的图片宽度，当前图片就显示到视口中。同时我们还要判断视口中的另一张图片的移动方向，这里就不仅需要判断面积，同时需要判断是向左拖动还是向右拖动的。所以最后我们要 <code>2 x 2</code> 共四种情况。代码如下：</p>
+<pre><code class="language-javascript">let up = e =&gt; {
+	let x = e.clientX - startX;
+
+	//index不变，向下取整，需要分情况，可读性好
+	index = (index - (x - (x % 500)) / 500) % children.length;
+	index = (index + children.length) % children.length;
+	let base = x % 500;
+
+	if (base &gt; 0) {
+		if (base &gt; 250) {
+			children[index].style.transition = '';
+			children[index].style.transform = `translateX(${(-index + 1) * 500}px)`;
+			let pre = index === 0 ? children.length - 1 : index - 1;
+			children[pre].style.transition = '';
+			children[pre].style.transform = `translateX(${-pre * 500}px)`;
+			index = pre;
+		} else {
+			children[index].style.transition = '';
+			children[index].style.transform = `translateX(${-index * 500}px)`;
+			let pre = index === 0 ? children.length - 1 : index - 1;
+			children[pre].style.transition = '';
+			children[pre].style.transform = `translateX(${(-pre - 1) * 500}px)`;
+		}
+	}
+	if (base &lt; 0) {
+		if (base &lt; -250) {
+			children[index].style.transition = '';
+			children[index].style.transform = `translateX(${(-index - 1) * 500}px)`;
+			let pre = index === 3 ? 0 : index + 1;
+			children[pre].style.transition = '';
+			children[pre].style.transform = `translateX(${-pre * 500}px)`;
+			index = pre;
+		} else {
+			children[index].style.transition = '';
+			children[index].style.transform = `translateX(${-index * 500}px)`;
+			let pre = index === 3 ? 0 : index + 1;
+			children[pre].style.transition = '';
+			children[pre].style.transform = `translateX(${(-pre + 1) * 500}px)`;
+		}
+	}
+
+	document.removeEventListener('mousemove', move);
+	document.removeEventListener('mouseup', up);
+};
+</code></pre>
+<hr>
+<p>上面的代码比较繁琐，其实我们可以将情况简化，我们可以利用 <code>Math.round()</code> 四舍五入求出 <code>mouseup</code> 触发以后要显示的图片（四舍五入后就不需要在特别判断哪个占的面积大了），现在我们要判断的就是另一张图片是前一张还是后一张即可。这个判断也是有规律的，我们利用 <code>Math.abs()</code> 和 <code>Math.sign()</code> 可以得出其值，<code>Math.sign(base)</code> 判断是向左还是向右拖动，<code>Math.abs(base)</code> 判断 <code>base</code> 是否超过一半，结合两者我们就能判断出是上一张还是下一张。代码如下：</p>
+<pre><code class="language-javascript">let up = e =&gt; {
+	let x = e.clientX - startX;
+	
+	//index 四舍五入，代码简洁，不易理解，主要是利用四舍五入，统一了要从可视范围移出的元素的下标
+	index = (index - Math.round(x / 500)) % children.length;
+	index = (index + children.length) % children.length; //四舍五入，得到的就是mouseup触发后应该显示的图片下标
+	let base = x % 500;
+	for (let offset of [0, (Math.abs(base) &gt; 250 ? 1 : -1) * Math.sign(base)]) {
+		let pos = (index + offset + children.length) % children.length; //获得另一个要移动的图片的下标（要移除可视范围的图片）
+		children[pos].style.transition = '';
+		children[pos].style.transform = `translateX(${(offset - pos) * 500}px)`; //一个下标为index图片要显示它的偏移量是 -index, 偏移量 -1 表示再向左移动一个图片单位，偏移量 1 表示向右移动一个图片单位，最后的总偏移量为 -index + offset
+	}
+
+	document.removeEventListener('mousemove', move);
+	document.removeEventListener('mouseup', up);
+};
+</code></pre>
+<p>这样代码也简单多了，不过要比上面那个难理解一点。理解的关键就是，同一个方向的移动，<code>base</code> 是否超过一半其 <code>index</code> 是不同的。</p>
+<p>完整的代码查看：<a href="https://cdn.clloz.com/study/carousel.html" title="图片轮播效果">图片轮播效果</a></p>
+<h3 id="总结">总结</h3>
+<p>轮播问题的主要逻辑就是我们不需要关注所有图片，不需要每次移动都要保持视口外的图片都在**“正确”**的位置，我们只需要关注几张与当前显示相关的图片即可。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[拖动旋转的 3D 骰子效果]]></title>
+        <id>https://clloz.github.io/post/spin-dice/</id>
+        <link href="https://clloz.github.io/post/spin-dice/">
+        </link>
+        <updated>2020-09-18T12:09:53.000Z</updated>
+        <summary type="html"><![CDATA[<p>本文主要讲解如何用 CSS 实现一个 3D 骰子，以及如何使用 transform 将骰子按自己的需求转动。最后实现用 javascript 实现拖动骰子进行转动的功能。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>本文主要讲解如何用 CSS 实现一个 3D 骰子，以及如何使用 transform 将骰子按自己的需求转动。最后实现用 javascript 实现拖动骰子进行转动的功能。</p>
+<!-- more -->
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>用 <code>CSS</code> 实现一个 <code>3d</code> 的骰子，然后实现用鼠标拖动旋转的效果。实现的效果如下，可以拖动这个骰子进行旋转。</p>
+<iframe width="100%" height="300px" style="border: none" src="https://cdn.clloz.com/study/spin-dice/spin-dice.html"></iframe>
+<h3 id="css-实现-3d-骰子">CSS 实现 3D 骰子</h3>
+<p>想要实现一个 <code>3d</code> 的骰子，肯定是要使用 <code>transform</code>。关于 <code>transform</code> 的细节本文就不多讲了，可以参考 <code>MDN</code> 和 <a href="https://www.cnblogs.com/xiaohuochai/p/5351477.html" title="深入理解CSS变形transform(3d)">深入理解CSS变形transform(3d)</a>。我们主要讲讲如何实现效果。</p>
+<p><code>HTML</code> 的结构很简单，我们需要一个包含块（最后我们旋转的就是这个包含块），和 <code>6</code> 个子元素作为骰子的六个面。</p>
+<pre><code class="language-html">&lt;ul id=&quot;dice&quot;&gt;
+	&lt;li class=&quot;front&quot;&gt;1&lt;/li&gt;
+	&lt;li class=&quot;back&quot;&gt;2&lt;/li&gt;
+	&lt;li class=&quot;right&quot;&gt;3&lt;/li&gt;
+	&lt;li class=&quot;left&quot;&gt;4&lt;/li&gt;
+	&lt;li class=&quot;top&quot;&gt;5&lt;/li&gt;
+	&lt;li class=&quot;bottom&quot;&gt;6&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+<p>父元素的处理非常简单，主要的属性就是 <code>transform-style: preserve-3d</code>，因为我们的子元素是在 <code>3d</code> 空间中的。</p>
+<pre><code class="language-css">ul {
+	display: block;
+	width: 100px;
+	height: 100px;
+	margin: 100px auto;
+	padding: 0;
+	list-style: none;
+	transform-style: preserve-3d;
+}
+</code></pre>
+<h4 id="六个面的-transform">六个面的 transform</h4>
+<p>在处理 <code>transform</code> 之前我们用绝对定位把六个面的元素都固定到父元素的 <code>top left</code> 位置，这样六个面的 <code>transform</code> 的坐标就都相同了。每个面的 <code>transform</code> 都不相同，我们需要在脑海中模拟一下从当前位置到目标位置的移动过程。这里需要注意两点，第一点是坐标轴的方向，<code>z</code> 轴是垂直屏幕向外的的，也就是向外移动是正，向内移动是负，同理 <code>x</code> 轴是左为正，<code>y</code> 轴是下为正；第二点就是元素拥有独立的坐标系，而不是共用同一个坐标自，当一个元素发生了旋转，他的坐标系也在旋转。比如我将一个元素以 <code>x</code> 轴为旋转轴旋转了 <code>180deg</code>，那么此时他的 <code>z</code> 轴就不在是<strong>垂直屏幕向外</strong>，而是<strong>垂直屏幕向内</strong>的，这一点要注意一下。根据这些规则我们来总结一下各个面需要如何移动，我们以骰子的边长为 <code>100px</code> 为例。</p>
+<ul>
+<li><code>front</code>：沿着 <code>z</code> 轴向外移动 <code>50px</code>。</li>
+<li><code>back</code>：沿着 <code>z</code> 轴向内移动 <code>50px</code>。</li>
+<li><code>right</code>：以 <code>y</code> 轴为旋转轴顺时针旋转 <code>90deg</code>，然后向右移动 <code>50px</code>。</li>
+<li><code>left</code>：以 <code>y</code> 轴为旋转轴逆时针旋转 <code>90deg</code>，然后向左移动 <code>50px</code>。</li>
+<li><code>top</code>：以 <code>x</code> 轴为旋转轴顺时针旋转 <code>90deg</code>，然后向上移动 <code>50px</code>。</li>
+<li><code>bottom</code>： 以 <code>x</code> 轴为旋转轴逆时针旋转 <code>90deg</code>，然后向下移动 <code>50px</code>。</li>
+</ul>
+<p>这里的顺时针逆时针我个人总结就是从旋转轴的正方向向负方向看，比如 <code>x</code> 轴是从右往左看，<code>y</code> 轴是从下网上看，如果方向看反的话，顺时针逆时针也会搞反。这里的旋转需要一点空间想象力，特别是刚刚接触 <code>3d</code> 的 <code>transform</code>。</p>
+<p>根据上面总结的各个面的移动方式，我们就可以写出我们的代码了。</p>
+<pre><code class="language-css">ul li {
+	position: absolute;
+	display: block;
+	width: 100%;
+	height: 100%;
+	font-size: 30px;
+	color: white;
+	line-height: 100px;
+	text-align: center;
+	backface-visibility: visible;
+}
+.front {
+	background-color: rgba(90, 90, 90, 0.7);
+	transform: translateZ(50px);
+}
+.back {
+	background-color: rgba(0, 210, 0, 0.7);
+	transform: rotateY(180deg) translateZ(50px);
+}
+.right {
+	background-color: rgba(210, 0, 0, 0.7);
+	transform: rotateY(90deg) translateZ(50px);
+}
+.left {
+	background-color: rgba(0, 0, 210, 0.7);
+	transform: rotateY(-90deg) translateZ(50px);
+}
+.top {
+	background-color: rgba(210, 210, 0, 0.7);
+	transform: rotateX(90deg) translateZ(50px);
+}
+.bottom {
+	background-color: rgba(210, 0, 210, 0.7);
+	transform: rotateX(-90deg) translateZ(50px);
+}
+</code></pre>
+<p>此时我们就已经得到一个 <code>3d</code> 的骰子了。我们可以给它一个初始的角度或者加上透视，就能够看到 <code>3d</code> 的效果。</p>
+<iframe width="100%" height="350px" style="border: none" src="https://cdn.clloz.com/study/spin-dice/static-spin-dice.html"></iframe>
+<h4 id="旋转动画">旋转动画</h4>
+<p>在实现拖动旋转之前，我们先做一个旋转动画来了解 <code>3d</code> 旋转。我们实现将这个骰子立起来，然后进行旋转，效果如下。</p>
+<iframe width="100%" height="350px" style="border: none" src="https://cdn.clloz.com/study/spin-dice/vertical-spin-dice.html"></iframe>
+<p>如何实现这样的效果呢，我们要做的就是先将筛子立起来。其实就是以 <code>z</code> 轴顺时针旋转 <code>45deg</code>，然后以 <code>x</code> 轴逆时针旋转 <code>45deg</code>。最后的旋转方向我们使用 <code>rotate3d(1, 1, 1, ndeg)</code> 来实现，这里的三个 <code>1</code> 可以理解成向量，我们的旋转轴就是原点到这个向量的连线，原点默认在中心，而 <code>1，1，1</code> 的位置就相当于在 <code>xyz</code> 的坐标系中取点 <code>(1, 1, 1)</code>（这里注意坐标轴的方向和我们平时数学题中的方向不同），他们的连线就是一个垂直穿过的对角的轴。最后的效果就是一个立起来的骰子沿着垂直方向旋转。</p>
+<blockquote>
+<p><code>safari</code>，<code>firefox</code> 以及 <code>iOS</code> 上的 <code>chrome</code> 都不支持 <code>keyframe</code> 只写两帧（也就是 <code>from - to</code> 和 <code>0% - 100%</code> 的形式）我最终尝试只有 <code>0% 25% 50% 75% 100%</code> 这种形式能正常工作。</p>
+</blockquote>
+<h3 id="拖动旋转">拖动旋转</h3>
+<p>把旋转的原理搞清楚了，实现拖动旋转就非常简单了。我们要做的就是触发 <code>mousemove</code> 的时候就重新计算我们的 <code>transform</code> 的值，这个值的计算就根据 <code>mousedown</code> 时候的 <code>clientX clientY</code> 和 <code>mousemove</code> 时候的 <code>clientX clientY</code> 的差值进行计算，比如移动 <code>10</code> 个像素就转动一度。这里需要注意的一点是，我们鼠标在垂直方向上移动的距离影响的是 <code>rotateX</code> 而不是 <code>rotateY</code>，因为初始方向移动相当于绕着 <code>X</code> 轴旋转。</p>
+<p>最后就是当 <code>mouseup</code> 的时候记录当前的 <code>rotateX</code> 和 <code>rotateY</code> 的值，让下次点击事件发生的时候从上次结束的状态开始旋转而不是回到初始状态。最后的代码如下。</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+    &lt;head&gt;
+        &lt;meta charset=&quot;UTF-8&quot; /&gt;
+        &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+        &lt;title&gt;Spin Dice&lt;/title&gt;
+        &lt;style&gt;
+            ul {
+                display: block;
+                width: 100px;
+                height: 100px;
+                margin: 100px auto;
+                padding: 0;
+                list-style: none;
+                /* perspective: 550px; */
+                transform-style: preserve-3d;
+                /* transition: all 0.3s ease-in; */
+                /* animation: spin 5s infinite linear; */
+                transform: rotateX(13deg) rotateY(13deg);
+            }
+            ul li {
+                position: absolute;
+                display: block;
+                width: 100%;
+                height: 100%;
+                font-size: 30px;
+                color: white;
+                line-height: 100px;
+                text-align: center;
+                backface-visibility: visible;
+            }
+            .front {
+                background-color: rgba(90, 90, 90, 0.7);
+                transform: translateZ(50px);
+            }
+            .back {
+                background-color: rgba(0, 210, 0, 0.7);
+                transform: rotateY(180deg) translateZ(50px);
+            }
+            .right {
+                background-color: rgba(210, 0, 0, 0.7);
+                transform: rotateY(90deg) translateZ(50px);
+            }
+            .left {
+                background-color: rgba(0, 0, 210, 0.7);
+                transform: rotateY(-90deg) translateZ(50px);
+            }
+            .top {
+                background-color: rgba(210, 210, 0, 0.7);
+                transform: rotateX(90deg) translateZ(50px);
+            }
+            .bottom {
+                background-color: rgba(210, 0, 210, 0.7);
+                transform: rotateX(-90deg) translateZ(50px);
+            }
+        &lt;/style&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;ul id=&quot;dice&quot;&gt;
+            &lt;li class=&quot;front&quot;&gt;1&lt;/li&gt;
+            &lt;li class=&quot;back&quot;&gt;2&lt;/li&gt;
+            &lt;li class=&quot;right&quot;&gt;3&lt;/li&gt;
+            &lt;li class=&quot;left&quot;&gt;4&lt;/li&gt;
+            &lt;li class=&quot;top&quot;&gt;5&lt;/li&gt;
+            &lt;li class=&quot;bottom&quot;&gt;6&lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;script&gt;
+            let dice = document.getElementById('dice');
+            let baseX = 13;
+            let baseY = 13;
+            dice.addEventListener('mousedown', e =&gt; {
+                let rotateX = e.clientX;
+                let rotateY = e.clientY;
+
+                let move = e =&gt; {
+                    // console.log(baseX, rotateX, e.clientX);
+                    // console.log(baseY, rotateY, e.clientY);
+                    dice.style.transform = `rotateX(${baseX - (((e.clientY - rotateY) / 10) % 360)}deg) rotateY(${
+                        baseY + (((e.clientX - rotateX) / 10) % 360)
+                    }deg)`;
+                    // console.log(dice.style.transform);
+                };
+                let up = e =&gt; {
+                    baseX = baseX - (((e.clientY - rotateY) / 10) % 360);
+                    baseY = baseY + (((e.clientX - rotateX) / 10) % 360);
+                    // console.log(baseX, baseY);
+                    document.removeEventListener('mousemove', move);
+                    document.removeEventListener('mouseup', up);
+                };
+                document.addEventListener('mousemove', move);
+                document.addEventListener('mouseup', up);
+            });
+            document.addEventListener('selectstart', e =&gt; e.preventDefault());
+        &lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+
+</code></pre>
+<p>注意要把 <code>CSS</code> 代码中的 <code>transition</code> 注释掉，否则影响旋转效果。</p>
 ]]></content>
     </entry>
     <entry>

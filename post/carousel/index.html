@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>图片轮播 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601122423435" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文用两种方式实现图片轮播的效果，包括自动轮播和拖动轮播。
+
+前言
+用两种方式实现图片轮播，自动轮播和拖动轮播。
+代码结构
+由于 img 是一个可选标签，可以被拖动，我们这里选择用 background-image 来实现。基本的 DOM ..." />
+    <meta name="keywords" content="JavaScript" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601122423435" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">图片轮播</h2>
+            <div class="post-date">2020-09-22</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/carousel.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文用两种方式实现图片轮播的效果，包括自动轮播和拖动轮播。</p>
+<!-- more -->
+<h3 id="前言">前言</h3>
+<p>用两种方式实现图片轮播，自动轮播和拖动轮播。</p>
+<h3 id="代码结构">代码结构</h3>
+<p>由于 <code>img</code> 是一个可选标签，可以被拖动，我们这里选择用 <code>background-image</code> 来实现。基本的 <code>DOM</code> 结构和 <code>CSS</code> 如下：</p>
+<pre><code class="language-html">&lt;style&gt;
+	.carousel {
+		width: 500px;
+		height: 280px;
+		margin: 30px auto;
+		font-size: 0;
+		white-space: nowrap;
+		overflow: hidden;
+	}
+	.carousel &gt; div {
+		display: inline-block;
+		width: 500px;
+		height: 280px;
+		background-size: contain;
+		transition: ease 0.5s;
+	}
+	.carousel &gt; div:nth-child(1) {
+		background-image: url('https://img.clloz.com/blog/writing/cat1.jpg');
+	}
+	.carousel &gt; div:nth-child(2) {
+		background-image: url('https://img.clloz.com/blog/writing/cat2.jpg');
+	}
+	.carousel &gt; div:nth-child(3) {
+		background-image: url('https://img.clloz.com/blog/writing/cat3.jpg');
+	}
+	.carousel &gt; div:nth-child(4) {
+		background-image: url('https://img.clloz.com/blog/writing/cat4.jpg');
+	}
+&lt;/style&gt;
+
+&lt;div class=&quot;carousel cp1&quot;&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;carousel cp2&quot;&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+	&lt;div&gt;&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+<p>我们用 <code>display: inline-block</code> 和 <code>overflow: hidden</code> 让图片横向排列并且一次只显示一张。这里需要注意 <code>inline-block</code> 空格导致的间隙问题，我直接用 <code>font-size: 0</code> 来解决。</p>
+<h3 id="自动轮播">自动轮播</h3>
+<p>自动轮播的逻辑是比较简单的，我们其实只要关注两张图片，即当前图片和下一张图片。设每一张图片的编号为 <code>index</code> （从 <code>0</code> 开始），每一张图片要显示所对应的 <code>translateX</code> 的值就是 <code>-(index * 100)%</code>。所以我们只需要每次移动时将当前图片和下一章图片左移一个单位（即一张图片的宽度），同时将下一次要显示的图片放到当前图片的右边一个单位。如下图：</p>
+<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/carousel.png" alt="carousel" title="carousel" loading="lazy"></figure>
+<p>关键逻辑就是将下次要显示的图片移动到预备位置，并且这个过程要关掉动画效果。最后的代码如下：</p>
+<pre><code class="language-javascript">// transform loop settimeout
+let el2 = document.querySelector('.carousel.cp2');
+let currentIndex = 0;
+setInterval(() =&gt; {
+	let children = el2.children;
+	let nextIndex = (currentIndex + 1) % children.length;
+	let current = children[currentIndex];
+	let next = children[nextIndex];
+
+	next.style.transition = 'none';
+	next.style.transform = `translateX(${100 - nextIndex * 100}%)`;
+
+	setTimeout(() =&gt; {
+		next.style.transition = '';
+		current.style.transform = `translateX(${-100 - currentIndex * 100}%)`;
+		next.style.transform = `translateX(${-nextIndex * 100}%)`;
+		currentIndex = nextIndex;
+	}, 16);
+}, 3000);
+</code></pre>
+<p>动画效果的开关我们可以用 <code>element.style.transition</code> 来控制行内样式的值来达到效果。因为行内样式的优先级最高，当我们设置其值为 <code>none</code> 会覆盖 <code>style</code> 标签中的样式。当我们将 <code>element.style.transition</code> 的值设为 <code>''</code>，<code>style</code> 标签中的对应样式又生效了</p>
+<p>代码中间使用了一个小技巧。就是如果连续对同一个元素进行操作，浏览器会忽略前一个操作，这里我们用一个 <code>setTimeout</code> 避免浏览器的这种行为，<code>16ms</code> 为浏览器一帧的时间。</p>
+<p>还有一点就是最后一张图片的下一张应该是第一张，这里我们可以使用简单的模运算来达到效果，模就是元素的个数。</p>
+<h3 id="拖动轮播">拖动轮播</h3>
+<p>拖动轮播的逻辑要比自动复杂一些，因为拖动的情况下我们既可以向左又可以向右进行拖动。并且当拖动结束的时候，显示窗口中会有两张图片，我们要根据面积来判断哪张图片显示，并且要把另一张图片也移动到窗口外。</p>
+<p>首先我们要处理拖动事件，这个逻辑和我在<a href="https://www.clloz.com/programming/front-end/css/2020/09/18/spin-dice/" title="拖动旋转 3D 的骰子效果">拖动旋转 3D 的骰子效果</a>一文中的逻辑是相同，我们对包含元素，也就是代码中的 <code>.carousel</code> 绑定一个 <code>mousedown</code> 事件，在其回调函数中绑定 <code>mousemove</code> 和 <code>mouseup</code> 事件。注意后两个事件要绑定到 <code>document</code> 上，因为我们即使拖动到元素外也是一个完整的 <code>mousemove</code> 行为，并且绑定到 <code>document</code> 上即使我们拖出浏览器外也依然能保持触发 <code>mousemove</code> 事件。</p>
+<p><code>mousedown</code> 事件我们只要做一件事就是记录用户点击的初始位置坐标，用 <code>clientX</code>（因为轮播是横向的，我们只需要判断 <code>x</code> 方向的移动距离）</p>
+<p><code>mousemove</code> 我们要处理图片的移动，这里我们需要将动画效果关闭。以一张图片的的宽度为一个单位，我们只需要知道一共滚过了几个单位，就知道当前显示图片的 <code>index</code>，然后在计算当前 <code>index</code> 的前一张和后一张就能够得到连续的效果。<code>mousemove</code> 回调函数如下：</p>
+<pre><code class="language-javascript">let move = e =&gt; {
+	let x = e.clientX - startX;
+
+	//拖动的整数屏
+	let current = index - (x - (x % 500)) / 500;
+
+	for (let offset of [-1, 0, 1]) {
+		//计算可能出现的图片下标
+		let pos = current + offset;
+		pos = (pos + children.length) % children.length; //要处理大屏幕拖动小于 -children.length 的情况
+
+		children[pos].style.transition = 'none';
+		children[pos].style.transform = `translateX(${-pos * 500 + offset * 500 + (x % 500)}px)`; //当前，前一个，后一个图片当前位置
+	}
+};
+</code></pre>
+<hr>
+<p><code>mouseup</code> 是这里面逻辑稍微复杂的一个，当我们拖动停止的时候，视口里面会有两张图片（一般情况下）（<code>x</code> 为 <code>e.clientX - startX</code>，即从触发 <code>mousedown</code> 到 <code>mouseup</code> 水平方向一共移动了多少像素），我们要判断哪张图片所占面积比较大，让这张图片用动画移动到整个视口，而另一张图片用动画移出视口。这里我讲两种实现方式。</p>
+<p>第一种是比较好理解，但是代码量比较大。我们可以用 <code>(x - (x % 500)) / 500</code> 得出一共滚动了多少个单位，<code>index - (x - (x % 500)) / 500</code> 这张图片在触发 <code>mouseup</code> 时必然在视口内，只是我们不确定它是要移出的还是要显示的，我们只需要分情况，用 <code>if</code> 判断一下 <code>x % 500</code> 的各种情况。</p>
+<p><code>x % 500</code> 的值就是页面滚动完整数个单位后多的部分，这部分如果超过一半的图片宽度，当前图片就要从视口移出；如果小于一半的图片宽度，当前图片就显示到视口中。同时我们还要判断视口中的另一张图片的移动方向，这里就不仅需要判断面积，同时需要判断是向左拖动还是向右拖动的。所以最后我们要 <code>2 x 2</code> 共四种情况。代码如下：</p>
+<pre><code class="language-javascript">let up = e =&gt; {
+	let x = e.clientX - startX;
+
+	//index不变，向下取整，需要分情况，可读性好
+	index = (index - (x - (x % 500)) / 500) % children.length;
+	index = (index + children.length) % children.length;
+	let base = x % 500;
+
+	if (base &gt; 0) {
+		if (base &gt; 250) {
+			children[index].style.transition = '';
+			children[index].style.transform = `translateX(${(-index + 1) * 500}px)`;
+			let pre = index === 0 ? children.length - 1 : index - 1;
+			children[pre].style.transition = '';
+			children[pre].style.transform = `translateX(${-pre * 500}px)`;
+			index = pre;
+		} else {
+			children[index].style.transition = '';
+			children[index].style.transform = `translateX(${-index * 500}px)`;
+			let pre = index === 0 ? children.length - 1 : index - 1;
+			children[pre].style.transition = '';
+			children[pre].style.transform = `translateX(${(-pre - 1) * 500}px)`;
+		}
+	}
+	if (base &lt; 0) {
+		if (base &lt; -250) {
+			children[index].style.transition = '';
+			children[index].style.transform = `translateX(${(-index - 1) * 500}px)`;
+			let pre = index === 3 ? 0 : index + 1;
+			children[pre].style.transition = '';
+			children[pre].style.transform = `translateX(${-pre * 500}px)`;
+			index = pre;
+		} else {
+			children[index].style.transition = '';
+			children[index].style.transform = `translateX(${-index * 500}px)`;
+			let pre = index === 3 ? 0 : index + 1;
+			children[pre].style.transition = '';
+			children[pre].style.transform = `translateX(${(-pre + 1) * 500}px)`;
+		}
+	}
+
+	document.removeEventListener('mousemove', move);
+	document.removeEventListener('mouseup', up);
+};
+</code></pre>
+<hr>
+<p>上面的代码比较繁琐，其实我们可以将情况简化，我们可以利用 <code>Math.round()</code> 四舍五入求出 <code>mouseup</code> 触发以后要显示的图片（四舍五入后就不需要在特别判断哪个占的面积大了），现在我们要判断的就是另一张图片是前一张还是后一张即可。这个判断也是有规律的，我们利用 <code>Math.abs()</code> 和 <code>Math.sign()</code> 可以得出其值，<code>Math.sign(base)</code> 判断是向左还是向右拖动，<code>Math.abs(base)</code> 判断 <code>base</code> 是否超过一半，结合两者我们就能判断出是上一张还是下一张。代码如下：</p>
+<pre><code class="language-javascript">let up = e =&gt; {
+	let x = e.clientX - startX;
+	
+	//index 四舍五入，代码简洁，不易理解，主要是利用四舍五入，统一了要从可视范围移出的元素的下标
+	index = (index - Math.round(x / 500)) % children.length;
+	index = (index + children.length) % children.length; //四舍五入，得到的就是mouseup触发后应该显示的图片下标
+	let base = x % 500;
+	for (let offset of [0, (Math.abs(base) &gt; 250 ? 1 : -1) * Math.sign(base)]) {
+		let pos = (index + offset + children.length) % children.length; //获得另一个要移动的图片的下标（要移除可视范围的图片）
+		children[pos].style.transition = '';
+		children[pos].style.transform = `translateX(${(offset - pos) * 500}px)`; //一个下标为index图片要显示它的偏移量是 -index, 偏移量 -1 表示再向左移动一个图片单位，偏移量 1 表示向右移动一个图片单位，最后的总偏移量为 -index + offset
+	}
+
+	document.removeEventListener('mousemove', move);
+	document.removeEventListener('mouseup', up);
+};
+</code></pre>
+<p>这样代码也简单多了，不过要比上面那个难理解一点。理解的关键就是，同一个方向的移动，<code>base</code> 是否超过一半其 <code>index</code> 是不同的。</p>
+<p>完整的代码查看：<a href="https://cdn.clloz.com/study/carousel.html" title="图片轮播效果">图片轮播效果</a></p>
+<h3 id="总结">总结</h3>
+<p>轮播问题的主要逻辑就是我们不需要关注所有图片，不需要每次移动都要保持视口外的图片都在**“正确”**的位置，我们只需要关注几张与当前显示相关的图片即可。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/javascript/" class="tag">
+                    JavaScript
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/spin-dice/">
+                  <h3 class="post-title">
+                    拖动旋转的 3D 骰子效果
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

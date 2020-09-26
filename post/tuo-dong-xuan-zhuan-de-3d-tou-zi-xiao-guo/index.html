@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>拖动旋转的 3D 骰子效果 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601122423435" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文主要讲解如何用 CSS 实现一个 3D 骰子，以及如何使用 transform 将骰子按自己的需求转动。最后实现用 javascript 实现拖动骰子进行转动的功能。
+
+本文首发于个人博客clloz.com
+前言
+用 CSS 实现一个 ..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601122423435" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">拖动旋转的 3D 骰子效果</h2>
+            <div class="post-date">2020-09-26</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/tuo-dong-xuan-zhuan-de-3d-tou-zi-xiao-guo.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文主要讲解如何用 CSS 实现一个 3D 骰子，以及如何使用 transform 将骰子按自己的需求转动。最后实现用 javascript 实现拖动骰子进行转动的功能。</p>
+<!-- more -->
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>用 <code>CSS</code> 实现一个 <code>3d</code> 的骰子，然后实现用鼠标拖动旋转的效果。实现的效果如下，可以拖动这个骰子进行旋转。</p>
+<iframe width="100%" height="300px" style="border: none" src="https://cdn.clloz.com/study/spin-dice/spin-dice.html"></iframe>
+<h3 id="css-实现-3d-骰子">CSS 实现 3D 骰子</h3>
+<p>想要实现一个 <code>3d</code> 的骰子，肯定是要使用 <code>transform</code>。关于 <code>transform</code> 的细节本文就不多讲了，可以参考 <code>MDN</code> 和 <a href="https://www.cnblogs.com/xiaohuochai/p/5351477.html" title="深入理解CSS变形transform(3d)">深入理解CSS变形transform(3d)</a>。我们主要讲讲如何实现效果。</p>
+<p><code>HTML</code> 的结构很简单，我们需要一个包含块（最后我们旋转的就是这个包含块），和 <code>6</code> 个子元素作为骰子的六个面。</p>
+<pre><code class="language-html">&lt;ul id=&quot;dice&quot;&gt;
+	&lt;li class=&quot;front&quot;&gt;1&lt;/li&gt;
+	&lt;li class=&quot;back&quot;&gt;2&lt;/li&gt;
+	&lt;li class=&quot;right&quot;&gt;3&lt;/li&gt;
+	&lt;li class=&quot;left&quot;&gt;4&lt;/li&gt;
+	&lt;li class=&quot;top&quot;&gt;5&lt;/li&gt;
+	&lt;li class=&quot;bottom&quot;&gt;6&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+<p>父元素的处理非常简单，主要的属性就是 <code>transform-style: preserve-3d</code>，因为我们的子元素是在 <code>3d</code> 空间中的。</p>
+<pre><code class="language-css">ul {
+	display: block;
+	width: 100px;
+	height: 100px;
+	margin: 100px auto;
+	padding: 0;
+	list-style: none;
+	transform-style: preserve-3d;
+}
+</code></pre>
+<h4 id="六个面的-transform">六个面的 transform</h4>
+<p>在处理 <code>transform</code> 之前我们用绝对定位把六个面的元素都固定到父元素的 <code>top left</code> 位置，这样六个面的 <code>transform</code> 的坐标就都相同了。每个面的 <code>transform</code> 都不相同，我们需要在脑海中模拟一下从当前位置到目标位置的移动过程。这里需要注意两点，第一点是坐标轴的方向，<code>z</code> 轴是垂直屏幕向外的的，也就是向外移动是正，向内移动是负，同理 <code>x</code> 轴是左为正，<code>y</code> 轴是下为正；第二点就是元素拥有独立的坐标系，而不是共用同一个坐标自，当一个元素发生了旋转，他的坐标系也在旋转。比如我将一个元素以 <code>x</code> 轴为旋转轴旋转了 <code>180deg</code>，那么此时他的 <code>z</code> 轴就不在是<strong>垂直屏幕向外</strong>，而是<strong>垂直屏幕向内</strong>的，这一点要注意一下。根据这些规则我们来总结一下各个面需要如何移动，我们以骰子的边长为 <code>100px</code> 为例。</p>
+<ul>
+<li><code>front</code>：沿着 <code>z</code> 轴向外移动 <code>50px</code>。</li>
+<li><code>back</code>：沿着 <code>z</code> 轴向内移动 <code>50px</code>。</li>
+<li><code>right</code>：以 <code>y</code> 轴为旋转轴顺时针旋转 <code>90deg</code>，然后向右移动 <code>50px</code>。</li>
+<li><code>left</code>：以 <code>y</code> 轴为旋转轴逆时针旋转 <code>90deg</code>，然后向左移动 <code>50px</code>。</li>
+<li><code>top</code>：以 <code>x</code> 轴为旋转轴顺时针旋转 <code>90deg</code>，然后向上移动 <code>50px</code>。</li>
+<li><code>bottom</code>： 以 <code>x</code> 轴为旋转轴逆时针旋转 <code>90deg</code>，然后向下移动 <code>50px</code>。</li>
+</ul>
+<p>这里的顺时针逆时针我个人总结就是从旋转轴的正方向向负方向看，比如 <code>x</code> 轴是从右往左看，<code>y</code> 轴是从下网上看，如果方向看反的话，顺时针逆时针也会搞反。这里的旋转需要一点空间想象力，特别是刚刚接触 <code>3d</code> 的 <code>transform</code>。</p>
+<p>根据上面总结的各个面的移动方式，我们就可以写出我们的代码了。</p>
+<pre><code class="language-css">ul li {
+	position: absolute;
+	display: block;
+	width: 100%;
+	height: 100%;
+	font-size: 30px;
+	color: white;
+	line-height: 100px;
+	text-align: center;
+	backface-visibility: visible;
+}
+.front {
+	background-color: rgba(90, 90, 90, 0.7);
+	transform: translateZ(50px);
+}
+.back {
+	background-color: rgba(0, 210, 0, 0.7);
+	transform: rotateY(180deg) translateZ(50px);
+}
+.right {
+	background-color: rgba(210, 0, 0, 0.7);
+	transform: rotateY(90deg) translateZ(50px);
+}
+.left {
+	background-color: rgba(0, 0, 210, 0.7);
+	transform: rotateY(-90deg) translateZ(50px);
+}
+.top {
+	background-color: rgba(210, 210, 0, 0.7);
+	transform: rotateX(90deg) translateZ(50px);
+}
+.bottom {
+	background-color: rgba(210, 0, 210, 0.7);
+	transform: rotateX(-90deg) translateZ(50px);
+}
+</code></pre>
+<p>此时我们就已经得到一个 <code>3d</code> 的骰子了。我们可以给它一个初始的角度或者加上透视，就能够看到 <code>3d</code> 的效果。</p>
+<iframe width="100%" height="350px" style="border: none" src="https://cdn.clloz.com/study/spin-dice/static-spin-dice.html"></iframe>
+<h4 id="旋转动画">旋转动画</h4>
+<p>在实现拖动旋转之前，我们先做一个旋转动画来了解 <code>3d</code> 旋转。我们实现将这个骰子立起来，然后进行旋转，效果如下。</p>
+<iframe width="100%" height="350px" style="border: none" src="https://cdn.clloz.com/study/spin-dice/vertical-spin-dice.html"></iframe>
+<p>如何实现这样的效果呢，我们要做的就是先将筛子立起来。其实就是以 <code>z</code> 轴顺时针旋转 <code>45deg</code>，然后以 <code>x</code> 轴逆时针旋转 <code>45deg</code>。最后的旋转方向我们使用 <code>rotate3d(1, 1, 1, ndeg)</code> 来实现，这里的三个 <code>1</code> 可以理解成向量，我们的旋转轴就是原点到这个向量的连线，原点默认在中心，而 <code>1，1，1</code> 的位置就相当于在 <code>xyz</code> 的坐标系中取点 <code>(1, 1, 1)</code>（这里注意坐标轴的方向和我们平时数学题中的方向不同），他们的连线就是一个垂直穿过的对角的轴。最后的效果就是一个立起来的骰子沿着垂直方向旋转。</p>
+<blockquote>
+<p><code>safari</code>，<code>firefox</code> 以及 <code>iOS</code> 上的 <code>chrome</code> 都不支持 <code>keyframe</code> 只写两帧（也就是 <code>from - to</code> 和 <code>0% - 100%</code> 的形式）我最终尝试只有 <code>0% 25% 50% 75% 100%</code> 这种形式能正常工作。</p>
+</blockquote>
+<h3 id="拖动旋转">拖动旋转</h3>
+<p>把旋转的原理搞清楚了，实现拖动旋转就非常简单了。我们要做的就是触发 <code>mousemove</code> 的时候就重新计算我们的 <code>transform</code> 的值，这个值的计算就根据 <code>mousedown</code> 时候的 <code>clientX clientY</code> 和 <code>mousemove</code> 时候的 <code>clientX clientY</code> 的差值进行计算，比如移动 <code>10</code> 个像素就转动一度。这里需要注意的一点是，我们鼠标在垂直方向上移动的距离影响的是 <code>rotateX</code> 而不是 <code>rotateY</code>，因为初始方向移动相当于绕着 <code>X</code> 轴旋转。</p>
+<p>最后就是当 <code>mouseup</code> 的时候记录当前的 <code>rotateX</code> 和 <code>rotateY</code> 的值，让下次点击事件发生的时候从上次结束的状态开始旋转而不是回到初始状态。最后的代码如下。</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+    &lt;head&gt;
+        &lt;meta charset=&quot;UTF-8&quot; /&gt;
+        &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+        &lt;title&gt;Spin Dice&lt;/title&gt;
+        &lt;style&gt;
+            ul {
+                display: block;
+                width: 100px;
+                height: 100px;
+                margin: 100px auto;
+                padding: 0;
+                list-style: none;
+                /* perspective: 550px; */
+                transform-style: preserve-3d;
+                /* transition: all 0.3s ease-in; */
+                /* animation: spin 5s infinite linear; */
+                transform: rotateX(13deg) rotateY(13deg);
+            }
+            ul li {
+                position: absolute;
+                display: block;
+                width: 100%;
+                height: 100%;
+                font-size: 30px;
+                color: white;
+                line-height: 100px;
+                text-align: center;
+                backface-visibility: visible;
+            }
+            .front {
+                background-color: rgba(90, 90, 90, 0.7);
+                transform: translateZ(50px);
+            }
+            .back {
+                background-color: rgba(0, 210, 0, 0.7);
+                transform: rotateY(180deg) translateZ(50px);
+            }
+            .right {
+                background-color: rgba(210, 0, 0, 0.7);
+                transform: rotateY(90deg) translateZ(50px);
+            }
+            .left {
+                background-color: rgba(0, 0, 210, 0.7);
+                transform: rotateY(-90deg) translateZ(50px);
+            }
+            .top {
+                background-color: rgba(210, 210, 0, 0.7);
+                transform: rotateX(90deg) translateZ(50px);
+            }
+            .bottom {
+                background-color: rgba(210, 0, 210, 0.7);
+                transform: rotateX(-90deg) translateZ(50px);
+            }
+        &lt;/style&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;ul id=&quot;dice&quot;&gt;
+            &lt;li class=&quot;front&quot;&gt;1&lt;/li&gt;
+            &lt;li class=&quot;back&quot;&gt;2&lt;/li&gt;
+            &lt;li class=&quot;right&quot;&gt;3&lt;/li&gt;
+            &lt;li class=&quot;left&quot;&gt;4&lt;/li&gt;
+            &lt;li class=&quot;top&quot;&gt;5&lt;/li&gt;
+            &lt;li class=&quot;bottom&quot;&gt;6&lt;/li&gt;
+        &lt;/ul&gt;
+        &lt;script&gt;
+            let dice = document.getElementById('dice');
+            let baseX = 13;
+            let baseY = 13;
+            dice.addEventListener('mousedown', e =&gt; {
+                let rotateX = e.clientX;
+                let rotateY = e.clientY;
+
+                let move = e =&gt; {
+                    // console.log(baseX, rotateX, e.clientX);
+                    // console.log(baseY, rotateY, e.clientY);
+                    dice.style.transform = `rotateX(${baseX - (((e.clientY - rotateY) / 10) % 360)}deg) rotateY(${
+                        baseY + (((e.clientX - rotateX) / 10) % 360)
+                    }deg)`;
+                    // console.log(dice.style.transform);
+                };
+                let up = e =&gt; {
+                    baseX = baseX - (((e.clientY - rotateY) / 10) % 360);
+                    baseY = baseY + (((e.clientX - rotateX) / 10) % 360);
+                    // console.log(baseX, baseY);
+                    document.removeEventListener('mousemove', move);
+                    document.removeEventListener('mouseup', up);
+                };
+                document.addEventListener('mousemove', move);
+                document.addEventListener('mouseup', up);
+            });
+            document.addEventListener('selectstart', e =&gt; e.preventDefault());
+        &lt;/script&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+
+</code></pre>
+<p>注意要把 <code>CSS</code> 代码中的 <code>transition</code> 注释掉，否则影响旋转效果。</p>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/ssh-multiple-github-account/">
+                  <h3 class="post-title">
+                    一台设备添加多个 Github 账号
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

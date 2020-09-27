@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://clloz.github.io/</id>
     <title>Clloz - 素直になれない</title>
-    <updated>2020-09-27T05:15:15.158Z</updated>
+    <updated>2020-09-27T16:53:04.119Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://clloz.github.io/"/>
     <link rel="self" href="https://clloz.github.io/atom.xml"/>
@@ -11,6 +11,186 @@
     <logo>https://clloz.github.io/images/avatar.png</logo>
     <icon>https://clloz.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, Clloz - 素直になれない</rights>
+    <entry>
+        <title type="html"><![CDATA[实现一个 JS 动画模块]]></title>
+        <id>https://clloz.github.io/post/js-animation-module/</id>
+        <link href="https://clloz.github.io/post/js-animation-module/">
+        </link>
+        <updated>2020-09-27T16:31:22.000Z</updated>
+        <summary type="html"><![CDATA[<p>用 JavaScript 实现一个元素动画管理模块，能够支持多元素的动画管理，动画暂停，恢复，延迟和三次贝塞尔曲线的支持。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>用 JavaScript 实现一个元素动画管理模块，能够支持多元素的动画管理，动画暂停，恢复，延迟和三次贝塞尔曲线的支持。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>前端的动画可以用 <code>CSS</code> 来实现，但是如果我们希望管理多个元素的动画进行，支持暂停和继续。那么我们可以用 <code>JS</code> 来实现。</p>
+<h3 id="功能分析">功能分析</h3>
+<p>用 <code>CSS</code> 实现动画是用 <code>keyframe</code> 定义关键帧，然后用 <code>animation</code> 属性对关键帧的过渡进行配置，其中比较常用的几个属性是 <code>animation-na'me, animation-delay, animation-duration, animation-timing-function</code>（详细内容参考<a href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_Animations/Using_CSS_animations" title="使用 CSS 动画 - MDN">使用 CSS 动画 - MDN</a>）。</p>
+<p>使用 <code>JavaScript</code> 来实现动画就是根据时间计算出对应时间点的元素样式。用 <code>JavaScript</code> 的好处是我们能够将动画的逻辑抽象出来，能够同时管理各种需要进行动画元素，并且我们能够对元素的动画进行更精确的控制，精确到帧。</p>
+<p>从分析中我们可以得出，我们用 <code>JavaScript</code> 实现动画的核心就是对时间的把控，我们要明确每一帧元素应该处于什么样的状态。浏览器中一帧是 <code>16ms</code> （一秒钟 <code>60</code> 帧），我们要实现对每一帧的控制可以使用的几个方法是 <code>setInterval</code>，<code>setTimeout</code> 和 <code>requestAnimationFrame</code>。本文我们用 <code>requestAnimationFrame</code> 来实现。<code>requestAnimationFrame</code> 的 <code>API</code> 参考 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestAnimationFrame" title="window.requestAnimationRequest">window.requestAnimationRequest</a></p>
+<h3 id="动画类">动画类</h3>
+<p>首先要设计一个动画类，这个动画类主要是对元素和动画属性的对象进行初始化，同时根据时间计算当前元素的样式。代码如下：</p>
+<pre><code class="language-javascript">class Animation {
+    constructor(obj, prop, startVal, endVal, duration, delay, timeFunc, template) {
+        this.obj = obj;
+        this.prop = prop;
+        this.startVal = startVal;
+        this.endVal = endVal;
+        this.duration = duration;
+        this.delay = delay;
+        this.timeFunc = timeFunc;
+        this.template = template;
+    }
+    trans(time) {
+        console.log(time);
+        let range = this.endVal - this.startVal;
+        let progress = this.timeFunc(time / this.duration);
+        this.obj[this.prop] = this.template(this.startVal + range * progress);
+    }
+}
+</code></pre>
+<p>参数中的 <code>obj</code> 是表示要应用动画的元素，<code>prop</code> 是要进行动画的属性，<code>timeFunc</code> 是和 <code>css</code> 中的 <code>animation-timing-function</code> 类似，<code>template</code> 是为了应对不同的 <code>CSS</code> 属性的不同格式，比如 <code>transform</code> 属性。</p>
+<h3 id="timeline类">timeline类</h3>
+<p>我们要对动画实现 <code>start</code>，<code>pause</code>，<code>resume</code> 等功能，需要一个 <code>timeline</code> 对时间进行管理。我们的 <code>Animation</code> 是根据时间计算样式的，这个时间是一个相对时间。比如 <code>pause</code> 功能，我们可以在用户点击 <code>pause</code> 按钮后记录时间，然后在用户点击 <code>resume</code> 按钮后计算出暂停的时间，在返回给 <code>Animation.trans()</code> 方法的时间中减去这个暂停的时间就能够让元素继续暂停之前的状态进行动画。</p>
+<p>对于不同的元素的动画我们用 <code>Set</code> 进行管理，当有新的需要动画的元素加入时我们将 <code>new</code> 的 <code>Animation</code> 对象存入 <code>Set</code>，当动画完成在从 <code>Set</code> 中删除。</p>
+<p>整个的逻辑还是比较简单的，直接看代码吧.</p>
+<pre><code class="language-javascript">const TICK = Symbol('tick');
+const TICK_HANDLER = Symbol('tick handler');
+const ANIMATIONS = Symbol('animations');
+const MOVETIME = Symbol('movetime');
+const PAUSE_START = Symbol('pause start');
+const PAUSE_TIME = Symbol('pause time');
+
+export class Timeline {
+    constructor() {
+        this.state = 'inited';
+        this[ANIMATIONS] = new Set();
+        this[MOVETIME] = new Map();
+    }
+    start() {
+        if (this.state !== 'inited') return;
+        this.state = 'started';
+        let startTime = Date.now();
+        this[PAUSE_TIME] = 0;
+        console.log(startTime);
+        this[TICK] = () =&gt; {
+            let now = Date.now();
+            for (let animation of this[ANIMATIONS]) {
+                let t;
+                if (this[MOVETIME].get(animation) &lt; startTime) {
+                    t = now - startTime - this[PAUSE_TIME] - animation.delay;
+                } else {
+                    t = now - this[MOVETIME].get(animation) - this[PAUSE_TIME] - animation.delay;
+                }
+                if (t &gt; animation.duration) {
+                    this[ANIMATIONS].delete(animation);
+                    t = animation.duration;
+                }
+                if (t &gt; 0) animation.trans(t);
+            }
+            this[TICK_HANDLER] = requestAnimationFrame(this[TICK]);
+        };
+        this[TICK]();
+    }
+    pause() {
+        if (this.state !== 'started') return;
+        this.state = 'paused';
+        this[PAUSE_START] = Date.now();
+        cancelAnimationFrame(this[TICK_HANDLER]);
+    }
+    resume() {
+        if (this.state !== 'paused') return;
+        this.state = 'started';
+        this[PAUSE_TIME] += Date.now() - this[PAUSE_START];
+        this[TICK]();
+    }
+    reset() {
+        this.pause();
+        this.state = 'inited';
+        // let startTime = Date.now();
+        this[ANIMATIONS] = new Set();
+        this[MOVETIME] = new Map();
+        this[TICK_HANDLER] = null;
+        this[PAUSE_START] = 0;
+    }
+    add(animation, startTime) {
+        if (arguments.length &lt; 2) {
+            startTime = Date.now();
+        }
+        this[ANIMATIONS].add(animation);
+        this[MOVETIME].set(animation, startTime);
+    }
+}
+</code></pre>
+<p>一些模块中私有的属性，我用 <code>Symbol</code> 来生成，这样在模块文件外这些属性是不会被访问到的（目前 <code>ES6</code> 的静态属性支持还不好）。对于 <code>delay</code> 的处理其实和 <code>pause</code> 的逻辑也一样，我们记录 <code>start</code> 开始的时间，只有等到时间超过 <code>delay</code> 才会调用。注意我们的时间计算是从 <code>start</code> 开始一直到结束的，所以每次的 <code>pause</code> 的时间都需要累加到 <code>pause time</code> 中。</p>
+<p>时间的前进我们利用 <code>requestAnimationFrame</code> 的回调函数来递归调用我们封装的函数实现。</p>
+<p>最后我们可以为动画加上贝塞尔曲线的支持。</p>
+<pre><code class="language-javascript">export function cubicBezier(p1x, p1y, p2x, p2y) {
+    const ZERO_LIMIT = 1e-6;
+    const ax = 3 * p1x - 3 * p2x + 1;
+    const bx = 3 * p2x - 6 * p1x;
+    const cx = 3 * p1x;
+
+    const ay = 3 * p1y - 3 * p2y + 1;
+    const by = 3 * p2y - 6 * p1y;
+    const cy = 3 * p1y;
+    function sampleCurveDerivativeX(t) {
+        return (3 * ax * t + 2 * bx) * t + cx;
+    }
+    function sampleCurveX(t) {
+        return ((ax * t + bx) * t + cx) * t;
+    }
+    function sampleCurveY(t) {
+        return ((ay * t + by) * t + cy) * t;
+    }
+    function solveCurveX(x) {
+        var t2 = x;
+        var derivative;
+        var x2;
+        for (let i = 0; i &lt; 8; i++) {
+            x2 = sampleCurveX(t2) - x;
+            if (Math.abs(x2) &lt; ZERO_LIMIT) {
+                return t2;
+            }
+            derivative = sampleCurveDerivativeX(t2);
+            if (Math.abs(derivative) &lt; ZERO_LIMIT) {
+                break;
+            }
+            t2 -= x2 / derivative;
+        }
+        var t1 = 1;
+        var t0 = 0;
+        t2 = x;
+        while (t1 &gt; t0) {
+            x2 = sampleCurveX(t2) - x;
+            if (Math.abs(x2) &lt; ZERO_LIMIT) {
+                return t2;
+            }
+            if (x2 &gt; 0) {
+                t1 = t2;
+            } else {
+                t0 = t2;
+            }
+            t2 = (t1 + t0) / 2;
+        }
+        return t2;
+    }
+    function solve(x) {
+        return sampleCurveY(solveCurveX(x));
+    }
+    return solve;
+}
+
+export let ease = cubicBezier(0.25, 0.1, 0.25, 1);
+export let easeIn = cubicBezier(0.42, 0, 1, 1);
+export let easeOut = cubicBezier(0, 0, 0.58, 1);
+export let easeInOut = cubicBezier(0.42, 0, 0.58, 1);
+</code></pre>
+<p>效果查看点击：<a href="https://cdn.clloz.com/study/js-animation" rel="noreferrer noopener" target="_blank">效果Demo</a></p>
+<p>代码地址：<a href="https://github.com/Clloz/Frontend-02-Template/tree/master/week13/animation" title="Github">Github</a></p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[一台设备添加多个 Github 账号]]></title>
         <id>https://clloz.github.io/post/ssh-multiple-github-account/</id>
@@ -1095,203 +1275,6 @@ console.log(obj3.__proto__ === 17); //true
 <li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Object_initializer" title="对象字面量">对象字面量</a></li>
 <li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/create" title="Object.create()">Object.create()</a></li>
 <li><a href="https://juejin.im/post/6844903589815517192" title="详解 Object.create(null)">详解 Object.create(null)</a></li>
-</ol>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[JavaScript对象属性类型和赋值细节]]></title>
-        <id>https://clloz.github.io/post/javascript-object-prop-assign/</id>
-        <link href="https://clloz.github.io/post/javascript-object-prop-assign/">
-        </link>
-        <updated>2020-09-09T14:02:54.000Z</updated>
-        <summary type="html"><![CDATA[<p>本文主要分析JavaScript中对象的数据属性和访问器属性中的特性，这些特性的应用以及对不同类型的属性进行赋值的时候有哪些违反直觉的行为。</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>本文主要分析JavaScript中对象的数据属性和访问器属性中的特性，这些特性的应用以及对不同类型的属性进行赋值的时候有哪些违反直觉的行为。</p>
-<!-- more -->
-<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
-<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
-<h3 id="前言">前言</h3>
-<p>在研究 <code>JavaScript</code> 中深浅拷贝的方式的时候遇到一个违反我直觉的内容，就是 <code>JavaScript</code> 对象在和原型对象的情况下的赋值行为。本文介绍一下这部分的一些细节。</p>
-<h3 id="问题">问题</h3>
-<p>在研究 <code>Object.create</code> 方法的时候，发现用 <code>Object.create</code> 创建的对象的时候，给访问到的原型中的属性赋值的时候会在新创建的对象中新建这个属性。看如下代码：</p>
-<pre><code class="language-javascript">let Obj = {
-	a: 1,
-	b: 2
-}
-
-let obj = Object.create(Obj);
-
-obj.a = 10;
-
-console.log(obj, Obj); //{ a: 10 } { a: 1, b: 2 }
-</code></pre>
-<p>我也曾使用这个方法来复制对象的属性。但是今天仔细看里面的细节，发现这是违反我直觉的。我自己的思路是，<code>obj</code> 对象没有 <code>a</code> 属性，所以访问到的是原型 <code>Obj</code> 上的 <code>a</code> 属性，那么我修改属性的时候应该修改的也是原型上的属性。但是实际情况是一个 <code>a</code> 属性在 <code>obj</code> 对象上创建，原型上的 <code>a</code> 属性还保持原来的状态。</p>
-<p>其实仔细想一下，这种处理才是合理的。原型存在的目的是为了继承，继承的目的本质也是为了复用。而用来复用的方法或者属性随便就被修改了，会影响到很多其他对象。所以 <code>JavaScript</code> 的这种处理是合理的。</p>
-<p>我们可以把原型中的属性认为是一个<strong>默认值</strong>，当我们的对象没有对应属性的时候，原型能够提供一个默认值给我们，而默认值是不应该随便被修改的。甚至当我们用 <code>delete</code> 删除对象的属性的时候，原型上的同名属性依然是可以访问的，这也正是原型的意义。而且仔细想一想，非常频繁被使用的赋值操作都可以修改原型上的属性的话，将会是非常危险的。</p>
-<h3 id="深入">深入</h3>
-<p>上面我们对属性的赋值的行为举了一个例子，在参考了网络上的其他文章后，我发现这个简单的赋值行为其实还有更多可以研究的行为。</p>
-<h4 id="属性类型">属性类型</h4>
-<p>在分析具体的情况之前我们先说一下 <code>JavaScript</code> 中对象的属性。<code>JavaScript</code> 中属性分为两种类型，一种是数据属性 <code>data properties</code>，一种是访问器属性 <code>accessor properties</code>。<code>JavaScript</code> 标准还定义了一些用来描述属性的 <strong>特性</strong> <code>attributes</code>。属性的精确描述方式称为属性描述符 <code>properties descriptor</code>，也是 <code>Object.defineProperty()</code> 方法的第三个参数，数据属性的描述符称为 <code>data descriptor</code>，访问器属性的描述符称为 <code>accessor descriptor</code>。</p>
-<p>属性描述符其实就是对属性的精确定义，数据描述符是一个具有值的属性，该值可以是可写的，也可以是不可写的。访问器描述符是由 <code>getter</code> 函数和 <code>setter</code> 函数所描述的属性。一个描述符只能是这两者其中之一，不能同时是两者。这两种描述符都是对象。</p>
-<p>数据描述符和访问器描述符都支持支持以下两个 <code>attribute</code> 描述属性：</p>
-<ul>
-<li><code>configurable</code>：特性表示对象的属性是否可以被删除，以及除 <code>value</code> 和 <code>writable</code> 特性外的其他特性是否可以被修改。。默认为 <code>false</code>。<code>configurable</code> 属性设置为 <code>false</code>，则该属性被认为是 <strong>不可配置的</strong>，并且没有属性可以被改变（除了单向改变 <code>writable</code> 为 <code>false</code>）。当属性不可配置时，不能在数据和访问器属性类型之间切换。</li>
-<li><code>enumerable</code>：当且仅当该属性的 <code>enumerable</code> 键值为 <code>true</code> 时，该属性才会出现在对象的枚举属性中。默认为 <code>false</code>。定义了对象的属性是否可以在 <code>for...in</code> 循环和 <code>Object.keys()</code> 中被枚举。</li>
-</ul>
-<p>数据描述符还支持两个独占的 <code>attribute</code> 来描述属性：</p>
-<ul>
-<li><code>value</code>：该属性对应的值。可以是任何有效的 <code>JavaScript</code> 值（数值，对象，函数等）。默认为 <code>undefined</code>。</li>
-<li><code>writable</code>：当且仅当该属性的 <code>writable</code> 键值为 <code>true</code> 时，属性的值，也就是上面的 <code>value</code>，才能被赋值运算符改变。默认为 <code>false</code>。</li>
-</ul>
-<p>访问器属性也有两个独占的 <code>attribute</code> （两个都是函数）来描述属性：</p>
-<p><code>get</code>：属性的 <code>getter</code> 函数，如果没有 <code>getter</code>，则为 <code>undefined</code>。当访问该属性时，会调用此函数。执行时不传入任何参数，但是会传入 <code>this</code> 对象（由于继承关系，这里的 <code>this</code> 并不一定是定义该属性的对象，比如是从原型脸上访问到的 <code>get</code>）。该函数的返回值会被用作属性的值。默认为 <code>undefined</code>。<br>
-<code>set</code>：属性的 <code>setter</code> 函数，如果没有 <code>setter</code>，则为 <code>undefined</code>。当属性值被修改时，会调用此函数。该方法接受一个参数（也就是被赋予的新值），会传入赋值时的 <code>this</code> 对象。默认为 <code>undefined</code>。</p>
-<p><code>get</code> 和 <code>set</code> 并一定要成对出现，只指定 <code>getter</code> 意味着属性是不能写，尝试写入属性会被忽略。 在严格模式下，尝试写入只指定了 <code>getter</code> 函数的属性会抛出错误。类似地，只指定 <code>setter</code> 函数的属性也不能读，否则在非严格模式下会返回 <code>undefined</code>，而在严格模式下会抛出错误。</p>
-<pre><code class="language-javascript">// this 指向
-function myclass() {
-}
-
-Object.defineProperty(myclass.prototype, &quot;x&quot;, {
-  get() {
-    return this.stored_x;
-  },
-  set(x) {
-    this.stored_x = x;
-  }
-});
-
-var a = new myclass();
-var b = new myclass();
-a.x = 1; //this 是 a
-console.log(b.x); // undefined //this 是 b
-</code></pre>
-<p>拥有布尔值的特性 <code>configurable</code>、<code>enumerable</code> 和 <code>writable</code> 的默认值都是 <code>false</code>。属性值和函数的键 <code>value</code>、<code>get</code> 和 <code>set</code> 字段的默认值为 <code>undefined</code>。默认值在描述符省略某些字段时启用。对于直接用对象字面量或属性访问器（点运算符或者方括号运算符）赋值的方式（比如 <code>obj.a = 10</code>  ）创建的属性其数据描述符中的属性的默认值和 <code>Object.defineProperty()</code> 方法是不同的，参考如下代码：</p>
-<pre><code class="language-javascript">let a = {
-	m: 1,
-	set t(arg) {}
-}
-console.log(Object.getOwnPropertyDescriptors(a))
-
-//{
-//	m: { value: 1, writable: true, enumerable: true, configurable: true },
-//	t: {
-//		get: undefined,
-//		set: [Function: set t],
-//		enumerable: true,
-//		configurable: true
-//	}
-//}
-</code></pre>
-<p>一个 <code>configurable</code> 为 <code>true</code> 的属性是可以在数据属性和访问器属性之间切换，方法就是用 <code>Object.defineProperty()</code> 方法重新定义一个同名属性。</p>
-<pre><code class="language-javascript">let a = {}
-a.m = 10; //字面量定义，所有的布尔型 attribute 都为 true
-
-Object.defineProperty(a, 'm', {
-	get () {
-		return 100;
-	}
-})
-
-console.log(a.m) //100
-
-Object.defineProperty(a, 'm', {
-	value: 20
-})
-
-console.log(a.m) //20
-</code></pre>
-<p>如果一个描述符不具有 <code>value</code>、<code>writable</code>、<code>get</code> 和 <code>set</code> 中的任意一个键，那么它将被认为是一个数据描述符。如果一个描述符同时拥有 <code>value</code> 或 <code>writable</code> 和 <code>get</code> 或 <code>set</code> 键，则会产生一个异常。</p>
-<p>无论是数据属性还是访问器属性，都是可以从原型上继承的。如果原型上是一些不希望被修改的默认值，可以用 <code>Object.freeze</code> 冻结源性对象，防止后续代码添加或删除对象原型的属性。</p>
-<p>如果原型上有了同名的访问器属性，那么你无法用属性访问器（点运算符或者方括号运算符）赋值的方式，比如 <code>obj.a = 10</code>，在子对象上创建同名属性（只能用 <code>Object.defineProperty() 方法</code>），在子对象上访问或者修改这个属性都会调用原型上的 <code>get</code> 或者 <code>set</code> 方法（如果只指定了一个，那么行为参考上面的 <code>get</code> 和 <code>set</code> 部分）。和访问器属性不一样，数据属性始终在对象自身上设置，而不会影响到原型上的属性。但如果一个不可写的属性被继承，它仍然可以防止修改对象的属性。这也是我们这篇文章讨论的重点。</p>
-<pre><code class="language-javascript">//只设置set
-let value = 10;
-let a = {
-	set m (m) {
-		value = m; 
-	},
-}
-let b = Object.create(a)
-console.log(a.m) //没有设置get 返回undefined 严格模式下报错
-console.log(b.m) //b对象没有m属性，调用a的get方法。返回undefined，同上
-Object.defineProperty(b, 'm', {
-	value: 100,
-	writable: true,
-	configurable: true,
-	enmerable: true
-})
-console.log(b) //{m: 100}
-console.log(b.m, a.m) //100 undefined
-
-//只设置get
-let value = 10;
-let a = {
-	get m () {
-		return value;
-	},
-}
-let b = Object.create(a)
-console.log(a.m)//10
-a.m = 100; //没有设置set，赋值会被忽略，严格模式下报错
-console.log(a.m) //10
-
-console.log(b.m) //10, b上面没有m属性，返回a.m
-b.m = 100 //属性访问器（点运算符或方括号运算符）无法创建同名属性
-console.log(b.m) //10, 依然返回a.m
-Object.defineProperty(b, 'm', {
-	value: 100,
-	writable: true,
-	configurable: true,
-	enmerable: true
-})
-console.log(b, b.m) //{m:100} 100
-console.log(a.m) //10 a对象不受影响
-</code></pre>
-<p>我们平时可能使用数据属性比较多，但是其访问器属性也有很多应用场景。比如我们属性的 <code>Vue</code> 的双向数据绑定就是用 <code>set</code> 实现的。</p>
-<h4 id="赋值行为">赋值行为</h4>
-<h5 id="原型链上没有同名属性">原型链上没有同名属性</h5>
-<p>这是最简单的情况，会直接在子对象上创建一个新的属性。<code>JavaScript</code> 会现在子对象中检索该属性，如果没有找到则会沿着原型链寻找到原型链的终点 <code>null</code>，在原型链的任何位置找到会立即返回找到的值。</p>
-<pre><code class="language-javascript">let a = {}
-let b = Object.create(a);
-b.m = 10;
-console.log(b) //{m: 10}
-</code></pre>
-<h5 id="原型链上有同名可写属性">原型链上有同名可写属性</h5>
-<p>这种情况就是开头的问题中提到的情况，同样会在子对象上创建新的属性。</p>
-<pre><code class="language-javascript">let a = {
-	m: 2
-}
-let b = Object.create(a);
-b.m = 10;
-console.log(a) //{m: 2} a对象不变
-console.log(b) //{m: 10}
-</code></pre>
-<h5 id="原型链上有同名不可写属性">原型链上有同名不可写属性</h5>
-<p>这种情况下不会在子对象上创建新的属性，赋值也不会执行，在严格模式下会报错。至于为什么这样设计，<a href="https://www.zhihu.com/question/31934148/answer/53949560" title="贺师俊">贺师俊 </a> 认为是保持 <code>getter-only property</code>（只定义了<code>get</code> 方法的访问器属性，上面详细介绍了） 和 <code>non-writable property</code> 行为的一致。<code>You Dont Know Js</code> 则认为是为了保持和传统语言继承表现的一致。</p>
-<pre><code class="language-javascript">//'use strict'
-let a = {}
-Object.defineProperty(a, 'm', {
-	value: 10,
-	configurable: true,
-	enumerable: true,
-	writable: false
-})
-
-console.log(a.m)
-a.m = 100 //无效，严格模式下会报错 TypeError: Cannot assign to read only property 'm' of object
-
-let b = Object.create(a);
-console.log(b.m)
-b.m = 200 //无效，严格模式下报错
-console.log(b) //{} 不会创建新的属性
-</code></pre>
-<h5 id="访问器属性">访问器属性</h5>
-<p>关于访问器属性，我在上一节详细介绍过了。如果不考虑用 <code>Object.defineProperty</code> 来定义属性描述符，我们是无法在子对象上创建新的同名属性的，我们对同名属性的操作都是在调用原型对象上对应属性的 <code>get</code> 和 <code>set</code> 方法，唯一不同的就是方法内的 <code>this</code> 指向会发生变化。</p>
-<h3 id="总结">总结</h3>
-<p>其实对属性类型和赋值行为的讨论，最终还是会回到继承机制的问题上。属性的类型和继承的机制在标准的发展过程中也不是一成不变的，<code>ES5</code> 标准中属性描述里的特性都是没法直接在 <code>JS</code> 中访问和操作的，它只是在实现引擎是使用的。而现在 <code>getter</code> 和 <code>setter</code> 也能够让我们实现一些高级特性。而继承机制需要在很多方面取得一个平衡，比如复用，灵活性和数据的安全性等。</p>
-<h3 id="参考文章">参考文章</h3>
-<ol>
-<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty" title="Object.defineProperty() - MDN">Object.defineProperty() - MDN</a></li>
-<li><a href="https://segmentfault.com/a/1190000016865771" title="js细节剖析">js细节剖析</a></li>
 </ol>
 ]]></content>
     </entry>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>ignore文件语法 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601183665672" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文详细介绍了 ignore 文件相关的语法，以及 git 读取 .gitignore  文件的顺序。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+在使用 Github 的时候我们有 .gitignore 文件来避免提交一些不..." />
+    <meta name="keywords" content="Assorted" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601183665672" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/Clloz1992" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/clloz" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://www.zhihu.com/people/Clloz" target="_blank">
+            <i class="fab fa-zhihu"></i>
+          </a>
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">ignore文件语法</h2>
+            <div class="post-date">2020-07-27</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/ignore-file-syntax.png')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文详细介绍了 ignore 文件相关的语法，以及 git 读取 .gitignore  文件的顺序。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>在使用 <code>Github</code> 的时候我们有 <code>.gitignore</code> 文件来避免提交一些不需要提交的文件（比如 <code>node_modules</code>），在使用 <code>eslint</code> 和 <code>prettier</code> 时也有对应的 <code>.eslintignore</code> 和 <code>.prettierignore</code>，它们的功能都类似，语法也相同，本文就总结一下 <code>ignore</code> 文件的常用语法。</p>
+<h3 id="语法">语法</h3>
+<ul>
+<li>空行或是以#开头的行即注释行将被忽略，可用反斜杠转义。</li>
+<li><code>/</code> 用来分隔目录，可以出现在一条 <code>pattern</code> 的前中后。如果 <code>/</code> 在一条 <code>pattern</code> 的最前面或者中间，那么它的匹配仅仅和 <code>.gitignore</code> 文件所在位置同一层级的<strong>文件或文件夹</strong>；而如果 <code>/</code> 在一条 <code>pattern</code> 的最后则匹配层级除了 <code>.gitignore</code> 文件所在层级还包括所有更低层级（嵌套的文件夹），并且<strong>只能匹配文件夹，不能匹配文件</strong>。举个例子, 一个 <code>pattern</code> ： <code>doc/frotz/</code> 会匹配到 <code>doc/frotz</code> 文件夹, 但是不会匹配 <code>a/doc/frotz</code> 文件夹; 但是 <code>frotz/</code> 会匹配 <code>frotz</code> 和 <code>a/frotz</code>，两者必须是文件夹 (所有路径都是以 <code>.gitignore</code> 文件的位置为基准)</li>
+<li>可以使用 <code>!</code> 来否定忽略，即比如在前面用了 <code>*.apk</code>，然后使用 <code>!a.apk</code>，则这个 <code>a.apk</code> 不会被忽略。</li>
+<li><code>*</code>用来匹配零个或多个字符（不包括 <code>/</code>)，如 <code>*.[oa]</code> 忽略所有以 <code>&quot;.o&quot;</code> 或 <code>&quot;.a&quot;</code> 结尾，<code>*~</code> 忽略所有以 <code>~</code> 结尾的文件（这种文件通常被许多编辑器标记为临时文件）；</li>
+<li><code>[]</code> 用来匹配括号内的任一字符，如 <code>[abc]</code>，也可以在括号内加连接符，如 <code>[0-9]</code> 匹配0至9的数，类似正则表达式；</li>
+<li><code>?</code> 用来匹配单个字符（不包括 <code>/</code>)。</li>
+<li>** ： 与嵌套目录匹配，比如 a/**/z 与以下项匹配 <code>a/z</code>、<code>a/b/z</code>、a/b/c/z。</li>
+<li>可以使用标准的glob模式匹配。所谓的glob模式是指shell所使用的简化了的正则表达式。</li>
+</ul>
+<pre><code class="language-ignore"># 忽略 .a 文件
+*.a
+
+# 但否定忽略 lib.a, 尽管已经在前面忽略了 .a 文件
+!lib.a
+
+# 忽略 doc/notes.txt, 不包括 doc/server/arch.txt
+doc/*.txt
+
+# 忽略所有的 .pdf 文件 在 doc/ directory 下的
+doc/**/*.pdf
+
+# /dir 将匹配.gitignore所在层级一个文件，目录，链接，任何名为dir的内容
+# /dir/  将只会匹配.gitignore所在层级一个名为dir的目录
+# /dir/* 将匹配所有文件，目录和其他任何在名为dir的目录（也在.gitignore所在层级）里的内容（但是不包括这个目录本身）
+# 如果你使用 !.gitkeep 并且有个 dir/.gitkeep 文件，对于 /dir 和 /dir/ 这两种匹配规则，你写的 !.gitkeep 不会生效，因为 Git不会去 dir 文件夹的内部检查；对于 /dir/*，Git会检查.gitkeep，并且dir文件夹会被提交，因为这条模式不会应用到文件夹，而是应用到文件夹里面的内容。
+</code></pre>
+<blockquote>
+<p>可以用 <code>git check-ignore</code> 来查看我们某个文件是否被忽略，命令的细节查看<a href="https://git-scm.com/docs/git-check-ignore" title="官方文档">官方文档</a>。</p>
+</blockquote>
+<p>在 <code>.gitingore</code> 文件中，每一行指定一个忽略规则，<code>Git</code> 检查忽略规则的时候有多个来源，它的优先级如下（由高到低）：<br>
+1、从命令行中读取可用的忽略规则<br>
+2、当前目录定义的规则<br>
+3、父级目录定义的规则，依次递推<br>
+4、<code>$GIT_DIR/info/exclude</code> 文件中定义的规则<br>
+5、<code>core.excludesfile</code> 中定义的全局规则</p>
+<p><code>git</code> 对于 <code>.gitignore</code> 配置文件是按行从上到下进行规则匹配的，意味着如果前面的规则匹配的范围更大，则后面的规则将不会生效；如果你不慎在创建 <code>.gitignore</code> 文件之前就 <code>push</code> 了项目，那么即使你在 <code>.gitignore</code> 文件中写入新的过滤规则，这些规则也不会起作用，<code>Git</code> 仍然会对所有文件进行版本管理。所以在项目创建时就设计好对应的 <code>.gitignore</code> 文件是一个好习惯。</p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://git-scm.com/docs/gitignore" title="git-scm document">git-scm document</a></li>
+<li><a href="https://stackoverflow.com/questions/17888695/difference-between-gitignore-rules-with-and-without-trailing-slash-like-dir-an/38559600#38559600" title="Difference between .gitignore rules with and without trailing slash like /dir and /dir/">Difference between .gitignore rules with and without trailing slash like /dir and /dir/</a></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/assorted/" class="tag">
+                    Assorted
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/fsm-kmp/">
+                  <h3 class="post-title">
+                    状态机和KMP算法
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

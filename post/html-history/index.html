@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>HTML 发展 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601183665672" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文主要介绍 HTML 标准的发展历史，以及 HTML5 与之前的主要不同。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+HTML 的全称是 HyperText Markup Language 超文本标记语言，是一种用于创建网..." />
+    <meta name="keywords" content="HTML" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601183665672" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/Clloz1992" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/clloz" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://www.zhihu.com/people/Clloz" target="_blank">
+            <i class="fab fa-zhihu"></i>
+          </a>
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">HTML 发展</h2>
+            <div class="post-date">2020-08-24</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/html-history.png')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文主要介绍 HTML 标准的发展历史，以及 HTML5 与之前的主要不同。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p><code>HTML</code> 的全称是 <code>HyperText Markup Language</code> 超文本标记语言，是一种用于创建网页的标准标记语言。所谓标记语言，就是一种将文本 <code>text</code> 以及文本相关的其他信息结合起来，展现出关于文档结构和数据处理细节的计算机编码，用标记进行标识。常见的标记语言有 <code>SGML</code> <code>HTML</code>、<code>XML</code> 和 <code>XHTML</code> 等。</p>
+<h3 id="html-历史">HTML 历史</h3>
+<p>其实关于早期的 <code>HTML</code> 版本我们并没有太多的了解必要，我们主要关注的是，<code>HTML4.01</code> 和 <code>HTML5</code> 之间的差别，以及 <code>SGML</code>、<code>XML</code> 和 <code>XHTML</code> 与 <code>HTML</code> 之间的区别。这里先简要介绍以下 <code>HTML</code> 的发展历史，作为了解即可。</p>
+<p>首先介绍以下 <code>SGML</code>，标准通用标记语言（<code>Standard Generalized Markup Language</code>）是现时常用的超文本格式的最高层次标准，是可以定义标记语言的元语言，甚至可以定义不必采用<code>&lt; &gt;</code>的常规方式。由于它的复杂，因而难以普及。<code>HTML</code> 和 <code>XML</code> 同样派生于它：<code>XML</code> 可以被认为是它的一个子集，而 <code>HTML</code> 是它的一个应用。<code>XML</code> 的产生就是为了简化它，以便用于更加通用的目的，比如语义 <code>Web</code>。它已经应用于大量的场合，比较著名的有 <code>XHTML</code>、<code>RSS</code>、<code>XML-RPC</code> 和 <code>SOAP</code>。</p>
+<p><code>HTML</code> 是蒂姆·伯纳斯-李在发明万维网的过程中根据 <code>SGML</code> 创造的，它描述 <code>18</code> 个元素，包括 <code>HTML</code> 初始的、相对简单的设计。除了超链接之外，其他标签都是以 <code>SGML</code> 为基础的。这些标签中有 <code>11</code> 个到 <code>HTML4</code> 都仍然存在。</p>
+<p>不存在 <code>HTML 1.0</code>，只在 <code>1993</code> 年中期由 <a href="https://zh.wikipedia.org/zh/%E4%BA%92%E8%81%94%E7%BD%91%E5%B7%A5%E7%A8%8B%E4%BB%BB%E5%8A%A1%E7%BB%84" title="IETF互联网工程任务组">IETF互联网工程任务组</a>提出了一个<a href="https://www.w3.org/MarkUp/draft-ietf-iiir-html-01.txt" title="超文本标记语言（HTML）互联网草案">超文本标记语言（HTML）互联网草案</a>。<code>HTML</code> 第一个正式的规范是由 <code>IETF</code> 的 <code>HTML</code> 工作小组创建的 <code>HTML 2.0</code>。</p>
+<p>在 <code>IETF</code> 的主持下，<code>HTML</code> 标准的进一步发展因竞争利益而遭受停滞。自 <code>1996</code> 年起，<code>HTML</code> 规范一直由万维网联盟（<code>W3C</code>）维护，并由商业软件厂商出资。不过在 <code>2000</code> 年，<code>HTML</code> 也成为国际标准（<code>ISO/ IEC15445：2000</code>）。<code>HTML 4.01</code> 于 <code>1999</code> 年末发布，进一步的勘误版本于 <code>2001</code> 年发布。<code>2004</code> 年，网页超文本应用技术工作小组（<code>WHATWG</code>）开始开发 <code>HTML5</code>，并在 <code>2008</code> 年与 <code>W3C</code> 共同交付，<code>2014年10月28日</code> 完成标准化。</p>
+<blockquote>
+<p><code>whatwg</code> 是在 <code>W3C</code> 强推 <code>XHTML2.0</code> 后从 <code>W3C</code> 分裂出去的组织，如今两边已经是高度合作推动标准化。<code>W3C</code> 的 <code>HTML5</code> 是 <code>whatwg</code> 的一个 <code>snapshot</code>。<code>whatwg</code> 的标准是 <code>living standard</code>，也就是只有一个最新版本，不像 <code>w3c</code> 有各个阶段的版本。</p>
+</blockquote>
+<h3 id="html-语法">HTML 语法</h3>
+<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/html-syntax.jpg" alt="html-syntax" title="html-syntax" loading="lazy"></figure>
+<h4 id="标签">标签</h4>
+<p>标签语法产生元素，我们从语法的角度讲，就用“标签”这个术语，我们从运行时的角度讲，就用“元素”这个术语。<code>HTML</code> 中，用于描述一个元素的标签分为开始标签、结束标签和自闭合标签。开始标签和自闭合标签中，又可以有属性。开始标签的标签名称只能使用英文字母。</p>
+<ul>
+<li>开始标签：<code>&lt;tagname&gt;</code></li>
+<li>带属性的开始标签：<code>&lt;tagname attributename=&quot;attributevalue&quot;&gt;</code></li>
+<li>结束标签：<code>&lt;/tagname&gt;</code></li>
+<li>自闭合标签：<code>&lt;tagname /&gt;</code></li>
+</ul>
+<p>属性可以使用单引号、双引号或者完全不用引号，这三种情况下，需要转义的部分都不太一样。属性中可以使用字符实体（参考另一篇文章<a href="https://www.clloz.com/programming/front-end/2019/11/19/html-character-entity/" title="HTML character entity HTML字符实体">HTML character entity HTML字符实体</a>）来做转义，属性中，一定需要转义的有下面几种。</p>
+<ul>
+<li>无引号属性：<code>&lt;tab&gt; &lt;LF&gt; &lt;FF&gt; &lt;SPACE&gt; &amp;</code>五种字符。</li>
+<li>单引号属性：<code>' &amp;</code>两种字符。</li>
+<li>双引号属性：<code>&quot; &amp;</code>两种字符。</li>
+</ul>
+<p>一般来说，灵活运用属性的形式，是不太用到文本实体转义的。</p>
+<h4 id="文本">文本</h4>
+<p>在 <code>HTML</code> 中，规定了两种文本语法，一种是普通的文本节点，另一种是 <code>CDATA</code> 文本节点。注意，<code>CDATA</code> 片段不应该在 <code>HTML</code> 中被使用；它只在 <code>XML</code> 中有效。</p>
+<h4 id="注释">注释</h4>
+<p><code>HTML</code> 注释语法以 <code>&lt;!--开头，以--&gt;</code> 结尾，注释的内容非常自由，除了 <code>--&gt;</code> 都没有问题。如果注释的内容一定要出现 <code>--&gt;</code>，我们可以拆成多个注释节点。</p>
+<h4 id="dtd-文档类型定义">DTD 文档类型定义</h4>
+<p><code>SGML</code> 的 <code>DTD</code> 语法十分复杂，但是对 <code>HTML</code> 来说，其实 <code>DTD</code> 的选项是有限的，浏览器在解析 <code>DTD</code> 时，把它当做几种字符串之一，关于 <code>DTD</code>，我在本篇文章的后面会详细讲解。</p>
+<h4 id="processinginstruction-语法处理信息">ProcessingInstruction 语法（处理信息）</h4>
+<p><code>ProcessingInstruction</code> 多数情况下，是给机器看的。<code>HTML</code> 中规定了可以有 <code>ProcessingInstruction</code>，但是并没有规定它的具体内容，所以可以把它视为一种保留的扩展机制。对浏览器而言，<code>ProcessingInstruction</code> 的作用类似于注释。<code>ProcessingInstruction</code> 包含两个部分，紧挨着第一个问号后，空格前的部分被称为“目标”，这个目标一般表示处理 <code>ProcessingInstruction</code> 的程序名。剩余部分是它的文本信息，没有任何格式上的约定，完全由文档编写者和处理程序的编写者约定。</p>
+<h3 id="dtd">DTD</h3>
+<p><code>DTD</code> 的全称是 <code>Document Type Defination</code>，也就是文档类型定义。<code>DTD</code> 是一套用来定义文档类型的标记声明，主要的对象是 <code>SGML</code> 家族的标记语言：<code>GML, SGML, XML, HTML</code>。在 <code>DTD</code> 中可以定义文档中的元素、元素的属性、元素的排列方式、元素包含的内容等等。<code>DTD</code> 有四个组成如下：</p>
+<ul>
+<li>元素（<code>Elements</code>）</li>
+<li>属性（<code>Attribute</code>）</li>
+<li>实体（<code>Entities</code>）</li>
+<li>注释（<code>Comments</code>）</li>
+</ul>
+<pre><code class="language-html">&lt;!--元素声明语法--&gt;
+&lt;!ELEMENT 元素名称　元素內容&gt;
+&lt;!--属性声明语法--&gt;
+&lt;!ATTLIST 元素名称、属性名称、属性值数据类型、属性默认值&gt;
+&lt;!--实体声明语法--&gt;
+&lt;!ENTITY 是名称　实体内容&gt;
+&lt;!--注释语法--&gt;
+&lt;!-- 注释内容 --&gt;
+</code></pre>
+<hr>
+<p>在 <code>HTML5</code> 之后，由于这些 <code>DTD</code> 过于复杂的写法没啥实际用途，加之浏览器也不会使用 <code>SGML</code> 去解析他们，干脆放弃了 <code>SGML</code> 子集的的支持，规定了一个简单易记住的类似 <code>DTD</code> 的声明 <code>&lt;!DOCTYPE html&gt;</code>。<code>XML</code> 也逐渐用 <code>XML Schema</code> 来代替 <code>DTD</code>。但是因为我们的互联网上仍然存在大量的 <code>HTML4.01</code> 和 <code>xhtml1.0</code> 的网页，所以新的标准都是向前兼容的（比较激进的不向前兼容的 <code>xhtml2.0</code> 已经废弃）。常用的 <code>DOCTYPE</code> 声明有如下几种。</p>
+<pre><code class="language-html">&lt;!--HTML 5--&gt;
+&lt;!DOCTYPE html&gt;
+
+&lt;!--HTML 4.01 Strict 这个 DTD 包含所有 HTML 元素和属性，但不包括表象或过时的元素（如 font ）。框架集是不允许的。--&gt;
+&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01//EN&quot; &quot;http://www.w3.org/TR/html4/strict.dtd&quot;&gt;
+
+&lt;!--HTML 4.01 Transitional 这个 DTD 包含所有 HTML 元素和属性，包括表象或过时的元素（如 font ）。框架集是不允许的。--&gt;
+&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot; &quot;http://www.w3.org/TR/html4/loose.dtd&quot;&gt;
+
+&lt;!--HTML 4.01 Frameset 这个 DTD 与 HTML 4.01 Transitional 相同，但是允许使用框架集内容。--&gt;
+&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01 Frameset//EN&quot; &quot;http://www.w3.org/TR/html4/frameset.dtd&quot;&gt;
+
+&lt;!--XHTML 1.0 Strict 这个 DTD 包含所有 HTML 元素和属性，但不包括表象或过时的元素（如 font ）。框架集是不允许的。结构必须按标准格式的 XML 进行书写。--&gt;
+&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Strict//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd&quot;&gt;
+
+&lt;!--XHTML 1.0 Transitional 这个 DTD 包含所有 HTML 元素和属性，包括表象或过时的元素（如 font ）。框架集是不允许的。结构必须按标准格式的 XML 进行书写。--&gt;
+&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
+
+&lt;!--XHTML 1.0 Frameset 这个 DTD 与 XHTML 1.0 Transitional 相同，但是允许使用框架集内容。--&gt;
+&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Frameset//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd&quot;&gt;
+
+&lt;!--XHTML 1.1 这个 DTD 与 XHTML 1.0 Strict 相同，但是允许您添加模块（例如为东亚语言提供 ruby 支持）。--&gt;
+&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd&quot;&gt;
+</code></pre>
+<blockquote>
+<p><code>doctype</code> 声明开头的 <code>!DOCTYPE</code> 大小写不敏感。文档开头必须声明 <code>doctype</code> 否则浏览器无法判断文档类型，也无法正确解析。</p>
+</blockquote>
+<h3 id="xml">XML</h3>
+<p>可扩展标记语言（<code>Extensible Markup Language</code>）是从标准通用标记语言（<code>SGML</code>）中简化修改出来的。之所以成为可扩展是因为它的标记 <code>markup</code> 是可以由开发者自由定义的，而不像 <code>HTML</code> 是由标准制定者来定义一个通用的标准。</p>
+<p><code>XML</code> 用于描绘封装数据，而 <code>HTML</code> 超文本标记语言用于展示数据，<code>XHTML</code> 就是用 <code>XML</code> 规则规范的 <code>HTML</code>。<code>XML</code> 语法更加严格。<code>XML</code> 与 <code>HTML</code> 的区别主要有如下一些点：</p>
+<ul>
+<li><code>XML</code> 大小写敏感，<code>HTML</code> 大小写不敏感。</li>
+<li><code>XML</code> 是严格的树状结构，不能省略掉结束标记。</li>
+<li>在 <code>XML</code> 中，拥有单个标记而没有匹配的结束标记的元素必须用一个<code>/</code> 字符作为结尾。这样分析器就知道不用查找结束标记了。</li>
+<li>在 <code>XML</code> 中，属性值必须分装在引号中。在 <code>HTML</code> 中，引号是可用可不用的。</li>
+<li>在 <code>HTML</code> 中，可以拥有不带值的属性名。在 <code>XML</code> 中，所有的属性都必须带有相应的值。</li>
+<li>在 <code>XML</code> 文档中，空白部分不会被解析器自动删除；但是 <code>HTML</code> 是过滤掉空格的。</li>
+<li><code>HTML</code> 使用固有的标记；而 <code>XML</code> 没有固有的标记。</li>
+<li><code>HTML</code> 标签是预定义的；<code>XML</code> 标签是自定义的、可扩展的。</li>
+<li><code>HTML</code> 是用来显示数据的；<code>XML</code> 是用来描述数据、存放数据的，所以可以作为持久化的介质。<code>HTML</code> 将数据和显示结合在一起，在页面中把这数据显示出来；<code>XML</code> 则将数据和显示分开。 <code>XML</code> 被设计用来描述数据，其焦点是数据的内容。<code>HTML</code> 被设计用来显示数据，其焦点是数据的外观。</li>
+<li><code>XML</code> 不是 HTML 的替代品，<code>XML</code> 和 <code>HTML</code> 是两种不同用途的语言。 <code>XML</code> 不是要替换 <code>HTML</code>；<code>XML</code> 和 <code>HTML</code> 的目标不同 <code>HTML</code> 的设计目标是显示数据并集中于数据外观，而 <code>XML</code> 的设计目标是描述数据并集中于数据的内容。</li>
+<li>没有任何行为的 <code>XML</code>。与 <code>HTML</code> 相似，<code>XML</code> 不进行任何操作。（共同点）</li>
+<li>对于 <code>XML</code> 最好的形容可能是: <code>XML</code> 是一种跨平台的，与软、硬件无关的，处理与传输信息的工具。</li>
+<li><code>XML</code> 未来将会无所不在。<code>XML</code> 将成为最普遍的数据处理和数据传输的工具。</li>
+</ul>
+<h3 id="xhtml">XHTML</h3>
+<p>可扩展超文本标记语言（<code>eXtensible HyperText Markup Language</code>），是一种标记语言，表现方式与超文本标记语言（<code>HTML</code>）类似，不过语法上更加严格。从继承关系上讲，<code>HTML</code> 是一种基于标准通用标记语言（<code>SGML</code>）的应用（<code>HTML5</code> 之前），是一种非常灵活的置标语言，而 <code>XHTML</code> 则基于可扩展标记语言（<code>XML</code>），<code>XML</code> 是 <code>SGML</code> 的一个子集。<code>XHTML 1.0</code> 在 <code>2000年1月26日</code> 成为 <code>W3C</code> 的推荐标准。</p>
+<p><code>XHTML1.1</code> 为 <code>XHTML</code> 最后的独立标准，<code>2.0</code> 止于草案阶段。<code>XHTML5</code> 则是属于 <code>HTML5</code> 标准的一部分，且名称已改为 <code>以XML序列化的HTML5 XML-serialized HTML5</code>，而非 <code>可扩展的HTML eXtensible HyperText Markup Language</code>。<code>XHTML5</code> 是对 <code>HTML5</code> 的 <code>XML</code> 序列化。<code>XML</code> 文档必须被设置为 <code>XML</code> 互联网文件类型，像 <code>application/xhtml+xml</code> 或者 <code>application/xml</code>。<code>XHTML5</code> 要求像 <code>XML</code> 一样严格的格式化的语法。在 <code>XHTML5</code> 中，<code>HTML5</code> 的<code>&lt;!DOCTYPE HTML&gt;</code> 可有可无的。</p>
+<pre><code class="language-html">Content-Type: text/html
+
+&lt;!DOCTYPE html&gt;
+&lt;html lang=en&gt;
+  &lt;head&gt;
+    &lt;meta charset=utf-8&gt;
+    &lt;title&gt;HTML&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;p&gt;I am a HTML document&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<pre><code class="language-xml">Content-Type: application/xhtml+xml
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; xml:lang=&quot;en&quot;&gt;
+  &lt;head&gt;
+    &lt;title&gt;XHTML&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;p&gt;I am a XHTML document&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p><code>XHTML</code> 曾经是作为 <code>HTML</code> 的继承者推出的,由于 <code>HTML</code> 的语法较为松散,因此就出现了由 <code>DTD</code> 定义规则,语法要求更加严格的 <code>XHTML</code>。<code>XHTML</code> 与 <code>HTML</code> 的主要区别是：</p>
+<ul>
+<li><code>XHTML</code> 与 <code>HTML</code> 的最大的变化在于所有标签必须闭合。</li>
+<li><code>XHTML</code> 中所有的标签必须小写。</li>
+<li><code>XHTML</code> 元素必须被正确地嵌套。</li>
+<li><code>XHTML</code> 文档必须拥有根元素。</li>
+</ul>
+<h3 id="html-xhtml-xml-和-sgml-的关系">HTML、XHTML、XML 和 SGML 的关系</h3>
+<ul>
+<li><code>SGML</code> 定义电子文档和内容描述的标准。<code>DTD</code> 标准是 <code>SGML</code> 的一部分。</li>
+<li><code>XML</code> 是 <code>SGML</code> 的子集，优化版。</li>
+<li><code>HTML</code> 是遵循了 <code>DTD</code> 标准的 <code>SGML</code> 的文档，也可以说是 <code>SGML</code> 的一个实例。</li>
+<li><code>XHTML</code> 是遵循了 <code>XML</code> 标准的 <code>HTML</code> 文档。</li>
+<li><code>HTML5</code> 是最新的 <code>HTML</code> 标准。但不基于 <code>SGML</code>，所以不遵循 <code>DTD</code> 标准。</li>
+</ul>
+<h3 id="html5">HTML5</h3>
+<p><code>HTML5</code> 提供了一些新的元素和属性，反映典型的现代用法网站。其中有些是技术上类似 <code>&lt;div&gt;</code> 和 <code>&lt;span&gt;</code> 标签，但有一定含义，例如 <code>&lt;nav&gt;</code>（网站导航块）和 <code>&lt;footer&gt;</code>。这种标签将有利于搜索引擎的索引整理、小屏幕设备和视障人士使用。同时为其他浏览要素提供了新的功能，通过一个标准接口，如 <code>&lt;audio&gt;</code> 和 <code>&lt;video&gt;</code> 标记。一些过时的 <code>HTML 4.01</code> 标记将取消，其中包括纯粹用作显示效果的标记，如 <code>&lt;font&gt;</code> 和 <code>&lt;center&gt;</code>，因为它们已经被 <code>CSS</code> 取代。还有一些通过 <code>DOM</code> 的网络行为。</p>
+<p>尽管和 <code>SGML</code> 在标记上的相似性，<code>HTML5</code> 的句法并不再基于它了，而是被设计成向后兼容对老版本的 <code>HTML</code> 的解析。它有一个新的开始列看起来就像 <code>SGML</code> 的文档类型声明，<code>&lt;!DOCTYPE HTML&gt;</code>，这会触发和标准兼容的渲染模式。</p>
+<p><code>HTML5</code> 与 <code>HTML4.01</code> 和 <code>XHTML1.x</code> 的差异</p>
+<ul>
+<li>不再基于 <code>SGML</code> 所以也不再需要 <code>DTD</code>，文件类型声明仅有一型：<code>&lt;!DOCTYPE HTML&gt;</code>。</li>
+<li>新的解析顺序：不再基于 <code>SGML</code>。</li>
+<li>新的语义化标签：<code>section, video, progress, nav, meter, time, aside, canvas, command, datalist, details, embed, figcaption, figure, footer, header, hgroup, keygen, mark, output, rp, rt, ruby, source, summary, wbr</code>。</li>
+<li><code>input</code> 元素的新类型：<code>date</code>, <code>email</code>, <code>url</code> 等等。</li>
+<li>新的属性：<code>ping</code>（用于 <code>a</code> 与 <code>area</code>）, <code>charset</code>（用于 <code>meta</code>）, <code>async</code>（用于 <code>script</code>）。</li>
+<li>全局属性：<code>id, tabindex, repeat</code>。</li>
+<li>新的全局属性：<code>contenteditable, contextmenu, draggable, dropzone, hidden, spellcheck</code>。</li>
+<li>移除标签：<code>acronym, applet, basefont, big, center, dir, font, frame, frameset, isindex, noframes, strike, tt</code>。</li>
+</ul>
+<hr>
+<p>除了原先的 <code>DOM</code> 接口，<code>HTML5</code> 增加了更多样化的 <code>API</code>。</p>
+<ul>
+<li>Canvas</li>
+<li>Timed Media Playback</li>
+<li>Offline</li>
+<li>Editable content</li>
+<li>Drag and drop</li>
+<li>History</li>
+<li>MIME type and protocol handler registration</li>
+<li>Microdata</li>
+<li>Web Messaging</li>
+<li>Web Storage – a key-value pair storage framework that provides behaviour similar to cookies but with larger storage capacity and improved API.</li>
+</ul>
+<p>关于 <code>HTML5</code> 的新特性，参考 <code>MDN</code> 的<a href="https://developer.mozilla.org/zh-CN/docs/Web/Guide/HTML/HTML5" title="HTML5">HTML5</a></p>
+<h3 id="总结">总结</h3>
+<p>本文介绍了一些和 <code>HTML</code> 相关的概念，这些概念其实并不清晰甚至有些混乱，主要就是 <code>HTML</code> 的标准化本身就走的比较磕磕绊绊，有些标准已经消失在历史中。不过现在我们只要专注于掌握 <code>HTML5</code> 标准即可。用来描述数据的 <code>XML</code> 也需要掌握。</p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://blog.csdn.net/weixin_41796631/article/details/89371356" title="HTML、XML、XHTML 有什么区别 (SGML、DTD 标准 )">HTML、XML、XHTML 有什么区别 (SGML、DTD 标准 )</a></li>
+<li><a href="https://zh.wikipedia.org/wiki/HTML5#XHTML5%EF%BC%88XML-serialized_HTML5%EF%BC%89" title="HTML5 - 维基百科">HTML5 - 维基百科</a></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/html/" class="tag">
+                    HTML
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/http-mime-type/">
+                  <h3 class="post-title">
+                    HTTP MIME 类型
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

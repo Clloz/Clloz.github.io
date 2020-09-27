@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>VS Code的setting sync插件的配置 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601183665672" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文介绍如何利用 Setting Sync 插件对 VS Code 进行配置，主要是 gist id 和 token 的获取。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+VSCode 的 Setting Sync 插件是我用..." />
+    <meta name="keywords" content="Assorted" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601183665672" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/Clloz1992" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/clloz" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://www.zhihu.com/people/Clloz" target="_blank">
+            <i class="fab fa-zhihu"></i>
+          </a>
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">VS Code的setting sync插件的配置</h2>
+            <div class="post-date">2020-07-27</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/vs-code-setting-sync-configuration.png')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文介绍如何利用 Setting Sync 插件对 VS Code 进行配置，主要是 gist id 和 token 的获取。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p><code>VSCode</code> 的 <code>Setting Sync</code> 插件是我用来同步设置的工具，相信很多同学都是一样的。这篇文章说一下这个配置这个插件的两个重要参数 <code>token</code> 和 <code>Gist Id</code>。</p>
+<h3 id="准备">准备</h3>
+<p>先介绍一下 <code>Gitbub Gist</code>：<a href="https://gist.github.com/" title="Gist">Gist</a> 是 <code>Github</code> 的一个子服务. 最简单的功能就是分享代码片段，例如把一些小型脚本放到 <code>gist</code> 方便分享和管理. 不同于大型项目使用 <code>repository</code> 进行管理, <code>gist</code> 就是小型代码片段的分享。我们的 <code>VSCode</code> 的配置几乎都是一些 <code>json</code> 文件，比如 <code>extensions.json</code>, <code>setting.json</code> 和 <code>keybindingsMac.json</code> 等，所以 <code>Setting Sync</code> 的原理大致就是把我们这些配置的文件利用 <code>Github Gist</code> 来托管。</p>
+<p>所以我们配置 <code>Sync Setting</code> 的两个重要参数都很明显了，<code>gist id</code> 的作用就是告诉插件我们的配置文件托管路径，而 <code>token</code>就是发给插件一个令牌，让它能够访问我们的 <code>gist</code> 仓库。</p>
+<p>下载安装就不说了。如果你是第一次配置那么直接进入插件的介绍页面点击 <code>Edit Configuration</code>，然后配置两个参数 <code>Token</code> 和 <code>Gist Id</code> 就可以使用了。需要注意的一点是 <code>Gist Id</code> 我们是可以通过仓库地址再查看的，但是 <code>token</code> 我们关闭网页后就不能在查看了（只能重新生成新的），所以 <code>token</code> 要找个地方记录下来。</p>
+<h3 id="token">token</h3>
+<p><code>token</code> 的创建方法：<code>Github首页 -&gt; 右上角头像 -&gt; Setting -&gt; Developer Setting -&gt; Personal Access Token</code>，进入后点击右上角的 <code>Generate new token</code> 就可以创建新的 <code>token</code>。</p>
+<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/vscode-sync1.png" alt="img1" title="img1" loading="lazy"></figure>
+<p>进入创建页面后只需要做两件事，一件是给 <code>token</code> 一个 <code>note</code>（不填也可以，不过如果你有多个 <code>token</code> 还是要用 <code>note</code> 做个区分），另一件就是勾选下面的复选框中的 <code>gist</code> 选项，最后就是点击下方绿色的 <code>Generate token</code> 按钮就可以完成创建。</p>
+<figure data-type="image" tabindex="2"><img src="https://img.clloz.com/blog/writing/vscode-sync2.png" alt="img2" title="img2" loading="lazy"></figure>
+<p>创建完成后页面上会给出你一串字符，这就是你的 <code>token</code>，将它填入插件的配置中（图中的 <code>token</code> 仅做演示用，已删除）。</p>
+<figure data-type="image" tabindex="3"><img src="https://img.clloz.com/blog/writing/vscode-sync3.png" alt="img3" title="img3" loading="lazy"></figure>
+<p>最后再说一点，这个 <code>token</code> 在你需要同步的其他机器上也是要配置的（有这个令牌才能访问 <code>Gist</code>，你也可以创建新的，不过同一个插件还是用同一个 <code>token</code> 管理比较合理）。如果你不小心删了 <code>token</code> 或者要更换 <code>token</code> 可以找到 <code>Setting Sync</code> 的 <code>global setting</code> 文件，这个文件在 <code>Mac</code> 上的路径是 <code>~/Library/Application Support/Code/User/syncLocalSettings.json</code>，这个文件中保存着你的 <code>token</code>，你可以编辑这个文件更换你的 <code>token</code>。</p>
+<h3 id="gist-id">gist id</h3>
+<p>访问个人 <code>gist</code> 的方法：<code>Github首页 -&gt; 右上角头像 -&gt; Your gist</code>，注意此时访问的是你已经创建的 <code>gist</code> 仓库，地址是 <code>https://gist.github.com/yourid</code>，如果你要创建新的 <code>gits</code> 点击左上角的 <code>Github Gist</code> 图表或者直接访问 <code>https://gist.github.com/</code>，会进入一个创建新的 <code>gist</code> 的页面。填上如下图的 <code>description</code> 就可以点击下方的 <code>Create secret gist</code> 完成创建了。</p>
+<figure data-type="image" tabindex="4"><img src="https://img.clloz.com/blog/writing/vscode-sync4.png" alt="img4" title="img4" loading="lazy"></figure>
+<p>创建完成后，进入这个新的 <code>gist</code> 的仓库界面，你可以看到上方有你要的 <code>gist id</code>，同时你也可以看到浏览器的地址栏里面的 <code>url</code> 也有你的 <code>gist id</code>。所以不用担心 <code>gist id</code> 遗忘或丢失，我们只要进入对应的 <code>gist</code> 仓库，就能在 <code>url</code> 中看到我们的 <code>gist id</code>（图中的 <code>gist</code> 仅用于演示，已删除）。</p>
+<figure data-type="image" tabindex="5"><img src="https://img.clloz.com/blog/writing/vscode-sync5.png" alt="img5" title="img5" loading="lazy"></figure>
+<p>最后说一下，<code>gist id</code> 可以在 <code>vscode</code> 的 <code>setting.json</code> 中配置（进入方法：<code>⌘+⇧+p/F1</code> 输入 <code>setting</code> 选择 <code>Preference: Open Setting (JSON)</code>)，也可以在图形化的 <code>setting</code> 中配置（<code>⌘+,</code> 进入 <code>setting</code> 输入 <code>sync</code> 就可以看到 <code>gist id</code> 的选项）。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/assorted/" class="tag">
+                    Assorted
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/ignore-file-syntax/">
+                  <h3 class="post-title">
+                    ignore文件语法
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

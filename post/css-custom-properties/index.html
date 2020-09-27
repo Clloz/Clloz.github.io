@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>CSS自定义属性 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601183665672" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文从兼容性，使用方法和应用场景几个方面对 CSS 自定义属性进行了介绍。
+
+、、Clloz
+本文首发于个人博客clloz.com
+前言
+CSS 自定义属性也被称为 CSS 变量。一直以来，在 CSS 中使用变量和函数都是很多人的期待，没有..." />
+    <meta name="keywords" content="CSS" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601183665672" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/Clloz1992" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/clloz" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://www.zhihu.com/people/Clloz" target="_blank">
+            <i class="fab fa-zhihu"></i>
+          </a>
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">CSS自定义属性</h2>
+            <div class="post-date">2020-08-12</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/css-custom-properties.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文从兼容性，使用方法和应用场景几个方面对 CSS 自定义属性进行了介绍。</p>
+<!-- more -->
+<p>、、<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p><code>CSS</code> 自定义属性也被称为 <code>CSS</code> 变量。一直以来，在 <code>CSS</code> 中使用变量和函数都是很多人的期待，没有变量和函数的 <code>CSS</code> 不够灵活。目前的 <code>CSS</code> 依然是依靠层叠和继承来实现元素之间的样式关联，但实际上一些在结构上“不相关”的元素之间的样式并不是完全不相关的，比如我们整个页面的风格，色调等。目前的 <code>CSS</code> 更像是一个标记语言，一份对 <code>DOM</code> 文档的配置表，是静态的。引入变量和函数是 <code>CSS</code> 的一个发展方向，今天这篇文章就介绍一下目前已经被绝大多数浏览器支持的 <code>CSS</code> 自定义属性。</p>
+<h3 id="兼容性">兼容性</h3>
+<p>我们可以在<a href="https://caniuse.com/#feat=css-variables" title="Can I use">Can I use</a>上查看到目前的 <code>CSS variable</code> 的兼容性，除了 <code>IE</code>、 <code>QQ</code> 和 <code>baidu</code>，其他的主流浏览器都已经支持该特性。该特性目前处于<a href="https://www.clloz.com/programming/front-end/2018/10/03/w3c-standard-drafts/" title="CR">CR</a>状态。</p>
+<h3 id="使用方法">使用方法</h3>
+<p>带有前缀 <code>--</code> 的属性名，比如 <code>--example</code>、<code>--name</code>，表示的是带有值的自定义属性，其可以通过 <code>var</code> 函数在全文档范围内复用的。</p>
+<blockquote>
+<p>自定义属性名是<strong>大小写敏感</strong>的，<code>--my-color</code> 和 <code>--My-color</code> 会被认为是两个不同的自定义属性。</p>
+</blockquote>
+<p>自定义属性的值可以是任何合法的 <code>CSS</code> 属性值。自定义属性也可以像别的 <code>CSS</code> 属性指定选择器。但是一般情况下我们是定义全局变量，选择器为 <code>:root</code>，<code>:root</code> 这个 <code>CSS</code> 伪类匹配文档树的根元素。对于 <code>HTML</code> 来说，<code>:root</code> 表示 <code>&lt;html&gt;</code>元素，除了优先级更高之外，与 <code>html</code> 选择器相同。。（我们也可以在非常复杂的选择器中比如 <code>#wrap .container li.active</code> 中定义变量，但一般不会有这种需求）</p>
+<p>自定义属性的使用也非常简单，像函数调用一样 <code>var()</code>。<code>var()</code> 函数可以代替元素中任何属性中的值的任何部分。<code>var()</code> 函数不能作为属性名、选择器或者其他除了属性值之外的值。（这样做通常会产生无效的语法或者一个没有关联到变量的值。）语法 <code>var( &lt;custom-property-name&gt; , &lt;declaration-value&gt;? )</code>，方法的第一个参数是要替换的自定义属性的名称。函数的可选第二个参数用作回退值。如果第一个参数引用的自定义属性无效，则该函数将使用第二个值。</p>
+<pre><code class="language-css">/* 只要合法的CSS属性值就可以作为变量值 */
+--somekeyword: left;
+--somecolor: #0000ff;
+--somecomplexvalue: 3px 6px rgb(20, 32, 54);
+
+/* 只能在选择器内使用 */
+selector {
+  --theme-color: gray;
+}
+
+/* 设置全局变量 */
+:root {
+	--theme-color: gray;
+}
+
+/* 使用变量 */
+.button {
+  background-color: var(--theme-color);
+}
+
+.title {
+  color: var(--theme-color);
+}
+
+.image-grid &gt; .image {
+  border-color: var(--theme-color);
+}
+</code></pre>
+<p>自定义属性并不是你在其他编程语言中遇到的实际的变量。这些值仅当需要的时候才会计算，而并不会按其他规则进行保存。比如，你不能为元素设置一个属性，然后让它从兄弟或旁支子孙规则上获取值。属性仅用于匹配当前选择器及其子孙，这和通常的 <code>CSS</code> 是一样的。</p>
+<hr>
+<p>自定义属性的回退值允许使用逗号。例如， <code>var(--foo, red, blue)</code> 将 <code>red, blue</code> 同时指定为回退值；即是说任何在第一个逗号之后到函数结尾前的值都会被考虑为回退值。</p>
+<p>实际上回退值可以包含任何字符，但是部分有特殊含义的字符除外，例如换行符、不匹配的右括号（如 <code>)</code>、<code>]</code> 或 <code>}</code>）、感叹号以及顶层分号（不被任何非 <code>var()</code> 的括号包裹的分号，例如<code>var(--bg-color, --bs;color)</code>是不合法的，而 <code>var(--bg-color, --value(bs;color))</code> 是合法的）。</p>
+<p><code>var()</code> 的第二个参数也可以用 <code>var()</code> 嵌套。但是不建议这样使用，性能会有影响。</p>
+<pre><code class="language-css">.two {
+  color: var(--my-var, red); /* Red if --my-var is not defined */
+}
+
+.three {
+  background-color: var(--my-var, var(--my-background, pink)); /* pink if --my-var and --my-background are not defined */
+}
+
+.three {
+  background-color: var(--my-var, --my-background, pink); /* Invalid: &quot;--my-background, pink&quot; */
+}
+</code></pre>
+<hr>
+<p>当浏览器遇到无效的 <code>var()</code> 时（比如变量未设定并且没给出缺省值，或者当前元素不支持该属性），会使用继承值或初始值代替。</p>
+<pre><code class="language-css">/*若为一个p元素设置如下的CSS*/
+:root { --text-color: 16px; }
+p { color: blue; }
+p { color: var(--text-color); }
+</code></pre>
+<p>浏览器会将 <code>--text-color</code> 的值替换给了 <code>var(--text-color)</code>，但是 <code>16px</code> 并不是 <code>color</code> 的合法属性值。代换之后，该属性不会产生任何作用。当遇到一个无效的 <code>var()</code> 时，浏览器会先看父元素有没有设置对应的属性，有则继承；如果没有则使用该属性的默认值。</p>
+<hr>
+<p>自定义属性还可以和 <code>calc()</code> 结合实现更强大的功能。</p>
+<pre><code class="language-css">:root {
+  --base-size: 4px;
+}
+.title {
+  text-size: calc(5 * var(--base-size));
+}
+.body {
+  text-size: calc(3 * var(--base-size));
+}
+:root {
+  --base-size: 4px;
+  --title-multiplier: 5;
+  --body-multiplier: 3;
+}
+.title {
+  text-size: calc(var(--title-multiplier) * var(--base-size));
+}
+.body {
+  text-size: calc(var(--body-multiplier) * var(--base-size));
+}
+</code></pre>
+<hr>
+<p>在 <code>JavaScript</code> 中获取或者修改 <code>CSS</code>  变量和操作普通 <code>CSS</code> 属性是一样的，并且有了自定义属性后我们也可以更抽象地用 <code>JavaScript</code> 控制 <code>CSS</code> 了，一定程度上实现 <code>JavaScript</code> 和 <code>CSS</code> 的解耦，将一些需要用 <code>JavaScript</code> 操作的 <code>CSS</code> 属性用变量代替，我们只要操作这个变量即可，而不用管在哪些元素中使用了这个变量。</p>
+<pre><code class="language-javascript">// 获取一个 Dom 节点上的 CSS 变量
+element.style.getPropertyValue(&quot;--my-var&quot;);
+
+// 获取任意 Dom 节点上的 CSS 变量
+getComputedStyle(element).getPropertyValue(&quot;--my-var&quot;);
+
+// 修改一个 Dom 节点上的 CSS 变量
+element.style.setProperty(&quot;--my-var&quot;, jsVar + 4);
+</code></pre>
+<h3 id="作用">作用</h3>
+<p>我在前言中已经提到过自定义属性的作用，虽然我们在 <code>CSS</code> 中利用级联和继承来实现属性的复用，但是一些在 <code>DOM</code> 结构上并不相关的元素可能也有要复用的属性。复杂的网站都会有大量的 <code>CSS</code> 代码，通常也会有许多重复的值，比如同一个颜色值可能在很多地方被使用，如果这个值发生了变化，需要全局搜索并且一个一个替换。自定义属性很好的解决了这个问题。另一个好处是语义化的标识。比如，<code>--main-text-color</code> 会比 <code>#00ff00</code> 更易理解，尤其是这个颜色值在其他上下文中也被使用到。</p>
+<pre><code class="language-css">/*不用自定义属性的实现*/
+.image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 8px;
+}
+ 
+.image-grid &gt; .image {
+  margin: 8px;
+  width: calc(100% - 16px);
+}
+ 
+@media (min-size: 600px) {
+  /* 3 images per line */
+  .image-grid &gt; .image {
+    width: calc(100% / 3 - 16px);
+  }
+}
+ 
+@media (min-size: 1024px) {
+  /* 6 images per line */
+  .image-grid &gt; .image {
+    width: calc(100% / 6 - 16px);
+  }
+}
+
+/*用自定义属性的实现*/
+:root {
+  --grid-spacing: 16px;
+  --grid-columns: 1;
+}
+ 
+.image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: calc(var(--grid-spacing) / 2);
+}
+ 
+.image-grid &gt; .image {
+  margin: calc(var(--grid-spacing) / 2);
+  width: calc(100% / var(--grid-columns) - var(--grid-spacing));
+}
+ 
+@media (min-size: 600px) {
+  :root {
+    --grid-columns: 3;
+  }
+}
+ 
+@media (min-size: 1024px) {
+  :root {
+    --grid-columns: 6;
+  }
+}
+</code></pre>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/Using_CSS_custom_properties" title="使用CSS自定义属性（变量）">使用CSS自定义属性（变量）</a></li>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/--*" title="CSS自定义属性（变量）">CSS自定义属性（变量）</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/25714131" title="CSS自定义属性">CSS自定义属性</a></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/css/" class="tag">
+                    CSS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/nodejs-crawler/">
+                  <h3 class="post-title">
+                    简单的nodejs爬虫
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>正则表达式入门以及JavaScript中的应用 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601183665672" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文根据微软的文档以及个人的实践，对正则表达式的绝大多数规则进行了介绍并整理成图表。最后对 JavaScript 中的正则表达式使用进行介绍。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+字符串的操作是我们在写程序中经常遇到的..." />
+    <meta name="keywords" content="JavaScript" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601183665672" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/Clloz1992" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/clloz" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://www.zhihu.com/people/Clloz" target="_blank">
+            <i class="fab fa-zhihu"></i>
+          </a>
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">正则表达式入门以及JavaScript中的应用</h2>
+            <div class="post-date">2020-08-05</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/regex-javascript-apply.jpeg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文根据微软的文档以及个人的实践，对正则表达式的绝大多数规则进行了介绍并整理成图表。最后对 JavaScript 中的正则表达式使用进行介绍。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>字符串的操作是我们在写程序中经常遇到的问题，有时我们会遍历字符串以及用已有的 <code>String</code> 的 <code>API</code> 来达到我们的目的。但处理字符串最强大的还是正则表达式。正则表达式使用单个字符串来描述、匹配一系列符合某个句法规则的字符串，我们可以用正则表达式找出字符串中的目标子串，来进行操作。几乎所有的和字符串相关的操作都离不开正则表达式，比如大部分编辑器现在都能够用正则表达式来检索文本，大部分编程语言都有内置了强大的正则引擎，我们所用的很多字符串的内置 <code>API</code>，其背后也是正则表达式。本文主要讲一讲正则表达式的入门和使用。正则表达式全称是 <code>regular expression</code>，一般简称 <code>regex</code> 或者 <code>regexp</code>。</p>
+<blockquote>
+<p>正则引擎的工作原理需要理解 <code>DFA</code> 和 <code>NFA</code> 需要一定的离散数学和编译原理基础，如果你想要实现一个正则表达式引擎，可以深入了解，本文不做介绍。对于集合、关系以及 <code>DFA</code> 和 <code>NFA</code> 可以看《计算理论基础》。</p>
+</blockquote>
+<h3 id="语法">语法</h3>
+<p>最简单的正则表达式就是直接匹配对应的字符，比如 <code>abc</code> 就可以直接匹配。为了实现更为复杂的模式，正则表达式提供了很多元字符来表达丰富的意义。查看元字符可以看<a href="https://docs.microsoft.com/zh-cn/dotnet/standard/base-types/regular-expression-language-quick-reference?redirectedfrom=MSDN" title="MSDN-正则表达式语言 - 快速参考">MSDN-正则表达式语言 - 快速参考</a></p>
+<blockquote>
+<p>需要注意的是不同语言的正则表达式实现并不完全相同，特别是一些高级特性的支持，比如平衡组等，使用之前查阅一下相关文档。</p>
+</blockquote>
+<p>我用 <code>xmind</code> 制作了一个比较全的正则表达式常用的语法结构图，下面是导出的 <code>PNG</code>，你也可以下载<a href="https://img.clloz.com/blog/writing/regular-expression.xmind" title="regular-expression.xmind">regular-expression.xmind</a></p>
+<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/regular-expression.png" alt="regular-expression" title="regular-expression" loading="lazy"></figure>
+<p>正则表达式的常用语法基本都在其中了，如果你下载了 <code>xmind</code>，大部分规则都有一个 <code>note</code> 写了一个示例。关于语法方面有一个表里面没有提到的问题就是转义问题，需要转义的符号一般情况下是 <code>* . ? + $ ^ [ ] ( ) { } | \ /</code> （如果启用了 <code>x</code> 模式，	忽略正则表达式模式中的非转义空白，那么 <code>#</code> 也需要转义）。而在字符组 <code>[]</code> 中情况又不太一样，在字符组中需要转义的有  <code>[ ] \</code>，还有处于字符组第一位表示取反的 <code>^</code> 以及类似 <code>[0-9a-z]</code> 中间的 <code>-</code> 是需要转义的，其他不需要。字符组中的 <code>.</code> 就表示 <code>.</code> 不表示除换行符以外的任意字符，<code>\b</code> 也不表示单词边界，而表示退格符。（这里为个人测试，不同的实现也可能不同，如有错误欢迎指正）</p>
+<p>图中的字符转义部分和 <code>\cX</code> 模式(<code>X</code> 取值从 <code>A</code> 到 <code>Z</code> 用来表示 <code>ASCII</code> 的 <code>1-26</code> 个控制符或 <code>Ctrl+X</code>。在 <code>Java</code> 中必须大写，其他语言中大小写都可以)可以查看<a href="https://www.regular-expressions.info/nonprint.html" title="Non-Printable Characters">Non-Printable Characters</a>，他们都是对 <code>ASCII</code> 码控制符（<code>0-31</code>位位控制符，可以查看<a href="https://www.w3schools.com/charsets/ref_html_ascii.asp" title="ASCII">ASCII</a>）的一些匹配。</p>
+<p>还有一点需要说的是 <code>Unicode的匹配</code>，主要就是几种用法。</p>
+<ol>
+<li><code>\0 nn</code> 首位为 <code>0</code> 的八进制表示，可以表示扩展 <code>ASCII</code> 码</li>
+<li><code>\x nn</code> 两位十六进制数表示扩展 <code>ASCII</code> 码。</li>
+<li><code>\u nnnn</code> 四位十六进制数表示 <code>Unicode</code> 基础平面 <code>BMP</code> 的码点。</li>
+<li><code>\p{name}</code> 用<a href="https://www.php.net/manual/zh/regexp.reference.unicode.php" title="Unicode字符属性">Unicode字符属性</a>来匹配。</li>
+</ol>
+<p>各个语言、平台或者库都有不同的实现，比如 <code>JavaScript</code> 中的 <code>\u{}</code> 来表示 <code>Unicode</code> 码点。</p>
+<hr>
+<p>正则表达式的运算符优先级</p>
+<table>
+<thead>
+<tr>
+<th>运算符</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>\</code></td>
+<td>转义符</td>
+</tr>
+<tr>
+<td><code>(), (?:), (?=), []</code></td>
+<td>圆括号和方括号</td>
+</tr>
+<tr>
+<td><code>*, +, ?, {n}, {n,}, {n,m}</code></td>
+<td>限定符</td>
+</tr>
+<tr>
+<td><code>^, $, \</code>任何元字符、任何字符</td>
+<td>定位点和序列（即：位置和顺序）</td>
+</tr>
+<tr>
+<td><code>\|</code></td>
+<td>替换，<code>或</code> 操作字符具有高于替换运算符的优先级，使得 <code>m\|food</code> 匹配 <code>m</code> 或 <code>food</code> 。若要匹配 <code>mood</code> 或 <code>food</code> ，请使用括号创建子表达式，从而产生 <code>(m\|f)ood</code> 。</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p>我自己觉得正则表达式的规则并不难理解，但是如何搭配使用这些规则则是需要大量的练习的，如果能够自己实现一个正则表达式引擎那就掌握得更透彻了。</p>
+<p>这里给大家推荐一些学习资料。一个是我用来检验正则表达式的工具<a href="https://www.apptorium.com/expressions" title="expression-setapp">expression-setapp</a>，然后是 <code>《精通正则表达式》</code> 这本书，最后是一个正则表达式可视化的在线工具<a href="https://regexper.com/" title="regexper">regexper</a>。关于网络上的正则表达式教程，比如比较出名的<a href="https://deerchao.cn/tutorials/regex/regex.htm#metacode" title="正则表达式30分钟入门教程">正则表达式30分钟入门教程</a>或者<a href="https://www.runoob.com/regexp/regexp-tutorial.html" title="正则表达式-菜鸟教程">正则表达式-菜鸟教程</a>用来入门都是可以的。<code>Github</code> 上有一个<a href="https://github.com/ziishaned/learn-regex/blob/master/translations/README-cn.md" title="learn-regex">learn-regex</a>的教程也是不错的。</p>
+<h3 id="javascript-中的正则表达式">JavaScript 中的正则表达式</h3>
+<p><code>JavaScript</code> 中正则表达式语法和上面的表中没有太大不同，语法部分就不介绍了，可以查看<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Regular_Expressions" title="正则表达式 - MDN">正则表达式 - MDN</a>。</p>
+<p>这里主要说一下 <code>JavaScript</code> 中和正则表达式相关的两个对象 <code>RegExp</code> 和 <code>String</code>。这两个对象的属性和方法可以参考另一篇文章：<a href="https://www.clloz.com/programming/front-end/js/2020/07/10/built-in-objects-api/" title="JavaScript常用内置对象API">JavaScript常用内置对象API</a></p>
+<h4 id="regexp">RegExp</h4>
+<p>创建正则表达式的方法有三种，字面量或者构造函数：</p>
+<pre><code class="language-javascript">/ab+c/i;
+new RegExp('ab+c', 'i');
+new RegExp(/ab+c/, 'i');
+</code></pre>
+<hr>
+<p><code>RegExp</code> 对象有很多属性方法，比如获取 <code>flag</code> 相关的就有多个（<code>JavaScript</code> 的正则引擎一共支持 <code>gimsuy</code> 共六个 <code>flag</code>)，还有一些在 <code>ES5</code> 之前没有暴露给用户的属性方法（用 <code>symbol</code> 来指向这些内部方法），<code>ES6</code> 中我们可以通过内部定义的 <code>symbol</code> 来访问到这些方法，比如 <code>Symbol.hasInstance</code> 以及大多数和正则表达式相关的方法等，具体细节可以参考<a href="https://www.clloz.com/programming/front-end/js/2020/07/10/built-in-objects-api/" title="JavaScript常用内置对象API">JavaScript常用内置对象API</a>。属性中我们需要特别记得的一个就是静态属性 <code>RegExp.lastIndex</code>，每一个 <code>RegExp</code> 对象都有该属性，他表示下次匹配的起始索引，默认值为 <code>0</code>，这个属性是可读写的，只有正则表达式使用了表示全局检索的 <code>g</code> 标志时，该属性才会起作用（该属性的具体规则参考<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex" title="RegExp.lastIndex - MDN">RegExp.lastIndex - MDN</a>。</p>
+<p>而关于 <code>RegExp</code> 对象我们主要要讨论的方法有两个。</p>
+<ol>
+<li><code>exec</code>：	一个在字符串中执行查找匹配的 <code>RegExp</code> 方法，它返回一个数组（未匹配到则返回 <code>null</code>）。</li>
+<li><code>test</code>：	一个在字符串中测试是否匹配的 <code>RegExp</code> 方法，它返回 <code>true</code> 或 <code>false</code>。</li>
+</ol>
+<h5 id="regexpprototypeexec">RegExp.prototype.exec()</h5>
+<p><code>RegExp.prototype.exec()</code> 接受一个 <code>str</code> 作为参数，即用正则表达式在这个 <code>str</code> 中进行匹配。</p>
+<p>在设置了 <code>global</code> 或 <code>sticky</code> 标志位的情况下（如 <code>/foo/g or /foo/y</code>），<code>JavaScript RegExp</code> 对象是有状态的。他们会将上次成功匹配后的位置记录在 <code>lastIndex</code> 属性中。使用此特性，<code>exec()</code> 可用来对单个字符串中的多次匹配结果进行逐条的遍历（包括捕获到的匹配），而相比之下， <code>String.prototype.match()</code> 只会返回匹配到的结果。如果只是为了判断是否匹配，可以使用 <code>RegExp.test()</code> 方法，或者 <code>String.search()</code> 方法。</p>
+<p>我们重点来看一下 <code>RegExp.prototype.exec()</code> 的返回值</p>
+<pre><code class="language-javascript">var re = /quick\s(?&lt;group1&gt;brown).+?(?&lt;group2&gt;jumps)/ig;
+console.log(re.lastIndex) //0
+var result = re.exec('The Quick Brown Fox Jumps Over The Lazy Dog');
+console.log(result);
+
+//[
+//	'Quick Brown Fox Jumps',
+//	'Brown',
+//	'Jumps',
+//	index: 4,
+//	input: 'The Quick Brown Fox Jumps Over The Lazy Dog',
+//	groups: { group1: 'Brown', group2: 'Jumps' }
+//]
+
+console.log(re.lastIndex);//25
+</code></pre>
+<p>从上面的代码我么可以看书，返回值是一个数组，但是包含了三个额外属性 <code>index input groups</code>。具体含义参看表格。</p>
+<table>
+<thead>
+<tr>
+<th>属性/索引</th>
+<th>描述</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[0]</code></td>
+<td>匹配的全部字符串</td>
+<td><code>Quick Brown Fox Jumps</code></td>
+</tr>
+<tr>
+<td><code>[1], ...[n ]</code></td>
+<td>括号中的分组捕获</td>
+<td><code>[1] = Brown</code>、<code>[2] = Jumps</code></td>
+</tr>
+<tr>
+<td><code>index</code></td>
+<td>匹配到的字符位于原始字符串的基于 <code>0</code> 的索引值</td>
+<td><code>4</code></td>
+</tr>
+<tr>
+<td><code>input</code></td>
+<td>原始字符串</td>
+<td><code>The Quick Brown Fox Jumps Over The</code></td>
+</tr>
+<tr>
+<td><code>groups</code></td>
+<td>有命名的分组捕获对象</td>
+<td><code>{ group1: 'Brown', group2: 'Jumps' }</code> 若分组都未命名则为 <code>undefined</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p>当我们使用 <code>g</code> 标志时，<code>RegExp.prototype.exec()</code> 执行后会更新正则表达式 <code>lastIndex</code> 属性。如果我们在匹配成功后再次执行 <code>RegExp.prototype.exec()</code>，下次匹配将会从 <code>lastIndex</code> 开始匹配，注意，即使再次查找的字符串不是原查找字符串时，<code>lastIndex</code> 也不会被重置，它依旧会从记录的 <code>lastIndex</code> 开始，<code>test()</code> 也会更新 <code>lastIndex</code> 属性。我们可以利用这一特性可以查找一个字符串中多个复合正则表达式的子串。</p>
+<pre><code class="language-javascript">var myRe = /ab*/g;
+var str = 'abbcdefabh';
+var myArray;
+while ((myArray = myRe.exec(str)) !== null) {
+	var msg = 'Found ' + myArray[0] + '. ';
+	msg += 'Next match starts at ' + myRe.lastIndex;
+	console.log(msg);
+}
+//Found abb. Next match starts at 3
+//Found ab. Next match starts at 9
+</code></pre>
+<blockquote>
+<p>不要把正则表达式字面量（或者 <code>RegExp</code> 构造器）放在 <code>while</code> 条件表达式里。由于每次迭代时 <code>lastIndex</code> 的属性都被重置，如果匹配，将会造成一个死循环。并且要确保使用了 <code>g</code> 标记来进行全局的匹配，否则同样会造成死循环。</p>
+</blockquote>
+<h5 id="regexpprototypetest">RegExp.prototype.test()</h5>
+<p><code>RegExp.prototype.test()</code> 方法要比 <code>RegExp.prototype.exec()</code> 方法简单很多，它只是执行一个检索，用来查看正则表达式与指定的字符串是否匹配。返回 <code>true</code> 或 <code>false</code>。唯一需要注意的是，当使用 <code>g</code> 标志时，<code>test()</code> 和 <code>exec()</code> 一样会改变 <code>lastIndex</code> 的值，并且多次执行也会越过已经匹配成功的部分，即从字符串的 <code>lastIndex</code> 索引开始下一次的匹配。</p>
+<h5 id="regexp-的-flag">RegExp 的 flag</h5>
+<p>介绍以下 <code>JavaScript</code> 中的正则表达式支持的 <code>flag</code>。可以用 <code>RegExp.prototype.flags</code> 查看正则表达式对象使用的 <code>flag</code>。</p>
+<table>
+<thead>
+<tr>
+<th>标志</th>
+<th>对应属性</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>g</code></td>
+<td><code>RegExp.prototype.global</code></td>
+<td>全局搜索。</td>
+</tr>
+<tr>
+<td><code>i</code></td>
+<td><code>RegExp.prototype.ignoreCase</code></td>
+<td>不区分大小写搜索。</td>
+</tr>
+<tr>
+<td><code>m</code></td>
+<td><code>RegExp.prototype.multiline</code></td>
+<td>多行搜索。</td>
+</tr>
+<tr>
+<td><code>s</code></td>
+<td><code>RegExp.prototype.dotAll</code></td>
+<td>允许 . 匹配换行符。</td>
+</tr>
+<tr>
+<td><code>u</code></td>
+<td><code>RegExp.prototype.unicode</code></td>
+<td>使用 <code>unicode</code> 码的模式进行匹配。</td>
+</tr>
+<tr>
+<td><code>y</code></td>
+<td><code>RegExp.prototype.sticky</code></td>
+<td>执行“粘性(<code>sticky</code>)”搜索,匹配从目标字符串的当前位置开始。</td>
+</tr>
+</tbody>
+</table>
+<p>需要特别说明的是 <code>u</code> 和 <code>y</code>。<code>u</code> 表示的是 <code>unicode</code>，使用这个标志，意味着支持 <code>\u{}</code> 形式的 <code>unicode</code> 表示，即非基本平面的 <code>unicode</code> 也能够被支持。</p>
+<pre><code class="language-javascript">let regex = new RegExp('\u{1D306}', 'u');
+let result = regex.test('𝌆')
+console.log(regex.unicode); // true
+console.log(result) // true
+</code></pre>
+<p>而 <code>y</code> 表示的是 <code>stciky</code>，使用这个标志意味着，要匹配成功，子串必须是从 <code>lastIndex</code> 开始的。</p>
+<pre><code class="language-javascript">let str = '#foo#foo';
+let regex = /foo/y;
+
+regex.lastIndex = 1;
+console.log(regex.test(str)); // true
+regex.lastIndex = 2;
+console.log(regex.test(str)); // false
+console.log(regex.lastIndex); // 匹配失败，lastIndex归零
+regex.lastIndex = 5;
+console.log(regex.test(str)); // false
+</code></pre>
+<p>上面的代码设置了三个 <code>lastIndex</code> 分别进行了匹配，<code>1</code> 和 <code>5</code> 分别位于两个 <code>f</code> 的索引，自然能匹配成功。但是 <code>2</code> 然后后面还有能够成功匹配的 <code>foo</code> ，但是在 <code>y</code> 模式下返回 <code>false</code>（去掉 <code>y</code> 将返回 <code>true</code>）。若匹配失败则 <code>lastIndex</code> 归零。</p>
+<h5 id="替代匹配属性">替代匹配属性</h5>
+<p>在正则表达式语法结构图的左下角有一块是替代，在 <code>JavaScript</code> 中也支持，但是是非标准的，不过大部分浏览器都进行了实现。兼容性请查看<a href="https://caniuse.com/#search=regexp." title="Can I use">Can I use</a>。</p>
+<p>支持的几个属性分别是：</p>
+<pre><code class="language-javascript">RegExp.$1-$9 // 捕获括号分组，上线九个，只读属性，且只在成功匹配时有效。
+RegExp.input ($_) // 返回整个输入字符串，括号中为别名。
+RegExp.lastMatch ($&amp;) // 静态只读属性，只在匹配成功时改变。返回最后匹配成功的子字符串，$&amp;为别名，必须用方括号访问 RegExp['$&amp;']。
+RegExp.lastParen ($+) // 静态只读属性，只在匹配成功时改变。返回最后匹配到的括号分组，别名也要用方括号访问。
+RegExp.leftContext ($`) // 静态只读属性，只在匹配成功时改变。返回最新匹配的左侧子串，别名也要用方括号访问
+</code></pre>
+<h4 id="string">String</h4>
+<p><code>String</code> 的方法中和正则表达式相关的有如下几个。</p>
+<ol>
+<li><code>String.prototype.match()</code>:	一个在字符串中执行查找匹配的 <code>String</code> 方法，它返回一个数组，在未匹配到时会返回 <code>null</code>。</li>
+<li><code>String.prototype.matchAll()</code>:	一个在字符串中执行查找所有匹配的 <code>String</code> 方法，它返回一个迭代器（<code>iterator</code>）。</li>
+<li><code>String.prototype.search()</code>：	一个在字符串中测试匹配的 <code>String</code> 方法，它返回匹配到的位置索引，或者在失败时返回 <code>-1</code>。</li>
+<li><code>String.prototype.replace()</code>:	一个在字符串中执行查找匹配的 <code>String</code> 方法，并且使用替换字符串替换掉匹配到的子字符串。</li>
+<li><code>String.prototype.split()</code>:	一个使用正则表达式或者一个固定字符串分隔一个字符串，并将分隔后的子字符串存储到数组中的 <code>String</code> 方法。</li>
+</ol>
+<h5 id="stringprototypematch">String.prototype.match()</h5>
+<p><code>String.prototype.match()</code> 内部调用的是 <code>RegExp.prototype[@@match]()</code>，接受一个正则表达式对象作为参数，如果传入一个非正则表达式对象，则会隐式地使用 <code>new RegExp(obj)</code> 将其转换为一个 <code>RegExp</code> 。如果你没有给出任何参数并直接使用 <code>match()</code> 方法 ，你将会得到一 个包含空字符串的 <code>Array ：[&quot;&quot;]</code>。</p>
+<p>详细说一下返回值：</p>
+<ol>
+<li>如果使用 <code>g</code> 标志，那么返回所有匹配正则表达式的子串的数组。不返回捕获组。</li>
+<li>如果没有使用 <code>g</code> 标志，则返回包含第一个完整匹配及其相关的捕获组的数组。数组有三个额外属性 <code>index input groups</code>（和 <code>RegExp.prototype.exec()</code> 相同）。</li>
+<li>如果匹配失败则返回 <code>null</code>。</li>
+</ol>
+<p>我们可以看出如果没有 <code>g</code> 标志，<code>String.prototype.match()</code> 和 <code>RegExp.prototype.exec()</code> 是相同的。</p>
+<pre><code class="language-javascript">//without g flag
+var str = 'For more information, see Chapter 3.4.5.1';
+var re = /see (?&lt;group1&gt;chapter \d+(?&lt;group2&gt;\.\d)*)/i;
+var found = str.match(re);
+
+console.log(found);
+//[
+//	'see Chapter 3.4.5.1',
+//	'Chapter 3.4.5.1',
+//	'.1',
+//	index: 22,
+//	input: 'For more information, see Chapter 3.4.5.1',
+//	groups:{ group1: 'Chapter 3.4.5.1', group2: '.1' }
+//]
+
+//with g flag
+var str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+var regexp = /[A-E]/gi;
+var matches_array = str.match(regexp);
+
+console.log(matches_array); // ['A', 'B', 'C', 'D', 'E', 'a', 'b', 'c', 'd', 'e']
+
+// no arguments
+var str = &quot;Nothing will come of nothing.&quot;;
+
+str.match();   // returns [&quot;&quot;]
+</code></pre>
+<h5 id="stringprototypematchall">String.prototype.matchAll()</h5>
+<p><code>String.prototype.matchAll()</code> 内部调用的是 <code>RegExp.prototype[@@matchAll]()</code>。接受一个正则表达式对象为参数，如果所传参数不是一个正则表达式对象，则会隐式地使用 <code>new RegExp(obj)</code> 将其转换为一个 <code>RegExp</code> 。<code>RegExp</code> 必须是设置了全局模式 <code>g</code> 的形式，否则会抛出异常 <code>TypeError</code>。</p>
+<p>返回值为一个迭代器，可以配合 <code>for...of...</code>、扩展运算符 <code>...</code> 或者 <code>Array.from()</code> 使用来替代 <code>while</code> 循环的 <code>RegExp.prototype.exec()</code> 方法。迭代器中的每一项和 <code>RegExp.prototype.exec()</code> 是相同的，包括额外属性。</p>
+<pre><code class="language-javascript">const regexp = RegExp('foo[a-z]*','g');
+const str = 'table football, foosball';
+const matches = str.matchAll(regexp);
+
+for (const match of matches) {
+	console.log(`Found ${match[0]} start=${match.index} end=${match.index + match[0].length}.`);
+}
+//Found football start=6 end=14.
+//Found foosball start=16 end=24.
+
+console.log(Array.from(str.matchAll(regexp), m =&gt; m[0]));
+//[ &quot;football&quot;, &quot;foosball&quot; ]
+</code></pre>
+<blockquote>
+<p><code>String.prototype.matchAll()</code> 内部做了一个正则表达式对象的复制，所以不像 <code>RegExp.prototype.exec()</code>, <code>lastIndex</code> 在字符串扫描时不会改变。</p>
+</blockquote>
+<hr>
+<p><code>String.prototype.matchAll()</code> 还有一个优势就是它可以一次性获取捕获组，无论是带 <code>g</code> 的 <code>String.prototype.match()</code> 还是循环匹配的 <code>RegExp.prototype.exec()</code> 都不能一次取得所有匹配的捕获组。如果有对应的需求，可以使用 <code>String.prototype.matchAll()</code>。</p>
+<pre><code class="language-javascript">var regexp = /t(e)(st(\d?))/g;
+var str = 'test1test2';
+
+console.log(str.match(regexp)); //[ 'test1', 'test2' ]
+
+let array = [...str.matchAll(regexp)];
+console.log(array);
+//[
+//	[
+//		'test1',
+//		'e',
+//		'st1',
+//		'1',
+//		index: 0,
+//		input: 'test1test2',
+//		groups: undefined
+//	],
+//	[
+//		'test2',
+//		'e',
+//		'st2',
+//		'2',
+//		index: 5,
+//		input: 'test1test2',
+//		groups: undefined
+//	]
+//]
+</code></pre>
+<h5 id="stringprototypesearch">String.prototype.search()</h5>
+<p><code>String.prototype.search()</code> 内部使用的是 <code>RegExp.prototype[@@search]()</code>。接受一个正则表达式对象为参数，如果所传参数不是一个正则表达式对象，则会隐式地使用 <code>new RegExp(obj)</code> 将其转换为一个 <code>RegExp</code> 。如果匹配成功，则返回正则表达式在字符串中首次匹配项的索引，否则返回 <code>-1</code>。</p>
+<p>类似于 <code>RegExp.prototype.test()</code> 方法，只是返回值不同。该方法比 <code>String.prototype.match()</code> 更快，如果不需要知道匹配的详细信息，则建议使用该方法。</p>
+<h5 id="stringprototypereplace">String.prototype.replace()</h5>
+<p><code>String.prototype.replace()</code> 内部使用的是 <code>RegExp.prototype[@@replace]()</code>。该方法返回一个由替换值（<code>replacement</code>）替换部分或所有的模式（<code>pattern</code>）匹配项后的新字符串。模式可以是一个字符串或者一个正则表达式，替换值可以是一个字符串或者一个每次匹配都要调用的回调函数。如果 <code>pattern</code> 是字符串，则仅替换第一个匹配项。<strong>该方法不会改变原字符串</strong>。</p>
+<p>正则表达式语法结构图左下角的替换部分的内容在该方法中也是可用的，可以作为第二个参数使用。</p>
+<ul>
+<li><code>$$</code>: 插入一个 <code>$</code>。</li>
+<li><code>$&amp;</code>: 插入匹配的子串。</li>
+<li><code>$`</code>: 插入当前匹配的子串左边的内容。</li>
+<li><code>$'</code>: 插入当前匹配的子串右边的内容。</li>
+<li><code>$n</code>: 假如第一个参数是 <code>RegExp</code> 对象，并且 <code>n</code> 是个小于 <code>100</code> 的非负整数，那么插入第 <code>n</code> 个括号匹配的字符串.索引是从 <code>1</code> 开始。$</li>
+</ul>
+<hr>
+<p>第二个参数可以是函数，在这种情况下，当匹配执行后，该函数就会执行。 函数的返回值作为替换字符串。 如果第一个参数是正则表达式，并且其为全局匹配模式，那么这个方法将被多次调用，每次匹配都会被调用。该函数有以下参数。</p>
+<ul>
+<li><code>match</code>：匹配的子串。（对应于上述的<code>$&amp;</code>。）</li>
+<li><code>p1,p2, ...</code>: 假如 <code>replace()</code> 方法的第一个参数是一个 <code>RegExp</code> 对象，则代表第 <code>n</code> 个括号匹配的字符串。（对应于上述的<code>$1</code>，<code>$2</code>等。）例如，如果是用 <code>/(\a+)(\b+)/</code> 这个来匹配，<code>p1</code> 就是匹配的 <code>\a+</code>，<code>p2</code> 就是匹配的 <code>\b+</code>。</li>
+<li><code>offset</code>: 匹配到的子字符串在原字符串中的偏移量。（比如，如果原字符串是 <code>abcd</code>，匹配到的子字符串是 <code>bc</code>，那么这个参数将会是 <code>1</code>）</li>
+<li><code>string</code>: 被匹配的原字符串。</li>
+<li><code>NamedCaptureGroup</code>: 命名捕获组匹配的对象。</li>
+</ul>
+<pre><code class="language-javascript">function replacer(match, p1, p2, p3, offset, string) {
+  return [p1, p2, p3].join(' - ');
+}
+var newString = 'abc12345#$*%'.replace(/([^\d]*)(\d*)([^\w]*)/, replacer);
+console.log(newString);  // abc - 12345 - #$*%
+</code></pre>
+<blockquote>
+<p>精确的参数个数依赖于 <code>replace()</code> 的第一个参数是否是一个正则表达式（<code>RegExp</code>）对象，以及这个正则表达式中指定了多少个括号子串，如果这个正则表达式里使用了命名捕获， 还会添加一个命名捕获的对象。</p>
+</blockquote>
+<h4 id="使用总结">使用总结</h4>
+<ul>
+<li>如果你需要知道一个字符串是否与一个正则表达式匹配，可使用 <code>RegExp.test()</code> 。</li>
+<li>如果你只是需要第一个匹配结果，你可以使用 <code>RegExp.prototype.exec()</code> 或者 <code>String.prototype.match()</code>，不使用 <code>g</code> 标志。</li>
+<li>如果你想要获得捕获组，并且设置了全局标志，你需要用 <code>RegExp.exec()</code>  或者  <code>String.prototype.matchAll()</code></li>
+</ul>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="http://www.pcre.org/pcre.txt" title="pcre">pcre</a></li>
+<li><a href="https://zh.wikipedia.org/wiki/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F#PCRE%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%85%A8%E9%9B%86" title="正则表达式 - Wikipedia">正则表达式 - Wikipedia</a></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/javascript/" class="tag">
+                    JavaScript
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/open-source-license/">
+                  <h3 class="post-title">
+                    开源许可证的选择
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

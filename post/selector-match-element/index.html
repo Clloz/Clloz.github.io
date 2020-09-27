@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>选择器匹配元素 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601183665672" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文从浏览器原理的角度出发，详解 CSS 选择器是如何进行匹配的，并用代码进行了简单的模拟实现。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+用原生的 JavaScript 实现给定一个选择器（复合选择器和子选择器，不考虑逗号..." />
+    <meta name="keywords" content="CSS" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601183665672" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/Clloz1992" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/clloz" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://www.zhihu.com/people/Clloz" target="_blank">
+            <i class="fab fa-zhihu"></i>
+          </a>
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">选择器匹配元素</h2>
+            <div class="post-date">2020-08-09</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/selector-match-element.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文从浏览器原理的角度出发，详解 CSS 选择器是如何进行匹配的，并用代码进行了简单的模拟实现。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>用原生的 <code>JavaScript</code> 实现给定一个选择器（复合选择器和子选择器，不考虑逗号），和一个元素，判断该元素是否与该选择器匹配。</p>
+<h3 id="实现">实现</h3>
+<p>对于一个选择器比如 <code>div #myid .class1.class2</code>，我们应该是从后向前匹配。我们用 <code>String.prototype.split()</code> 方法将嵌套的选择器放入一个数组，然后从后向前依次进行匹配。最内层的选择器如果匹配失败则直接返回 <code>false</code>，其他父层级选择器则要依次向上遍历匹配。</p>
+<h4 id="复合选择器的匹配">复合选择器的匹配</h4>
+<p>解决了基本的逻辑，我们需要处理的就是如何将一个复合选择器和元素进行匹配。比如 <code>div#myid.class1.class2</code> 这样的复合选择器。我的思路是用正则表达式将复合选择器分解为简单选择器，然后和元素的属性进行对比。</p>
+<pre><code class="language-javascript">function specificity(selector) {
+	let reg = /(?&lt;tagname&gt;(\w+)?)(?&lt;id&gt;(#\w+)?)(?&lt;classname&gt;(.[\w.]+)?)/;
+	let result = selector.match(reg);
+	return result.groups;
+}
+console.log(specificity('div#myid.class1.class2'))
+//[Object: null prototype] {
+//	tagname: 'div',
+//	id: '#myid',
+//	classname: '.class1.class2'
+//}
+</code></pre>
+<p>我们利用正则表达式中的分组提取出 <code>tagname</code>，<code>id</code> 和 <code>class</code>。关于正则表达式可以看我的另一篇文章<a href="https://www.clloz.com/programming/front-end/js/2020/08/05/regex-javascript-apply/" title="正则表达式的入门和JavaScript中的应用">正则表达式的入门和JavaScript中的应用</a>。</p>
+<hr>
+<p>将复合选择器转化为简单选择器后，我们要做的就是取得元素的简单选择器然后进行比较。元素的几个对应属性很简单，<code>tagName</code> 可以用 <code>element.tagName</code> 直接获得；<code>id</code> 和 <code>class</code> 可以通过 <code>element.getAttribute()</code> 方法获得（形式略有不同，需要处理）</p>
+<pre><code class="language-javascript">function compare(result, element) {
+	if (result.tagname !== '' &amp;&amp; element.tagName.toLowerCase() !== result.tagname) {
+		return false;
+	}
+	if (result.id !== '' &amp;&amp; element.getAttribute('id') !== result.id.slice(1)) {
+		return false;
+	}
+	if (result.classname !== '') {
+		let classnames = result.classname.split('.').filter(val =&gt; !!val);
+		let el_classnames = element.getAttribute('class').split(' ');
+		let isContain = classnames.every(x =&gt; el_classnames.includes(x))
+		if (!isContain) return false;
+	}
+	return true;
+}
+
+</code></pre>
+<hr>
+<p>最后我们要做的就是循环选择器数组，与当前元素匹配。元素用 <code>while</code> 向上回溯，直到 <code>element.parentElement</code> 为 <code>null</code>。</p>
+<pre><code class="language-javascript">function match(selector, element) {
+	let selectors = selector.split(' ');
+	for (let i = selectors.length - 1; i &gt;= 0; i--) {
+		let result = specificity(selectors[i]);
+		
+		if (i === selectors.length - 1) {
+			if (!compare(result, element)) return false;
+		} else {
+			let isMatch = false;
+			element = element.parentElement;
+			console.log(element)
+			
+			while (element !== null &amp;&amp; isMatch === false) {
+				console.log(result, element)
+				if (compare(result, element)) isMatch = true;
+				element = element.parentElement
+			}
+			console.log(isMatch)
+			if (!isMatch) return false;
+		}
+	}
+	return true;
+}
+</code></pre>
+<blockquote>
+<p>完整代码可以查看<a href="https://www.clloz.com/study/selector_match_element/index.html" target="_blank" data-pjax-state="external" rel="noopener noreferrer">选择器元素匹配</a>，打开开发者工具查看，</p>
+</blockquote>
+<h3 id="匹配机制">匹配机制</h3>
+<p>我们上面说过，元素和选择器的匹配是从后往前（从右往左），这里来简单解释一下为什么。当我们要知道当前的元素是否和某个选择器匹配的时候，比如选择器 <code>#id .class1 .class2</code>。如果我们从左往右匹配，当我们遇到 <code>#id</code> 的元素的时候，我们需要检查所有的子元素来寻找 <code>.class1</code>，这在复杂的文档解构中是非常低效率的。而如果我们从后往前匹配，当我们遇到一个 <code>.class2</code> 的元素，我们只需要看他的父元素（有些选择器也要看兄弟元素）是否you 匹配 <code>.class1</code> ，依次向上追溯就可以了。并且如果 <code>.class2</code> 没有匹配成功我们就可以直接确定这个元素不符合。</p>
+<p>浏览器中的 <code>CSS</code> 是如何计算的可以参考这篇文章<a href="https://zhuanlan.zhihu.com/p/25380611" title="从Chrome源码看浏览器如何计算CSS">从Chrome源码看浏览器如何计算CSS</a></p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/css/" class="tag">
+                    CSS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/regex-javascript-apply/">
+                  <h3 class="post-title">
+                    正则表达式入门以及JavaScript中的应用
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

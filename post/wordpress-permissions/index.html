@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>WordPress文件权限问题 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601183665672" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文介绍如何用 chown 命令对 wordpress 根目录的文件进行权限修改，防止出现更新失败的情况。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+我们有时候在更新 WordPress 的时候会发现一些权限问题的报错，Wo..." />
+    <meta name="keywords" content="Assorted" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601183665672" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/Clloz1992" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/clloz" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://www.zhihu.com/people/Clloz" target="_blank">
+            <i class="fab fa-zhihu"></i>
+          </a>
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">WordPress文件权限问题</h2>
+            <div class="post-date">2020-07-28</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/wordpress-permissions.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文介绍如何用 chown 命令对 wordpress 根目录的文件进行权限修改，防止出现更新失败的情况。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>我们有时候在更新 <code>WordPress</code> 的时候会发现一些权限问题的报错，<code>WordPress</code> 告诉我们它没有写入一些文件的或文件夹的权限，本文总结一下原因和解决办法。</p>
+<h3 id="原因">原因</h3>
+<p>我的<code>WordPress</code>网站的运行环境是自己手动搭建的 <code>lamp</code> 环境，在管理 <code>WordPress</code> 时经常遇到因没有足够的权限而无法执行某些操作。在 <code>linux</code> 上的权限不足的问题无外乎有两个原因，一个是 <code>WordPress</code> 文件所使用的用户没有对该文件或目录拥有读、写、执行的权限，另一个就是程序运行时所使用的用户对该文件或目录没有足够的权限。而我的 <code>WordPress</code> 的文件或目录的权限设置是没有问题的，所以，造成这种问题的原因是在Apache对 <code>WordPress</code> 文件或目录操作时所使用的用户没有对 <code>WordPress</code> 文件或目录拥有足够的权限。</p>
+<h3 id="ls-l-各字段含义">ls -l 各字段含义</h3>
+<p>我们用 <code>ls -l</code> 查看当前文件夹中的文件和目录的权限时，一般会有如下字段：</p>
+<pre><code class="language-bash">total 348
+drwxr-xr-x  9 apache root  4096 Jun  2 17:56 wp-content
+#...
+</code></pre>
+<h4 id="total">total</h4>
+<p><code>total</code> 后面的数字是指当前目录下所有文件所占用的空间总和（以 <code>K</code> 为单位）。可以使用 <code>ls –lh</code> 查看。</p>
+<h4 id="文件属性字段">文件属性字段</h4>
+<p>最前面的 <code>drwxrwxrwx</code>（中间有些是 <code>-</code>）是文件属性字段，由十个字母组成。</p>
+<p>介绍文件类型之前先介绍一下链接文件。链接文件的概念类似于 <code>windows</code> 里的快捷方式。多个链接文件同时指向一个源文件。链接文件分为硬链接 <code>Hard link</code> 或符号链接（软链接、<code>Symbolic link</code>）两种。</p>
+<p>在 <code>Linux</code> 的文件系统中，保存在磁盘分区中的文件不管是什么类型都给它分配一个编号，称为索引节点号 <code>inode</code> 。软连接，其实就是新建立一个文件，这个文件就是专门用来指向别的文件的（那就和 <code>Windows</code> 下的快捷方式类似）。软连接产生的是一个新的文件，但这个文件的作用就是专门指向某个文件的，删了这个软连接文件，那就等于不需要这个连接，和原来的存在的实体原文件没有任何关系，但删除原来的文件，则相应的软连接不可用（<code>cat</code> 那个软链接文件，则提示 <code>没有该文件或目录</code>）</p>
+<p>硬连接是不会建立 <code>inode</code> 的，他只是在文件原来的 <code>inode link count</code> 域再增加 <code>1</code> 而已，也因此硬链接是不可以跨越文件系统的。相反都是软连接会重新建立一个 <code>inode</code>，当然 <code>inode</code> 的结构跟其他的不一样，他只是一个指明源文件的字符串信息。一旦删除源文件，那么软连接将变得毫无意义。而硬链接删除源文件的时候，系统调用会检查 <code>inode link count</code> 的数值，如果他大于等于 <code>1</code>，那么 <code>inode</code> 不会被回收，因此文件的内容不会被删除，相当于删除了一个索引。</p>
+<p>硬链接实际上是为文件建一个别名，链接文件和原文件实际上是同一个文件。可以通过 <code>ls -i</code> 来查看一下，这两个文件的 <code>inode</code> 号是同一个，说明它们是同一个文件；而软链接建立的是一个指向，即链接文件内的内容是指向原文件的指针，它们是两个文件。</p>
+<p>软链接可以跨文件系统，硬链接不可以；软链接可以对一个不存在的文件名( <code>filename</code> )进行链接（此时如果你 <code>vi</code> 这个软链接文件，<code>Linux</code> 会自动新建一个文件名为 <code>filename</code> 的文件）,硬链接不可以（其文件必须存在，<code>inode</code> 必须存在）；软链接可以对目录进行连接，硬链接不可以。两种链接都可以通过命令 <code>ln</code> 来创建。<code>ln</code> 默认创建的是硬链接。使用 <code>-s</code> 开关可以创建软链接。</p>
+<p>第一个字符表示文件的类型，有以下几种类型。</p>
+<ol>
+<li><code>d</code> 表示目录 <code>directory</code></li>
+<li><code>-</code> 表示普通文件</li>
+<li><code>l</code> 表示链接文件</li>
+<li><code>b</code> 表示块设备文件(<code>block</code>)，一般置于 <code>/dev</code> 目录下，设备文件是普通文件和程序访问硬件设备的入口，是很特殊的文件。没有文件大小，只有一个主设备号和一个辅设备号。一次传输数据为一整块的被称为块设备，如硬盘、光盘等。最小数据传输单位为一个数据块(通常一个数据块的大小为 <code>512</code> 字节)</li>
+<li><code>c</code> 表示字符设备文件(<code>character</code>)，一般置于 <code>/dev</code> 目录下，一次传输一个字节的设备被称为字符设备，如键盘、字符终端等，传输数据的最小单位为一个字节。</li>
+<li><code>p</code> 表示命令管道文件。与 <code>shell</code> 编程有关的文件。</li>
+<li>`` 表示 <code>sock</code> 文件。与 <code>shell</code> 编程有关的文件。</li>
+</ol>
+<p>后面的九个字符时三组重复的 <code>rwx</code>，<code>r</code> 表示 <code>read</code>，<code>w</code> 表示 <code>write</code>，<code>x</code> 表示 <code>execute</code>。第一组表示文件拥有者的权限，第二组表示文件拥有者所属组 <code>group</code> 的权限，第三组表示其他用户的权限。</p>
+<h4 id="文件硬链接数">文件硬链接数</h4>
+<p>第二个字段是一个数字，如果该文件不是一个目录则这个数字表示文件的硬链接数。查找一个文件的硬链接文件的位置可以用 <code>ls -i</code> 查看他的文件节点号，再用 <code>find</code> 命令查找。</p>
+<p>如果对应的文件是一个目录，那么这个数字表示目录下的子目录数。注意 <code>.</code>（指向目录本身）和 <code>..</code> （指向上级目录）也算是子目录，所以一个空文件夹的子目录数默认是 <code>2</code>。</p>
+<h4 id="文件目录拥有者">文件（目录）拥有者</h4>
+<p>该字段表示此文件是属于哪个用户。<code>linux</code> 类系统都是多用户系统，每个文件都有它的拥有者。只有文件的拥有者才具有改动文件属性的权利。当然， <code>root</code> 用户具有改动任何文件属性的权利。对于一个目录来说，只有拥有该目录的用户，或者具有写权限的用户才有在目录下创建文件的权利。</p>
+<p>如果某一个用户因为某种原因，被删除，而该用户的文件还存在，那么用ls -l 查看该文件将显示一个代表用户存在前 <code>ID</code> 号的数字。因为文件系统对每个文件记录文件所有者的 <code>ID</code>，而非用户名。</p>
+<h4 id="文件目录拥有者所在的组">文件（目录）拥有者所在的组</h4>
+<p>一个用户可以加入很多个组，但是其中有一个是主组，就是显示在第 <code>4</code> 字段的名称。可以在 <code>useradd</code> 的时候用 <code>-g</code> 指定该用户所在的主组：<code>useradd –g 组名 用户名</code>。<strong>文件夹也是一个特殊的文件</strong></p>
+<h4 id="文件所占用的空间以字节为单位">文件所占用的空间(以字节为单位)</h4>
+<p>第5字段表示文件大小，如果是一个文件夹（目录），则表示该文件夹的大小。请注意是文件夹本身的大小，而不是文件夹以及它下面的文件的总大小。</p>
+<h4 id="文件目录最近访问修改时间">文件（目录）最近访问（修改）时间</h4>
+<p>文件创建的时间可以通过 <code>touch</code> 命令来修改，另外，一个文件还有最后访问时间，最后修改时间等属性。这些属性可以用 <code>ls</code> 的其它参数显示出来。</p>
+<h4 id="文件名">文件名</h4>
+<p>如果是一个符号链接，那么会有一个 <code>-&gt;</code>  箭头符号，后面根一个它指向的文件名。</p>
+<h3 id="修改-wordpress-目录权限">修改 WordPress 目录权限</h3>
+<p>通过上面的内容我们已经知道，只要修改 <code>WordPress</code> 文件夹的权限和用户就可以解决访问权限的问题（我的用户和组默认是 <code>root</code> 修改为 <code>apache</code> 即可）。共有三种方法</p>
+<pre><code class="language-bash"># 方法一
+# 设置apache配置文件httpd.conf中的User和Group为apache
+vim /etc/httpd/conf/httpd.conf
+
+# 修改WordPress对应目录下文件权限 /var/www/html为wordpress安装目录
+chown -R apache:apache /var/www/html/*
+
+# 方法二
+# 将apache所使用的用户加入到wordpress文件或目录所属的用户组中
+usermod -aG 123 apache（123为wordpress文件所属的用户组）
+
+# 方法三
+# 修改apache的配置文件，将User和Group选项修改为wordpress所使用的用户和用户组。
+vim /etc/httpd/conf/httpd.conf
+</code></pre>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://www.xxshell.com/110.html" title="解决在管理wordpress时权限不足的问题">解决在管理wordpress时权限不足的问题</a></li>
+<li><a href="https://www.cnblogs.com/dfyz/articles/6514738.html" title="linux ls -l 各个字段的含义">linux ls -l 各个字段的含义</a></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/assorted/" class="tag">
+                    Assorted
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/vs-code-setting-sync-configuration/">
+                  <h3 class="post-title">
+                    VS Code的setting sync插件的配置
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

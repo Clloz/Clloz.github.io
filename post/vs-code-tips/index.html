@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>VS Code使用技巧 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601183665672" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文根据自己的使用经验，对 VS Code 中比较有用的使用技巧进行了总结，包括快捷键命令和插件的使用。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+我现在做前端开发主要用三个工具，写HTML 和 CSS 用 Espreso（..." />
+    <meta name="keywords" content="Assorted" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601183665672" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/Clloz1992" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/clloz" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://www.zhihu.com/people/Clloz" target="_blank">
+            <i class="fab fa-zhihu"></i>
+          </a>
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">VS Code使用技巧</h2>
+            <div class="post-date">2020-07-29</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/vs-code-tips.png')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文根据自己的使用经验，对 VS Code 中比较有用的使用技巧进行了总结，包括快捷键命令和插件的使用。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>我现在做前端开发主要用三个工具，写<code>HTML</code> 和 <code>CSS</code> 用 <code>Espreso</code>（结构和样式很清晰）；写一些小的 <code>JavaScript</code>文件用 <code>CodeRunner</code>（比较轻量，非常方便，也支持各种语言）；如果是写项目则用 <code>vscode</code>。本文整理一些我认为在 <code>vscode</code> 使用中比较有用有时也容易忘记的技巧。文章内容可能比较零散，都是一些使用过程感觉比较有用的小知识。</p>
+<h3 id="命令调色板">命令调色板</h3>
+<p>使用快捷键 <code>⌘+⇧+P/F1</code> 可以打开一个命令调色板 <code>Command Palette</code>，我们在界面顶部的小文本框中快速查找命令。一方面可以快速调用某个命令，也可以在我们忘记快捷键的时候查看某个命令的快捷键。我们不需要记住完整的命令，只要有关键词就能模糊查找。</p>
+<blockquote>
+<p>命令 <code>startup performance</code> 可以查看 <code>vscode</code> 的启动性能。</p>
+</blockquote>
+<h3 id="配置文件">配置文件</h3>
+<p><code>vscode</code> 中的所有配置几乎都是 <code>json</code> 文件，但有时我们可能不知道该如何去找默认配置。<code>vscode</code> 提供了两个软件本身的配置方式，一种是 <code>setting.json</code> 另一种是图形界面。调用图形界面的快捷键 <code>⌘+,</code>，我们可以在是上方的文本框中输入关键词查看或者修改修相关的配置；如果我们想直接修改 <code>setting.json</code>，可以打开命令调色板，输入 <code>setting</code> 然后选择 <code>Preference: Open Settings(JSON)</code>，就能打开我们的配置文件。如果有时候我们想查看一些插件的默认配置，比如 <code>prettier</code>，我们可以打开命令调色板，输入 <code>setting</code>，然后选择 <code>Preference: Open Default Settings(JSON)</code> 进入文件，然后查找对应的项。查看默认的快捷键也可以在命令调色盘中搜索 <code>Preference: Open Default Keyboard Shortcuts(JSON)</code>。</p>
+<h3 id="快捷键">快捷键</h3>
+<p>快捷键是最常用我也认为最麻烦的，特别是插件多了，还有个人习惯，以及和其他软件造成的快捷键冲突，记忆也是很大的问题，有些快捷键一段时间不用就忘了，不过官方提供了一份默认快捷键的 <code>PDF</code>（不同的系统有不同的版本），<a href="https://code.visualstudio.com/docs/getstarted/tips-and-tricks#_default-keyboard-shortcuts" title="下载链接">下载链接</a>。我这里贴上 <code>Mac</code> 对应的默认快捷键图。</p>
+<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/vscode-keybindings.png" alt="vscode-keybindings" title="vscode-keybindings" loading="lazy"></figure>
+<p>快捷键这个没有什么技巧只能多用多记，熟练了就好。不过前面还是尽量逼着自己用，多看看表，其实很多你不知道的操作都是有快捷键的，可以给我们的编码带来很多方便。我列出几个表里面没有介绍的快捷键（有可能是我自己修改过的，不过知道有这个功能就可以自己修改了。</p>
+<blockquote>
+<p>我个人比较喜欢 <code>Emacs</code> 的操作方式，所以我在 <code>vscode</code> 中用了一个叫 <code>Emacs Friendly Keybindings</code> 的插件。其实大部分操作在 <code>vscode</code> 中都有对应的。如果你也习惯于 <code>emacs</code> 的操作可以尝试一下。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th><code>shortcut</code></th>
+<th><code>description</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>⌘B</td>
+<td>关闭/打开左侧的文件导航等</td>
+</tr>
+<tr>
+<td>⌃`</td>
+<td>打开/关闭下方 <code>terminal</code>（这个可能是我自己设置的）</td>
+</tr>
+<tr>
+<td>⇧⌘Y</td>
+<td>打开/关闭 <code>debug</code> 面板</td>
+</tr>
+<tr>
+<td>⇧⌘U</td>
+<td>打开/关闭 <code>output</code> 面板</td>
+</tr>
+<tr>
+<td>⇧⌘M</td>
+<td>打开/关闭 <code>problem</code> 面板</td>
+</tr>
+<tr>
+<td>⇧⌘Y</td>
+<td>打开/关闭 <code>debug console</code> 面板</td>
+</tr>
+<tr>
+<td>⇧⌘E</td>
+<td>打开/关闭 <code>explorer</code> 面板</td>
+</tr>
+<tr>
+<td>⇧⌘F</td>
+<td>打开/关闭 <code>search</code> 面板</td>
+</tr>
+<tr>
+<td>⇧⌘A</td>
+<td>打开/关闭 <code>source control</code> 面板</td>
+</tr>
+<tr>
+<td>⇧⌘D</td>
+<td>打开/关闭 <code>debug</code> 面板</td>
+</tr>
+<tr>
+<td>⇧⌘X</td>
+<td>打开/关闭 <code>extensions</code> 面板</td>
+</tr>
+<tr>
+<td>⇧⌘T</td>
+<td>打开刚刚关闭的 <code>editor</code></td>
+</tr>
+<tr>
+<td>⌥⌘⇤/⇥</td>
+<td>在 <code>editor</code> 间移动</td>
+</tr>
+<tr>
+<td>⌃number</td>
+<td>选择 <code>editor</code></td>
+</tr>
+<tr>
+<td>⌘K ⇧⌘⇤/⇥</td>
+<td>将当前 <code>editor</code> 向左右移动</td>
+</tr>
+<tr>
+<td>⌘\</td>
+<td>生成新的 <code>editor</code> 组（分屏，分隔工作区）</td>
+</tr>
+<tr>
+<td>⌘number</td>
+<td>选择 <code>editor</code> 组</td>
+</tr>
+<tr>
+<td>⌘K ⌘⇤/⇥</td>
+<td>在 <code>editor</code> 组间切换</td>
+</tr>
+<tr>
+<td>⌘K ⇤/⇥</td>
+<td>移动当前 <code>focus</code> 的 <code>editor</code> 组</td>
+</tr>
+<tr>
+<td>⌘W</td>
+<td>关闭窗口、工作区或<code>editor</code></td>
+</tr>
+<tr>
+<td>⌘K ⌘W</td>
+<td>关闭所有</td>
+</tr>
+<tr>
+<td>⌘K F</td>
+<td>关闭文件夹</td>
+</tr>
+<tr>
+<td>⌘K ⌘⇤/⇥</td>
+<td>在标签组间移动(<code>emacs</code> 的 <code>⌃X O</code>)</td>
+</tr>
+<tr>
+<td>⌃⌥⇥</td>
+<td>将当前标签加入右侧 <code>editor</code> 组</td>
+</tr>
+<tr>
+<td>⌃⌥⇤</td>
+<td>将当前标签加入新的标签组</td>
+</tr>
+<tr>
+<td>⌘T</td>
+<td>搜索文件或者方法（方法前加<code>#</code>）</td>
+</tr>
+<tr>
+<td>⌃X ⌃L</td>
+<td>将选中文本变为小写</td>
+</tr>
+<tr>
+<td>⌃X ⌃U</td>
+<td>将选中文本变为大写</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>重命名当前标识符</td>
+</tr>
+<tr>
+<td>⌘F2</td>
+<td>选中和光标所在位置相同的文本</td>
+</tr>
+<tr>
+<td>⌃⇧⌘⇤/⇥</td>
+<td>扩大或缩小选中文本</td>
+</tr>
+<tr>
+<td>⌥⇤/⌥⇥</td>
+<td>以单词为单位移动光标</td>
+</tr>
+<tr>
+<td>⌘⇤/⌘⇥</td>
+<td>移动到行首行尾</td>
+</tr>
+<tr>
+<td>⌘⤒/⌘⤓</td>
+<td>移动到文档开头或末尾</td>
+</tr>
+<tr>
+<td>⌘⇧\</td>
+<td>在当前所在位置匹配的括号上来回移动</td>
+</tr>
+<tr>
+<td>⌘del</td>
+<td>删除光标到行尾的文本</td>
+</tr>
+<tr>
+<td>⌘backspace</td>
+<td>删除光标到行首所有的文本</td>
+</tr>
+<tr>
+<td>⌥D/⌥del</td>
+<td>删除光标到当前单词的结尾</td>
+</tr>
+<tr>
+<td>⌥backspace</td>
+<td>删除光标到当前单词的开头</td>
+</tr>
+<tr>
+<td>⌃D</td>
+<td>删除光标右边的一个字符</td>
+</tr>
+<tr>
+<td>⇧⌘K</td>
+<td>删除当前行</td>
+</tr>
+<tr>
+<td>⇧⌥⤒/⤓</td>
+<td>向上/下复制当前行</td>
+</tr>
+<tr>
+<td>⌥⤒/⤓</td>
+<td>向上/下移动当前行</td>
+</tr>
+<tr>
+<td>⌘Enter/⇧⌘Enter</td>
+<td>向上/下插入空行</td>
+</tr>
+<tr>
+<td>⌘[ / ⌘]</td>
+<td>缩进或减少缩进</td>
+</tr>
+<tr>
+<td>⌥⌘[ / ⌥⌘]</td>
+<td>折叠/展开代码块</td>
+</tr>
+<tr>
+<td>⌘K ⌘[ / ⌘K ⌘]</td>
+<td>折叠/展开子代码块</td>
+</tr>
+<tr>
+<td>⌘K ⌘0/⌘K ⌘J</td>
+<td>折叠/展开所有代码块</td>
+</tr>
+<tr>
+<td>⌘K ⌘C/⌘K ⌘U</td>
+<td>添加/去除行注释</td>
+</tr>
+<tr>
+<td>⌘/</td>
+<td>注释/取消注释选中行</td>
+</tr>
+<tr>
+<td>⇧⌥A</td>
+<td>注释选中代码</td>
+</tr>
+<tr>
+<td>⌘P</td>
+<td>最近代开的文件(输入 <code>文件名:行数</code>会打开文件到指定行)</td>
+</tr>
+<tr>
+<td>⌃Tab/⌃⇧Tab</td>
+<td>打开下一个/上一个 <code>editor</code></td>
+</tr>
+<tr>
+<td>F12</td>
+<td>跳转到函数定义</td>
+</tr>
+<tr>
+<td>⌘F12</td>
+<td>跳转到函数实现</td>
+</tr>
+<tr>
+<td>⌥F12</td>
+<td><code>peek</code>函数定义</td>
+</tr>
+<tr>
+<td>⇧F12</td>
+<td>显示函数引用</td>
+</tr>
+<tr>
+<td>⌘K F12</td>
+<td>在新的分屏打开函数定义</td>
+</tr>
+<tr>
+<td>⌥Click</td>
+<td>插入光标</td>
+</tr>
+<tr>
+<td>⌥⌘⤒/⤓</td>
+<td>向上/下插入光标</td>
+</tr>
+<tr>
+<td>⌘U</td>
+<td>撤销上一个光标操作(比如多添加了一个光标)</td>
+</tr>
+<tr>
+<td>⇧⌥I</td>
+<td>在选中行的末尾插入光标</td>
+</tr>
+<tr>
+<td>⌘L</td>
+<td>选择当前行</td>
+</tr>
+<tr>
+<td>⇧⌘L</td>
+<td>选中所有当前选中内容</td>
+</tr>
+<tr>
+<td>⇧⌥拖动鼠标</td>
+<td>用多一列光标选择文本</td>
+</tr>
+<tr>
+<td>⇧⌥⌘方向键</td>
+<td>用多光标选择文本</td>
+</tr>
+<tr>
+<td>⌥⌘F</td>
+<td>替换文本</td>
+</tr>
+<tr>
+<td>⌘G/⇧⌘G</td>
+<td>查找下一个/上一个</td>
+</tr>
+<tr>
+<td>⌥Enter</td>
+<td>选中所有匹配查找的内容</td>
+</tr>
+<tr>
+<td>⌃'</td>
+<td>触发提示</td>
+</tr>
+<tr>
+<td>⇧⌘Space</td>
+<td>触发参数提示</td>
+</tr>
+<tr>
+<td>⇧⌥F</td>
+<td>格式化当前文件</td>
+</tr>
+<tr>
+<td>⌘K ⌘F</td>
+<td>格式化选中文本</td>
+</tr>
+<tr>
+<td>⌘.</td>
+<td><code>Quick Fix</code></td>
+</tr>
+<tr>
+<td>⌘K ⌘X</td>
+<td>修剪尾随空格</td>
+</tr>
+<tr>
+<td>⌘K M</td>
+<td>选择文件语言</td>
+</tr>
+<tr>
+<td>⇧⌘O</td>
+<td>查找并跳转到标识符</td>
+</tr>
+<tr>
+<td>F8/⇧F8</td>
+<td>跳转到下一个/上一个错误</td>
+</tr>
+<tr>
+<td>⌃-/⇧⌃-</td>
+<td>返回前进（之前访问过的位置）</td>
+</tr>
+<tr>
+<td>⌃⇧M</td>
+<td>切换选项卡移动焦点</td>
+</tr>
+<tr>
+<td>⌘N</td>
+<td>新建文件</td>
+</tr>
+<tr>
+<td>⌘O</td>
+<td>打开文件</td>
+</tr>
+<tr>
+<td>⌘S</td>
+<td>保存</td>
+</tr>
+<tr>
+<td>⇧⌘S</td>
+<td>另存为</td>
+</tr>
+<tr>
+<td>⌥⌘S</td>
+<td>保存全部</td>
+</tr>
+<tr>
+<td>⌘K P</td>
+<td>复制当前文件的路径</td>
+</tr>
+<tr>
+<td>⌘K R</td>
+<td>在 <code>finder</code> 中打开当前文件路径</td>
+</tr>
+<tr>
+<td>⌘K O</td>
+<td>在新窗口中打开当前文件</td>
+</tr>
+<tr>
+<td>⌃⌘F</td>
+<td>切换全屏</td>
+</tr>
+<tr>
+<td>⌥⌘0</td>
+<td>切换 <code>editor</code> 组水平和竖直显示</td>
+</tr>
+<tr>
+<td>⌘=/⌘-</td>
+<td>放大缩小</td>
+</tr>
+<tr>
+<td>⇧⌘V</td>
+<td>预览 <code>markdown</code></td>
+</tr>
+<tr>
+<td>⌘K V</td>
+<td>侧边预览 <code>markdown</code></td>
+</tr>
+<tr>
+<td>⇧⌘H</td>
+<td>替换文件</td>
+</tr>
+<tr>
+<td>⇧⌘J</td>
+<td>切换搜索细节</td>
+</tr>
+<tr>
+<td>F9</td>
+<td>切换断点</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>开始/继续</td>
+</tr>
+<tr>
+<td>F11/⇧F11</td>
+<td><code>step into/out</code></td>
+</tr>
+<tr>
+<td>F10</td>
+<td><code>step over</code></td>
+</tr>
+<tr>
+<td>⇧F5</td>
+<td><code>stop</code></td>
+</tr>
+<tr>
+<td>⇧⌘F5</td>
+<td><code>restart</code></td>
+</tr>
+<tr>
+<td>⌘K ⌘I</td>
+<td>显示悬停</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<ul>
+<li>在 <code>vscode</code> 中，单击鼠标左键：把光标移动到响应的位置；双击鼠标左键：将当前光标下的单词选中；三击鼠标左键：选中当前行代码；四次点击鼠标左键：选中整个文档</li>
+<li>鼠标左键单击行号：直接选中所在行；选中后，再按着⇧，鼠标左键再次选择行：可以选中多行代码</li>
+<li>悬停提示窗口：当鼠标移动到某些文件上之后，一会就会显示跟鼠标下文本相关的信息；如果鼠标放在某个函数上，按下⌘时，则能在悬停提示的窗口上看到该函数的实现。</li>
+<li>代码的跳转和链接：如果我们把鼠标放在函数上时，函数下方会出现一个下划线，然后当我们按下鼠标左键时，就能跳转到该函数的定义处。⌘ + 鼠标左键，跳转到函数、变量定义的地方。<code>Markdown</code> 中可以通过⌘ + 鼠标左键能打开超级链接</li>
+</ul>
+<blockquote>
+<p>所有光标移动的快捷只要加上 ⇧ 就能够在移动的同时选择经过的文本。选择代码块默认没有提供快捷键，也没法绑定，但是命令调色板里面有个命令 <code>select to bracket</code> 可以选择当前所在代码块。</p>
+</blockquote>
+<h3 id="字体和终端">字体和终端</h3>
+<p>如果你使用了 <code>zsh</code> 和 <code>oh-my-zsh</code> 来美化终端并且想在 <code>vscode</code> 中的终端中也一起使用的话，可以参考我的这篇<a href="https://www.clloz.com/programming/assorted/2019/09/08/iterm2-zsh-terminal/#vscode" title="文章">文章</a>的 <code>vscode</code> 部分，非常简单，就几行配置即可。</p>
+<p>然后是微软推出的字体 <code>Cascadia Code</code> 提供了 <code>font ligature</code> 连体字的功能，我个人觉得不错。如果你也想试试，<a href="https://github.com/microsoft/cascadia-code/releases" title="下载">下载</a>安装。然后在 <code>setting.json</code> 中添加配置 <code>&quot;editor.fontLigatures&quot;: true, &quot;editor.fontFamily&quot;: &quot;'Cascadia Code',</code>，你就设置好这个字体并开启 <code>font ligature</code> 了。</p>
+<h3 id="debug">Debug</h3>
+<p><code>vscode</code> 的 <code>debug</code> 是很重要的调试工具，灵活运用能够帮我们快速定位问题。这里我主要讲一些自己了解的前端调试相关的内容。</p>
+<h4 id="launchjson">launch.json</h4>
+<p><strong>一切以<a href="https://code.visualstudio.com/docs/editor/debugging" title="官方文档">官方文档</a>为准。<code>node</code> 调试<a href="https://code.visualstudio.com/docs/nodejs/nodejs-debugging" title="官方文档">官方文档</a></strong><br>
+我们 <code>debug</code> 之前需要在 <code>.vscode</code> 文件夹中创建 <code>launch.json</code> 文件，相当于我们 <code>debug</code> 的配置文件。我们可以手动创建，也可以在 <code>debug</code> 页面点击开始调试的按钮自动生成。我们可以在一个 <code>launch.json</code> 中有多个配置，<code>configuration</code> 是一个数组。<code>name</code> 属性就是我们每个配置的名字，在 <code>debug</code> 页面通过名字来选择我们 <code>debug</code> 用到的配置。比如最基础的调试 <code>node</code> 的配置。</p>
+<pre><code class="language-json">{
+	{
+		&quot;type&quot;: &quot;node&quot;,
+		&quot;request&quot;: &quot;launch&quot;,
+		&quot;name&quot;: &quot;Launch Program&quot;,
+		&quot;skipFiles&quot;: [&quot;&lt;node_internals&gt;/**&quot;],
+		&quot;program&quot;: &quot;${workspaceFolder}/client.js&quot;
+	}
+}
+
+</code></pre>
+<p>几个重要的参数：</p>
+<ul>
+<li><code>type</code>，必填项，调试类型，当前为 <code>node</code>，如果是 <code>PHP</code> 调试，则在安装 <code>PHP</code> 调试插件后写 <code>php</code>；</li>
+<li><code>request</code>，必填项，有两种类型，分别是 <code>launch</code> 和 <code>attach</code>，前者的意思就是 <code>VSCode</code> 会打开这个程序然后进入调试，后者的意思是你已经打开了程序，然后接通 <code>Node.js</code> 的内部调试协议进行调试。</li>
+<li>program，程序的启动入口；</li>
+</ul>
+<p>也可以使用如下配置，用 <code>runtimeExecutable</code> 和 <code>args</code> 代替 <code>program</code>。</p>
+<ul>
+<li><code>runtimeExecutable</code>，使用什么命令启动</li>
+<li><code>args</code>，启动时的参数</li>
+</ul>
+<pre><code class="language-json">{
+	{
+		&quot;name&quot;: &quot;调试 Node.js 程序 - args&quot;,
+		&quot;type&quot;: &quot;node&quot;,
+		&quot;request&quot;: &quot;launch&quot;,
+		&quot;runtimeExecutable&quot;: &quot;node&quot;,
+		&quot;args&quot;: [
+			&quot;${workspaceFolder}/src/index.js&quot;
+		]
+	}
+}
+</code></pre>
+<h5 id="launch-和-attach-共有属性">launch 和 attach 共有属性</h5>
+<ul>
+<li>sourceMaps - enable source maps by setting this to true. See section Source maps.</li>
+<li>outFiles - array of glob patterns for locating generated JavaScript files. See section Source maps.</li>
+<li>restart - restart session on termination. See section Restarting debug session automatically.</li>
+<li>timeout - when restarting a session, give up after this number of milliseconds. See section Attaching to Node.js.</li>
+<li>stopOnEntry - break immediately when the program launches.</li>
+<li>localRoot - VS Code's root directory. See section Remote debugging below.</li>
+<li>remoteRoot - Node's root directory. See section Remote debugging below.</li>
+<li>smartStep- try to automatically step over code that doesn't map to source files. See section Smart stepping.</li>
+<li>skipFiles - automatically skip files covered by these glob patterns. See section Skipping uninteresting code.</li>
+<li>trace - enable diagnostic output.</li>
+</ul>
+<h5 id="launch-独有属性">launch 独有属性</h5>
+<ul>
+<li>program - an absolute path to the Node.js program to debug.</li>
+<li>args - arguments passed to the program to debug. This attribute is of type array and expects individual arguments as array elements.</li>
+<li>cwd - launch the program to debug in this directory.</li>
+<li>runtimeExecutable - absolute path to the runtime executable to be used. Default is node. See section Launch configuration support for 'npm' and other tools.</li>
+<li>runtimeArgs - optional arguments passed to the runtime executable.</li>
+<li>runtimeVersion - if &quot;nvm&quot; (or &quot;nvm-windows&quot;) or &quot;nvs&quot; is used for managing Node.js versions, this attribute can be used to select a specific version of Node.js. See section Multi version support below.</li>
+<li>env - optional environment variables. This attribute expects environment variables as a list of string typed key/value pairs.</li>
+<li>envFile - optional path to a file containing environment variable definitions. See section Load environment variables from external file below.</li>
+<li>console - kind of console to launch the program (internalConsole, integratedTerminal, externalTerminal). See section Node Console below.</li>
+<li>outputCapture - if set to std, output from the process stdout/stderr will be shown in the Debug Console, instead of listening to output over the debug port. This is useful for programs or log libraries that write directly to the stdout/stderr streams instead of using console.* APIs.</li>
+<li>autoAttachChildProcesses - track all subprocesses of debuggee and automatically attach to those that are launched in debug mode. See section Automatically attach debugger to Node.js subprocesses below.</li>
+</ul>
+<h5 id="attach-独有属性">attach 独有属性</h5>
+<ul>
+<li>protocol - debug protocol to use. See section Supported Node-like runtimes above.</li>
+<li>port - debug port to use. See sections Attaching to Node.js and Remote debugging.</li>
+<li>address - TCP/IP address of the debug port. See sections Attaching to Node.js and Remote debugging.</li>
+<li>processId - the debugger tries to attach to this process after having sent a USR1 signal. With this setting, the debugger can attach to an already running process that was not started in debug mode. When using the processId attribute the debug port is determined automatically based on the Node.js version (and the used protocol) and cannot be configured explicitly. So don't specify a port attribute</li>
+</ul>
+<blockquote>
+<p>可以借助 <code>Debugger for Chrome</code> 插件在 <code>chrome</code> 中调试代码，具体细节参考插件介绍。</p>
+</blockquote>
+<h4 id="界面介绍">界面介绍</h4>
+<p>左侧的工作区有四个部分：<code>VARIABLE</code>，<code>WATCH</code>，<code>CALL STACK</code> 和 <code>BREAKPOINTS</code>。</p>
+<ul>
+<li><code>VARIABLE</code> 显示当前函数所能访问的变量，包括函数内部变量，闭包中的变量和全局变量。</li>
+<li><code>WATCH</code> 我们可以添加我们要监测的对象或者变量，他们会实时显示我们监测的变量在调试过程中的变化。</li>
+<li><code>CALL STACK</code> 显示调用栈</li>
+<li><code>BREAKPOINTS</code> 显示断点，断点有三种，普通断点，条件断点和 <code>log</code> 断点</li>
+</ul>
+<p>当我们进入调试后，会有几个按钮可供我们操作。</p>
+<p><code>continue</code>：执行到下一个断点。<br>
+<code>step over</code>：单步执行，但子函数会被当做一个单步全部执行完，不会进入子函数。<br>
+<code>step into</code>：单步执行，进入子函数继续单步执行。<br>
+<code>step out</code>： 当单步执行到子函数内时，用 <code>step out</code> 就可以执行完子函数余下部分，并返回到上一层函数。<br>
+<code>restart</code>：重新开始调试，<br>
+<code>stop</code>： 结束调试。</p>
+<blockquote>
+<p>当前的 <code>node</code> 的 <code>inspector</code> 似乎是有 <code>bug</code>，具体内容看<a href="https://github.com/nodejs/node/issues/27261" title="Github issue">Github issue</a>。</p>
+</blockquote>
+<p>在下方的工作区的 <code>debug console</code> 标签中我们是可以在 <code>dug</code> 的过程中进行表达式的运算的。<code>debug console</code> 中的对象展开必须在 <code>debug</code> 过程中，当然在 <code>debug</code> 过程中我们也可以将鼠标放在对象名上查看对象。</p>
+<h3 id="插件">插件</h3>
+<p>这个小节写一些我觉得不错的插件</p>
+<h4 id="korofileheader">koroFileHeader</h4>
+<p><a href="https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE" title="koroFileHeader">koroFileHeader</a>是在 <code>vscode</code> 中用于生成文件头部注释和函数注释的插件。他的功能主要就是添加文件头部注释和添加函数注释。快捷键：<code>Windows</code>：⌃ + ⌥ + i；<code>Mac</code>：⌃ + ⌘ + i；<code>Linux</code>: ⌃ + meta + i。创建和保存文件时会自动创建注释以及更新时间。</p>
+<p>详细的配置选项参考 <a href="https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE" title="koroFileHeader - Wiki - Github">koroFileHeader - Wiki - Github</a></p>
+<h3 id="总结">总结</h3>
+<p>本文总结了一些我觉得比较有用的 <code>vscode</code> 的使用技巧，以后学习到新的内容也会继续更新本文。</p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://www.barretlee.com/blog/2019/03/18/debugging-in-vscode-tutorial/" title="VSCode 调试中 launch.json 配置不完全指南">VSCode 调试中 launch.json 配置不完全指南</a></li>
+<li><a href="https://www.barretlee.com/blog/2019/11/15/vscode-study-03-debug-protocol/" title="解密 VS Code 断点调试的原理">解密 VS Code 断点调试的原理</a></li>
+<li><a href="https://www.barretlee.com/blog/2015/10/07/debug-nodejs-in-command-line/" title="NodeJS的代码调试和性能调优">NodeJS的代码调试和性能调优</a></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/assorted/" class="tag">
+                    Assorted
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/wordpress-permissions/">
+                  <h3 class="post-title">
+                    WordPress文件权限问题
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

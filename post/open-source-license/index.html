@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+<title>开源许可证的选择 | Clloz - 素直になれない</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!--<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">-->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.7.2/css/all.css" />
+<link rel="shortcut icon" href="https://clloz.github.io//favicon.ico?v=1601183665672" />
+<link rel="stylesheet" href="https://clloz.github.io//styles/main.css" />
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="本文结合阮一峰老师的文章和 Github 的文档对常见的开源许可证进行了总结。
+
+Clloz
+本文首发于个人博客clloz.com
+前言
+开源许可证授予任何人以任何目的使用，修改和共享许可软件的权限，但要遵守保护该软件的来源和开放性的条件。..." />
+    <meta name="keywords" content="Assorted" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://clloz.github.io/">
+        <img src="https://clloz.github.io//images/avatar.png?v=1601183665672" class="site-logo">
+        <h1 class="site-title">Clloz - 素直になれない</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/Clloz" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://twitter.com/Clloz1992" target="_blank">
+            <i class="fab fa-twitter"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://weibo.com/clloz" target="_blank">
+            <i class="fab fa-weibo"></i>
+          </a>
+        
+      
+        
+          <a class="social-link" href="https://www.zhihu.com/people/Clloz" target="_blank">
+            <i class="fab fa-zhihu"></i>
+          </a>
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      博观而约取，厚积而薄发<br>
+本网站为<a href="https://www.clloz.com" target="_blank">个人博客</a>的备份
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://clloz.github.io//atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">开源许可证的选择</h2>
+            <div class="post-date">2020-08-04</div>
+            
+              <div class="feature-container" style="background-image: url('https://clloz.github.io//post-images/open-source-license.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <p>本文结合阮一峰老师的文章和 Github 的文档对常见的开源许可证进行了总结。</p>
+<!-- more -->
+<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p>开源许可证授予任何人以任何目的使用，修改和共享许可软件的权限，但要遵守保护该软件的来源和开放性的条件。对于常用的开源许可证我们要理解他们的区别才能正确使用。常用的许可证区别可以看下图。</p>
+<figure data-type="image" tabindex="1"><img src="https://img.clloz.com/blog/writing/open-source-license.png" alt="open-source-license" title="open-source-license" loading="lazy"></figure>
+<blockquote>
+<p><code>github</code> 有一个<a href="https://choosealicense.com/" title="页面">页面</a>帮助你选择开源许可证，另外还有一个网站<a href="https://choosealicense.com/licenses/" title="choosealicense">choosealicense</a>也有主要的许可证介绍。</p>
+</blockquote>
+<h3 id="许可证介绍">许可证介绍</h3>
+<p>开源许可证可以分为两类：</p>
+<ul>
+<li>宽松式（<code>permissive</code>）许可证：最基本的类型，对用户几乎没有限制。用户可以修改代码后闭源。用户可以使用代码，做任何想做的事情，不保证代码质量，用户自担风险，用户必须披露原始作者。常见的宽松式许可证有：<code>BSD</code>，<code>MIT</code>，<code>Apache 2.0</code>。</li>
+<li><code>Copyleft</code> 许可证：比宽松式许可证严格。如果分发二进制格式，必须提供源码修改后的源码，必须与修改前保持许可证一致，不得在原始许可证以外，附加其他限制。核心就是修改后的代码不可以闭源。</li>
+</ul>
+<blockquote>
+<p><code>Copyleft</code> 是理查德·斯托曼发明的一个词，作为 <code>Copyright</code> （版权）的反义词。<code>Copyright</code> 直译是&quot;复制权&quot;，这是版权制度的核心，意为不经许可，用户无权复制。作为反义词，<code>Copyleft</code> 的含义是不经许可，用户可以随意复制。</p>
+</blockquote>
+<h4 id="bsd">BSD</h4>
+<p><code>BSD</code> 有两个版本，两个版本的共同要求是分发软件时，必须保留原始的许可证声明。另外一个附加条款是不得使用原始作者的名字为软件促销。</p>
+<h4 id="mit-license">MIT License</h4>
+<p><code>MIT License</code> 是一个非常宽松的许可证，你只要保留版权声明和许可声明就可以。你可以用代码做任何事情，包括闭源你的项目。使用这个许可证的项目有 <code>Babel</code>, <code>.NET Core</code>,  <code>Rails</code> 和 <code>jQuery</code> 等。</p>
+<h4 id="apache-license-20">Apache License 2.0</h4>
+<p><code>Apache License</code> 和 <code>MIT License</code> 类似，都很宽松，但是他包含了贡献者向用户提供专利授权相关的条款，分发软件时，必须保留原始的许可证声明。凡是修改过的文件，必须向用户说明该文件修改过；没有修改过的文件，必须保持许可证不变。使用该许可证的项目有 <code>Apache</code>、<code>SVN</code> 和 <code>NuGet</code>。</p>
+<h4 id="gnu-gplv3">GNU GPLv3</h4>
+<p>许可证。这是一种 <code>Copyleft</code> 许可证，要求修改项目代码的用户再次分发源码或二进制代码时，必须公布他的相关修改。</p>
+<h4 id="gnu-lgplv3">GNU LGPLv3</h4>
+<p>和 <code>GPL</code> 的区别是：如果项目采用接口调用该许可证的库，项目可以不用开源。</p>
+<h4 id="mozilla-public-license-20">Mozilla Public License 2.0</h4>
+<p>只要该许可证的代码在单独的文件中，新增的其他文件可以不用开源。</p>
+<h4 id="不添加许可证">不添加许可证</h4>
+<p>如果你不添加任何许可证，那么你的代码默认具有专有版权，别人不可以复制、分发和修改。当代码超过一个贡献者时，连你自己也不可以进行复制，分发和修改。<code>Github</code> 有用户协议，可以让其他用户查看和复制你的代码，但不代表可以用这个代码去做其他的事情。</p>
+<h3 id="github-添加许可证">Github 添加许可证</h3>
+<p>想要知道一个 <code>Github</code> 仓库的许可证，看项目的页面右边的 <code>About</code> 区域即可（老版的 <code>Github</code> 在文件列表上方的 <code>tab</code> 末尾）</p>
+<p>如何为我们的项目添加一个 <code>license</code> 呢，我们只要点击页面上的 <code>creat new file</code> 然后文件名填写 <code>LICENSE</code> （全大写），右边会出现一个 <code>choose a license template</code> 按钮，点进去选择自己想要的 <code>license</code> 然后完成文件的创建即可。具体流程参考<a href="https://docs.github.com/cn/github/building-a-strong-community/adding-a-license-to-a-repository" title="添加许可到仓库">添加许可到仓库</a></p>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://www.ruanyifeng.com/blog/2017/10/open-source-license-tutorial.html" title="开源许可证教程">开源许可证教程</a></li>
+</ol>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://clloz.github.io/tag/assorted/" class="tag">
+                    Assorted
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://clloz.github.io/post/vs-code-tips/">
+                  <h3 class="post-title">
+                    VS Code使用技巧
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

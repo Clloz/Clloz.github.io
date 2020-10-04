@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://clloz.github.io/</id>
     <title>Clloz - 素直になれない</title>
-    <updated>2020-09-27T16:53:04.119Z</updated>
+    <updated>2020-10-04T11:02:15.272Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://clloz.github.io/"/>
     <link rel="self" href="https://clloz.github.io/atom.xml"/>
@@ -11,6 +11,200 @@
     <logo>https://clloz.github.io/images/avatar.png</logo>
     <icon>https://clloz.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, Clloz - 素直になれない</rights>
+    <entry>
+        <title type="html"><![CDATA[JavaScript 中的按位操作符]]></title>
+        <id>https://clloz.github.io/post/bitwise-operator/</id>
+        <link href="https://clloz.github.io/post/bitwise-operator/">
+        </link>
+        <updated>2020-10-04T11:01:13.000Z</updated>
+        <content type="html"><![CDATA[<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
+<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
+<h3 id="前言">前言</h3>
+<p><code>JavaScript</code> 提供了多种按位操作符，由于不是很了解，我使用频率很低。不过经常看到别人的代码中利用按位操作符简化代码，在一些场景下能够更有效率。本文记录学习按位操作符的笔记。</p>
+<h3 id="按位操作符">按位操作符</h3>
+<p><code>JavaScript</code> 中的按位操作符见下表：</p>
+<table>
+<thead>
+<tr>
+<th>运算符</th>
+<th>用法</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>按位与（ <code>AND</code>）</td>
+<td><code>a &amp; b</code></td>
+<td>对于每一个比特位，只有两个操作数相应的比特位都是 <code>1</code> 时，结果才为 <code>1</code>，否则为 <code>0</code>。</td>
+</tr>
+<tr>
+<td>按位或（<code>OR</code>）</td>
+<td><code>a | b</code></td>
+<td>对于每一个比特位，当两个操作数相应的比特位至少有一个 <code>1</code> 时，结果为 <code>1</code>，否则为 <code>0</code>。</td>
+</tr>
+<tr>
+<td>按位异或（<code>XOR</code>）</td>
+<td><code>a ^</code></td>
+<td>对于每一个比特位，当两个操作数相应的比特位有且只有一个 <code>1</code> 时，结果为 <code>1</code>，否则为 <code>0</code>。</td>
+</tr>
+<tr>
+<td>按位非（<code>NOT</code>）</td>
+<td><code>~ a</code></td>
+<td>反转操作数的比特位，即 <code>0</code> 变成 <code>1</code>，<code>1</code> 变成 <code>0</code>。</td>
+</tr>
+<tr>
+<td>左移（<code>Left shift</code>）</td>
+<td><code>a &lt;&lt; b</code></td>
+<td>将 <code>a</code> 的二进制形式向左移 <code>b (&lt; 32)</code> 比特位，右边用 <code>0</code> 填充。</td>
+</tr>
+<tr>
+<td>有符号右移</td>
+<td><code>a &gt;&gt; b</code></td>
+<td>将 <code>a</code> 的二进制表示向右移 <code>b (&lt; 32)</code> 位，丢弃被移出的位。</td>
+</tr>
+<tr>
+<td>无符号右移</td>
+<td><code>a &gt;&gt;&gt; b</code></td>
+<td>将 <code>a</code> 的二进制表示向右移 <code>b (&lt; 32)</code> 位，丢弃被移出的位，并使用 <code>0</code> 在左侧填充。</td>
+</tr>
+</tbody>
+</table>
+<p>所有的按位操作符的操作数都会被转成补码形式的有符号 <code>32</code> 位二进制整数。关于补码的知识，可以参考我的另一片文章<a href="https://www.clloz.com/programming/assorted/2019/06/05/true-form-ones-complement-twos-complement/" title="原码，反码和补码">原码，反码和补码</a>。如果操作数是一个非数字，我们需要注意 <code>JavaScript</code> 会将它转化为什么：</p>
+<pre><code class="language-javascript">Number(null) //0
+Number(undefined) //NaN
+Number([]) //0
+Number([1,2,3]) //NaN
+Number(true) //1
+Number(false) //0
+Number('123') //123
+Number('abc') //NaN
+Number('') //0
+Number(Symbol(123)) //Uncaught TypeError: Cannot convert a Symbol value to a number
+</code></pre>
+<h4 id="按位逻辑操作符">按位逻辑操作符</h4>
+<p>按位逻辑操作符（按位与 <code>&amp;</code>， 按位或 <code>|</code>，按位异或 <code>^</code>，按位非 <code>~</code>）的规则：操作数被转换成 <code>32</code> 位二进制整数，超过 <code>32</code> 位的数字会被丢弃。第一个操作数的每个比特位与第二个操作数的相应比特位匹配（匹配规则见下方无序列表）：第一位对应第一位，第二位对应第二位，以此类推。位运算符应用到每对比特位，结果是新的比特值。</p>
+<p>位匹配规则：</p>
+<ul>
+<li>按位与 <code>&amp;</code>：对每对比特位执行与（<code>AND</code>）操作。只有 <code>a</code> 和 <code>b</code> 都是 <code>1</code> 时，<code>a AND b</code> 才是 <code>1</code>。将任一数值 <code>x</code> 与 <code>0</code> 执行按位与操作，其结果都为 <code>0</code>。将任一数值 <code>x</code> 与 <code>-1</code> 执行按位与操作，其结果都为 <code>x</code>。</li>
+<li>按位或 <code>|</code>：对每一对比特位执行或（<code>OR</code>）操作。如果 <code>a</code> 或 <code>b</code> 为 <code>1</code>，则 <code>a OR b</code> 结果为 <code>1</code>。将任一数值 <code>x</code> 与 <code>0</code> 进行按位或操作，其结果都是 <code>x</code>。将任一数值 <code>x</code> 与 <code>-1</code> 进行按位或操作，其结果都为 <code>-1</code>。</li>
+<li>按位异或 <code>^</code>: 对每一对比特位执行异或（<code>XOR</code>）操作。当 <code>a</code> 和 <code>b</code> 不相同时，<code>a XOR b</code> 的结果为 <code>1</code>。将任一数值 <code>x</code> 与 <code>0</code> 进行异或操作，其结果为 <code>x</code>。将任一数值 <code>x</code> 与 <code>-1</code> 进行异或操作，其结果为 <code>~x</code>。</li>
+<li>对每一个比特位执行非（<code>NOT</code>）操作。<code>NOT a</code> 结果为 <code>a</code> 的反码。对任一数值 <code>x</code> 进行按位非操作的结果为 <code>-(x + 1)</code>。比如 <code>~str.indexOf(searchFor)</code> 可以判断字符 <code>searchFor</code> 是否在 <code>str</code> 中出现，当 <code>indexOf</code> 返回 <code>-1</code> 时，<code>~str.indexOf(searchFor)</code> 的结果为 <code>0</code>。</li>
+</ul>
+<blockquote>
+<p>这里需要注意，所有的按位操作符都是用 <code>32</code> 位<strong>有符号二进制补码</strong>进行计算的，所以上面的位匹配规则中用 <code>-1</code> 来说明，在补码中 <code>-1</code> 就是全为 <code>1</code>。<code>~x</code> 表示 <code>x</code> 取反。<code>NaN</code> 作为操作数的表现和 <code>0</code> 相同，比如 <code>({}) &amp; -1</code> 的结果为 <code>0</code>。</p>
+</blockquote>
+<h4 id="按位移动操作符">按位移动操作符</h4>
+<p>按位移动操作符（按位左移 <code>&lt;&lt;</code>，有符号按位右移 <code>&gt;&gt;</code>，无符号按位右移 <code>&gt;&gt;&gt;</code>）有两个操作数：第一个是要被移动的数字，而第二个是要移动的长度。移动的方向根据操作符的不同而不同。</p>
+<p>按位移动会先将操作数转换为大端字节序顺序(<code>big-endian order</code>)的 <code>32</code> 位整数,并返回与左操作数相同类型的结果。右操作数应小于 <code>32</code> 位，否则只有最低 <code>5</code> 个字节会被使用。</p>
+<blockquote>
+<p><code>Big-Endian</code>:高位字节排放在内存的低地址端，低位字节排放在内存的高地址端，又称为&quot;高位编址&quot;，是最直观的字节序。</p>
+</blockquote>
+<ul>
+<li>按位左移 <code>&lt;&lt;</code>：该操作符会将第一个操作数向左移动指定的位数。向左被移出的位被丢弃，右侧用 <code>0</code> 补充。<code>9 &lt;&lt; 2</code> 结果为 <code>36</code>，即 <code>1001</code> 变为 <code>100100</code>。</li>
+<li>有符号按位右移 <code>&gt;&gt;</code>：该操作符会将第一个操作数向右移动指定的位数。向右被移出的位被丢弃，拷贝最左侧的位以填充左侧。由于新的最左侧的位总是和以前相同，符号位没有被改变。所以被称作“符号传播”。<code>9&gt;&gt;2</code> 结果为 <code>2</code>，即 <code>1001</code> 变为 <code>0010</code>；<code>-9&gt;&gt;2</code> 结果为 <code>-3</code>，即 <code>11111111111111111111111111110111</code> 变为 <code>11111111111111111111111111111101</code>。</li>
+<li>无符号按位右移 <code>&lt;&lt;</code>：该操作符会将第一个操作数向右移动指定的位数。向右被移出的位被丢弃，左侧用 <code>0</code> 填充。因为符号位变成了 <code>0</code>，所以结果总是非负的。对于非负数，有符号右移和无符号右移总是返回相同的结果。（即便右移 <code>0</code> 个比特，结果也是非负的，可以理解为将补码直接当做正数，比如 <code>--1</code> 的补码是 <code>32</code> 个 <code>1</code>，那么 <code>-1 &gt;&gt;&gt;0</code> 的结果就是 <code>4294967295</code>）</li>
+</ul>
+<h3 id="应用">应用</h3>
+<p>上面介绍了 <code>JavaScript</code> 中的位运算概念，本节介绍一些比较常见的应用场景。</p>
+<h4 id="掩码-bitmask">掩码 bitmask</h4>
+<p>所谓掩码其实就是一串二进制数，我们通过 <strong>与/或</strong> 的操作来读取标志位。主要利用的特性就是任何数与 <code>0</code> 进行<strong>与</strong>操作都是 <code>0</code>，任何数与 <code>1</code> 进行<strong>或</strong>操作都是 <code>1</code>。</p>
+<p>比如我们常见的子网掩码就是一种应用，为了区分我们 <code>IP</code> 地址中的网络号与主机号，用子网掩码来做 <strong>与</strong> 操作即可。我们的 <code>IP</code> 的地址是 <code>4</code> 字节，子网掩码也是 <code>4</code> 字节，当我们的子网掩码是 <code>255.255.255.0</code> 的时候，其实就是 <code>11111111.11111111.11111111.00000000</code>，当我们的 <code>IP</code> 地址和子网掩码进行<strong>与</strong>操作之后，只会留下前面 <code>24</code> 位，这 <code>24</code> 位也就是我们的主机号。也就是说，子网掩码就是将网络号对应的位全部设为 <code>1</code>，而主机号的位设为 <code>0</code>，可以很方便的知道我们的网络号和主机号。</p>
+<p>在 <code>JavaScript</code> 中也有应用，比如 <code>MouseEvent.buttons</code> 就是用的掩码的形式来分辨当前按下了哪些鼠标上的键，用六位二进制数作为标志位，</p>
+<ul>
+<li>0  : 没有按键或者是没有初始化</li>
+<li>1  : 鼠标左键</li>
+<li>2  : 鼠标右键</li>
+<li>4  : 鼠标滚轮或者是中键</li>
+<li>8  : 第四按键 (通常是“浏览器后退”按键)</li>
+<li>16 : 第五按键 (通常是“浏览器前进”)</li>
+</ul>
+<p>我们可以利用掩码来进行一些状态的保存和判断，用法主要是</p>
+<ul>
+<li>用<strong>或</strong>运算设置标志位，掩码中为 <code>1</code> 的位可以设置对应的位，比如 <code>0011</code> 就可以将最后两位都设置为 <code>1</code>。</li>
+<li>用<strong>与</strong>运算清除标志位，利用掩码中的 <code>0</code> 将目标位置进行重置。比如 <code>0000</code> 可以将目标的四位全部置为 <code>0</code>。</li>
+<li>用<strong>与</strong>运算获得目标位置的状态，比如 <code>0010</code> 与目标进行<strong>与</strong>运算可以获得目标第三位的状态。</li>
+<li>用<strong>异或</strong>运算切换标志位状态，掩码中的 <code>1</code> 能够让目标位置的状态切换。</li>
+</ul>
+<p>我们可以用左移运算符进行掩码的自动化创建，无符号右移将掩码转化为布尔值：</p>
+<pre><code class="language-javascript">//布尔值转掩码
+function createMask () {
+  var nMask = 0, nFlag = 0, nLen = arguments.length &gt; 32 ? 32 : arguments.length;
+  for (nFlag; nFlag &lt; nLen; nMask |= arguments[nFlag] &lt;&lt; nFlag++);
+  return nMask;
+}
+var mask1 = createMask(true, true, false, true); // 11, 0b1011
+var mask2 = createMask(false, false, true); // 4, 0b0100
+var mask3 = createMask(true); // 1, 0b0001
+
+//掩码转布尔值
+function arrayFromMask (nMask) {
+  // nMask 必须介于 -2147483648 和 2147483647 之间，去除符号位还有31位
+  if (nMask &gt; 0x7fffffff || nMask &lt; -0x80000000) { 
+    throw new TypeError(&quot;arrayFromMask - out of range&quot;); 
+  }
+  for (var nShifted = nMask, aFromMask = []; nShifted; 
+       aFromMask.push(Boolean(nShifted &amp; 1)), nShifted &gt;&gt;&gt;= 1);
+  return aFromMask;
+}
+
+var array1 = arrayFromMask(11); //[true, true, false, true]
+var array2 = arrayFromMask(4); //[false, false, true]
+var array3 = arrayFromMask(1); //[true]
+</code></pre>
+<h4 id="乘除">乘除</h4>
+<p>我们的右移相当于<strong>除2</strong>，左移相当于<strong>乘2</strong>。</p>
+<pre><code class="language-javascript">let a = -10;
+a &gt;&gt; 1; // -5
+a &lt;&lt; 1; // -20
+</code></pre>
+<h4 id="交换两个数的值">交换两个数的值</h4>
+<p>利用异或的特点，我们可以不创建第三个变量进行两个变量值的交换，</p>
+<pre><code class="language-javascript">let a = 100, b = -100;
+a ^ = b; //a = a ^ b
+b ^ = a; //b = b ^ b ^ a -&gt; a
+a ^ = b; // a = a ^ a ^ b -&gt; b
+</code></pre>
+<p>这主要利用的是异或的交换律，即 <code>a ^ b</code> 和 <code>b ^ a</code> 是相等的；以及异或自身的结果为 <code>0</code>，任何值和 <code>0</code> 进行异或结果都为自身。</p>
+<h4 id="判断奇偶">判断奇偶</h4>
+<p>二进制数只有最后一位是 <code>0</code> 就是偶数，最后一位是 <code>1</code> 就是奇数，我们可以利用这一点进行判断，</p>
+<pre><code class="language-javascript">if ( 0 === (a &amp; 1)) {
+	console.log('an even number')
+} else {
+	console.log('an odd number')
+}
+</code></pre>
+<h4 id="变更符号">变更符号</h4>
+<p>对于二进制补码，有 <code>X + ~X + 1 = 0</code>，变形可得 <code>-X = ~X + 1</code>，所以一个数的相反数就是按位取反再加一。</p>
+<pre><code class="language-javascript">let a = 10;
+console.log(~a + 1); //-10
+</code></pre>
+<p>利用这一特性我们也可以求绝对值，只要先判断值的正负即可。利用 <code>a &gt;&gt; 31</code> 即可判断正负，正数右移 <code>31</code> 位后结果为 <code>0</code>，负数右移 <code>31</code> 位后结果为 <code>-1</code>，如果是负数则求其相反数。求绝对值还有一个更简化一点的办法：</p>
+<pre><code class="language-javascript">let a = -10
+let i = a &gt;&gt; 31;
+console.log((a^i) - i); //10
+</code></pre>
+<p>主要就是利用任何数与 <code>-1</code> 进行异或运算就是取反。</p>
+<h4 id="高低位交换">高低位交换</h4>
+<p>比如一个 <code>16位</code> 无符号整数，我们可以利用位运算进行高八位第八位的交换。<code>a &lt;&lt; 8 | a &gt;&gt; 8</code></p>
+<h4 id="求最小的2的整数次幂约数">求最小的2的整数次幂约数</h4>
+<p>给定一个数，想求其最小的整数次幂约数可以用 <code>a &amp; -a</code>。求最小的 <code>2</code> 的整数次幂约数其实就是找其二进制表示中从右往左数第一个 <code>1</code>。利用 <code>-a = ~a + 1</code> 可以找到这个 <code>1</code> 的位置。</p>
+<h4 id="计算二进制数中-1-的个数">计算二进制数中 <code>1</code> 的个数</h4>
+<pre><code class="language-javascript">let count = 0;
+let a = 100;
+while(a){
+  a = a &amp; (a - 1);
+  count++;
+}
+console.log(count) //3
+console.log(100. toString(2)) //1100100
+</code></pre>
+<h3 id="参考文章">参考文章</h3>
+<ol>
+<li><a href="https://www.zhihu.com/question/38206659/answer/736472332" title="位运算有什么奇技淫巧？ - 力扣（LeetCode）的回答 - 知乎 ">位运算有什么奇技淫巧？ - 力扣（LeetCode）的回答 - 知乎 </a></li>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Bitwise_Operators" title="按位操作符 - MDN">按位操作符 - MDN</a></li>
+</ol>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[实现一个 JS 动画模块]]></title>
         <id>https://clloz.github.io/post/js-animation-module/</id>
@@ -1173,108 +1367,6 @@ console.log(!!new Boolean('')) //true
 <ol>
 <li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain" title="继承与原型链">继承与原型链 - MDN</a></li>
 <li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/proto" title="Object.prototype.__proto__ - MDN">Object.prototype.<strong>proto</strong> - MDN</a></li>
-</ol>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Object.create(null) 和 {...}]]></title>
-        <id>https://clloz.github.io/post/object-create-null/</id>
-        <link href="https://clloz.github.io/post/object-create-null/">
-        </link>
-        <updated>2020-09-10T13:59:32.000Z</updated>
-        <summary type="html"><![CDATA[<p>一些库的作者创建空对象的时候会使用 Object.create(null)，这么做的好处和意义是什么，它和字面量方式创建空对象有什么不同，本文对此进行分析。</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>一些库的作者创建空对象的时候会使用 Object.create(null)，这么做的好处和意义是什么，它和字面量方式创建空对象有什么不同，本文对此进行分析。</p>
-<!-- more -->
-<p id="my-logo"><a href="https://www.clloz.com">Clloz</a></p>
-<p>本文首发于个人博客<a href="https://www.clloz.com">clloz.com</a></p>
-<h3 id="前言">前言</h3>
-<p>我们会在一些框架的源码中看到作者用 <code>Object.create(null)</code> 来初始化一个新的对象，和我们平常使用的对象字面量 <code>{}</code> 不同。本文讲解一下这两者的区别。</p>
-<h3 id="对象初始化">对象初始化</h3>
-<p>在 <code>JavaScript</code> 中初始化对象的方法有三种：<code>Object.create()</code>，<code>new Object()</code> 和字面量标记。我们分别来讲一讲三者的区别。</p>
-<h4 id="objectcreate">Object.create()</h4>
-<p><code>Object.create()</code> 方法接受两个参数，一个是新对象的原型对象，一个是要添加到新对象的属性（可选，是一个对象，添加的属性默认不可枚举，属性的形式参考 <code>Object.defineProperty()</code>）。返回值一个新对象，带着指定的原型对象和属性。</p>
-<p><code>Object.create()</code> 内部的原理参考 <code>MDN</code> 的实现：</p>
-<pre><code class="language-javascript">//请注意，尽管在 ES5 中 Object.create支持设置为[[Prototype]]为null，但因为那些ECMAScript5以前版本限制，此 polyfill 无法支持该特性。
-if (typeof Object.create !== &quot;function&quot;) {
-    Object.create = function (proto, propertiesObject) {
-        if (typeof proto !== 'object' &amp;&amp; typeof proto !== 'function') {
-            throw new TypeError('Object prototype may only be an Object: ' + proto);
-        } else if (proto === null) {
-            throw new Error(&quot;This browser's implementation of Object.create is a shim and doesn't support 'null' as the first argument.&quot;);
-        }
-
-        if (typeof propertiesObject !== 'undefined') throw new Error(&quot;This browser's implementation of Object.create is a shim and doesn't support a second argument.&quot;);
-
-        function F() {}
-        F.prototype = proto;
-
-        return new F();
-    };
-}
-</code></pre>
-<p><code>Object.create()</code> 可以帮我们实现继承，并且配置属性特性。也可以结合 <code>Object.assign()</code> 来实现多继承。</p>
-<pre><code class="language-javascript">function MyClass() {
-     SuperClass.call(this);
-     OtherSuperClass.call(this);
-}
-
-// 继承一个类
-MyClass.prototype = Object.create(SuperClass.prototype);
-// 混合其它
-Object.assign(MyClass.prototype, OtherSuperClass.prototype);
-// 重新指定constructor
-MyClass.prototype.constructor = MyClass;
-
-MyClass.prototype.myMethod = function() {
-     // do a thing
-};
-</code></pre>
-<h4 id="new-object">new Object()</h4>
-<p>在 <code>JavaScript</code> 中，几乎所有的对象都是 <code>Object</code> 类型的实例，它们都会从 <code>Object.prototype</code> 继承属性和方法。<code>Object</code>  构造函数为给定值创建一个对象包装器。用 <code>Object</code> 构造函数创建新的对象，参数接收任何值，但是根据值的不同会产生不同的对象。</p>
-<ul>
-<li>如果给定值是 <code>null</code> 或 <code>undefined</code>，将会创建并返回一个空对象（没有给定值也可以认为是 <code>undefined</code>）</li>
-<li>如果传进去的是一个基本类型的值，则会构造其包装类型的对象</li>
-<li>如果传进去的是引用类型的值，仍然会返回这个值，经他们复制的变量保有和源对象相同的引用地址</li>
-<li>当以非构造函数形式被调用时，<code>Object</code> 的行为等同于 <code>new Object()</code>。</li>
-</ul>
-<p>在实际编码中我们很少用到这种方式初始化对象。</p>
-<h4 id="对象字面量">对象字面量</h4>
-<p>一个对象初始化器，由花括号<code>{}</code> 包含的一个由零个或多个对象属性名和其关联值组成的一个逗号分隔的列表构成。这是我们最常使用的一种初始化对象的方式。之所以使用最频繁，是因为他是最方便的一种创建对象的方式。我们可以在创建对象的时候同时创建属性，并且在 <code>ES6</code> 之后，字面量方式创建对象添加了更多支持，包括扩展运算符，计算属性名等。</p>
-<p>定义属性为 <code>__proto__:</code> 值 或 <code>&quot;__proto__&quot;:</code> 值 时，不会创建名为 <code>__proto__</code> 属性。如果给出的值是对象或者 <code>null</code>，那么对象的 <code>[[Prototype]]</code> 会被设置为给出的值。注意的是一定要使用冒号的方式定义，不使用冒号标记的属性定义，不会变更对象的原型；而是和其他具有不同名字的属性一样是普通属性定义。下面这些形式都不可以。</p>
-<pre><code class="language-javascript">var __proto__ = &quot;variable&quot;;
-
-var obj1 = { __proto__ };
-console.log(Object.getPrototypeOf(obj1) === Object.prototype); //true
-console.log(obj1.hasOwnProperty(&quot;__proto__&quot;)); //true
-console.log(obj1.__proto__ === &quot;variable&quot;); //true
-
-var obj2 = { __proto__() { return &quot;hello&quot;; } };
-console.log(obj2.__proto__() === &quot;hello&quot;); //true
-
-var obj3 = { [&quot;__prot&quot; + &quot;o__&quot;]: 17 };
-console.log(obj3.__proto__ === 17); //true
-</code></pre>
-<p>还有一点就是对象字面量虽然和 <code>JSON</code> 很像，但他们不是同一个东西，主要不同点有以下：</p>
-<ul>
-<li><code>JSON</code> 只允许 <code>&quot;property&quot;: value syntax</code> 形式的属性定义。属性名必须用双引号括起来。且属性定义不允许使用简便写法。</li>
-<li><code>JSON</code> 中，属性的值仅允许字符串，数字，数组，<code>true</code>，<code>false</code>，<code>null</code> 或其他（<code>JSON</code>）对象。</li>
-<li><code>JSON</code> 中，不允许将值设置为函数。</li>
-<li><code>Date</code> 等对象，经 <code>JSON.parse()</code> 处理后，会变成字符串。</li>
-<li><code>JSON.parse()</code> 不会处理计算的属性名，会当做错误抛出。</li>
-</ul>
-<h3 id="objectcreatenull-和">Object.create(null) 和 {...}</h3>
-<p>最后来说一说 <code>Object.create(null)</code> 和 <code>{...}</code> 的区别。</p>
-<p>其实很简单，<code>{}</code> 是一个继承自 <code>Object.prototype</code> 的空对象，它能够使用 <code>Object.prototype</code> 上定义的一些方法，比如 <code>hasOwnProperty()</code>，<code>toString()</code> 等。他的结果和 <code>new Object()</code>（可以传 <code>null</code> 或者 <code>undefined</code> 做参数） 或者 <code>Object.create(Object.prototype)</code> 是一样的。</p>
-<p>而 <code>Object.create(null)</code> 是以继承自 <code>null</code> 的对象，它是一个没有任何属性，包括 <code>[[prototype]]</code>，包括原型的非常**“干净”** 的对象，和 <code>{__porot__: null}</code> 是一样的（不建议用这种方式设置原型）。在 <code>chrome</code> 中打印这个对象然后展开会显示 <code>No properties</code>。</p>
-<p>所以他们唯一的区别就是一个有 <code>[[prototype]]</code>，另一个没有。不过我个人认为这是没什么影响的，定义和原型上同名的方法会覆盖原型的方法，而且 <code>Object.prototype</code> 上的所有属性和方法都是不可枚举的，所以 <code>for ... in</code> 也是不会访问到多原型上的属性。两者之间应该也没有很大的性能差异。我也是在想不出有什么不得不用 <code>Object.create(null)</code> 的场景，除非你不希望自己的对象上有除了自己定义以外的能访问的属性🤔。</p>
-<p>所以我觉得日常编码中使用哪个都可以，对象字面量肯定更方便。<code>Object.create(null)</code> 可以创建一个更干净的对象，但是由于 <code>Object.prototpye</code> 上的属性都不可枚举，其实也不会产生影响，可以放心使用。</p>
-<h3 id="参考文章">参考文章</h3>
-<ol>
-<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object" title="Object - MDN">Object - MDN</a></li>
-<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/Object_initializer" title="对象字面量">对象字面量</a></li>
-<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/create" title="Object.create()">Object.create()</a></li>
-<li><a href="https://juejin.im/post/6844903589815517192" title="详解 Object.create(null)">详解 Object.create(null)</a></li>
 </ol>
 ]]></content>
     </entry>
